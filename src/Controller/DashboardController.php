@@ -19,7 +19,6 @@ class DashboardController extends AbstractController
     private const PLAYER_NAME = 'VincentS';
 
     /**
-     * @return Response
      * @throws GuzzleException
      */
     #[Route(path: '/', name: 'index')]
