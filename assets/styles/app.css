@@ -87,6 +87,11 @@ body {
     font-weight: 400;
 }
 
+.activity-page .adventure-log-item-details {
+    font-size: 17px;
+    font-weight: 300;
+}
+
 .custom-card-footer {
     border-top: 0 !important;
 }
@@ -225,6 +230,11 @@ body {
     box-shadow: inset 0 1px 2px rgb(0 0 0 / 10%);
 }
 
+.player-name-search-box::placeholder {
+    color: #6e7879;
+    font-size: 14px;
+}
+
 .player-name-search-button {
     display: inline-block;
     margin: 0 0 0 -5px;
@@ -235,4 +245,66 @@ body {
 
 .player-name-search-button i {
     font-size: 15px;
+}
+
+.side-menu-item:first-child {
+    border-top: none;
+}
+
+.side-menu-item:last-child {
+    border-bottom: none;
+}
+
+.side-menu-item {
+    background-color: #071f2a;
+    font-size: .9rem;
+    color: #b2dbee !important;
+    line-height: inherit;
+    text-decoration: none;
+    font-weight: normal;
+    padding: 15px 5px 15px 20px;
+    border-right: none;
+    border-left: none;
+}
+
+.side-menu-item:hover {
+    background-color: #071f2a;
+    color: white !important;
+    cursor: pointer;
+}
+
+.side-menu-item.active {
+    color: #e1bb34 !important;
+    background: #000;
+    border-bottom: inherit;
+}
+
+.side-menu-item.active:hover {
+    color: #fff !important;
+    border-bottom: inherit;
+}
+
+.side-menu-icon {
+    font-size: 18px;
+}
+
+.side-menu-title {
+    font-size: 15px;
+}
+
+.side-menu-item-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.side-menu-item-link .list-group-item {
+    border: none !important;
+}
+
+.overwrite-list-group-border {
+    --bs-list-group-border-color: unset;
+}
+
+.no-border {
+    border: none;
 }

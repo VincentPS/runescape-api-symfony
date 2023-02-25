@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Runescape Dashboard - Summary{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {% include 'includes/header.html.twig' %}
+
+        <!-- Main Section -->
+        <div class="row pt-1">
+            {% include 'includes/sidemenu.html.twig' %}
+
+            <!-- Summary -->
+            <div class="col-10 ps-0 activity-page">
+                <div class="card card-wrapper">
+                    <div class="card-header no-border">
+                        <h2>Activity</h2>
+                    </div>
+                    <div class="card-body main-card">
+                        <div class="row">
+                            {% for adventureLogItem in activities %}
+                                <div class="row">
+                                    <div class="col-2"></div>
+                                    <div class="col-8 p-2 pt-1">
+                                        <div class="card sub-card">
+                                            <div class="card-header">
+                                                <h2>
+                                                    {% set skill = get_skill_name(adventureLogItem.text) %}
+                                                    {% if skill %}
+                                                        <img src="https://runescape.wiki/images/{{ skill }}-icon.png"
+                                                             class="skill-icon"
+                                                             alt="{{ skill }}"
+                                                             title="{{ skill }}">
+                                                    {% else %}
+                                                        <img src="https://runescape.wiki/images/Task_icon.png"
+                                                             class="skill-icon"
+                                                             alt="Achievement"
+                                                             title="Achievement">
+                                                    {% endif %}
+                                                    {% if adventureLogItem.text is not null and adventureLogItem.text is not empty %}
+                                                        {% if 'XP' in adventureLogItem.text %}
+                                                            {{ adventureLogItem.text|split('XP')|first|number_format }} XP{{ adventureLogItem.text|split('XP')|last|trim('.') }}
+                                                        {% else %}
+                                                            {{ adventureLogItem.text|trim('.') }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </h2>
+                                            </div>
+                                            <div class="card-body sub-card inner-card">
+                                                <div class="list-group">
+                                                    <div class="list-group-item list-group-item-action">
+                                                        <div class="row align-items-center">
+                                                            <div class="col ps-0">
+                                                                <div class="d-flex w-100 justify-content-between">
+                                                                    <h5 class="mb-0 ps-3 adventure-log-item-details">
+                                                                        {% set matches = adventureLogItem.details|preg_match('/([0-9,]+) experience points? in the (.+) skill\./') %}
+                                                                        {% if matches is not empty %}
+                                                                            I now have at least {{ matches[1]|number_format }} experience points in the {{ matches[2] }} skill.
+                                                                        {% else %}
+                                                                            {{ adventureLogItem.details }}
+                                                                        {% endif %}
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-2"></div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

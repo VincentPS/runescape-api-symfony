@@ -43,6 +43,8 @@ class RsApiService
      */
     public function getProfile(string $player, int $amountOfActivityItems = 5): PlayerInfo
     {
+        $player = trim($player);
+
         $client = new Client();
 
         $response = $client->request(
@@ -68,7 +70,8 @@ class RsApiService
         $questsStarted = 0;
         $questsNotStarted = 0;
 
-        array_filter($quests->getQuests(),
+        array_filter(
+            $quests->getQuests(),
             function ($quest) use (&$questsCompleted, &$questsStarted, &$questsNotStarted) {
                 match ($quest->getStatus()) {
                     QuestStatus::Completed => $questsCompleted++,
@@ -76,7 +79,8 @@ class RsApiService
                     QuestStatus::NotStarted => $questsNotStarted++,
                     null => null
                 };
-            });
+            }
+        );
 
         $skills = $playerInfo->getSkillValues();
 
