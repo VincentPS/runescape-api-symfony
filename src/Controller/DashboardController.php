@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Exception\PlayerDataHttpException;
-use App\Service\RsApi;
+use App\Service\RsApiService;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,12 +23,12 @@ class DashboardController extends AbstractController
 
     /**
      * @param ChartBuilderInterface $chartBuilder
-     * @param RsApi $rsApi
+     * @param RsApiService $rsApi
      * @return Response
      * @throws GuzzleException
      */
     #[Route(path: '/', name: 'index')]
-    public function chartjs(ChartBuilderInterface $chartBuilder, RsApi $rsApi): Response
+    public function chartjs(ChartBuilderInterface $chartBuilder, RsApiService $rsApi): Response
     {
 
         $chart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
