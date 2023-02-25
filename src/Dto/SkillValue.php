@@ -52,7 +52,7 @@ class SkillValue
      */
     public function getXp(): ?int
     {
-        return $this->xp;
+        return $this->xp / 10;
     }
 
     /**
