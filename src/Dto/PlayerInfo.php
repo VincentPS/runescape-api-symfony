@@ -10,12 +10,18 @@ class PlayerInfo
     private ?int $combatLevel = null;
     private ?string $name = null;
     private ?string $clan = null;
+    private ?int $questsCompleted = null;
+    private ?int $questsStarted = null;
+    private ?int $questsNotStarted = null;
 
     /** @var Activity[]|null */
     private ?array $activities = [];
 
     /** @var SkillValue[]|null */
     private ?array $skillValues = [];
+
+    /** @var Quest[]|null */
+    private ?array $quests = [];
 
     /**
      * @return int|null
@@ -178,6 +184,78 @@ class PlayerInfo
     public function setClan(?string $clan): PlayerInfo
     {
         $this->clan = $clan;
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getQuests(): ?array
+    {
+        return $this->quests;
+    }
+
+    /**
+     * @param array|null $quests
+     * @return PlayerInfo
+     */
+    public function setQuests(?array $quests): PlayerInfo
+    {
+        $this->quests = $quests;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getQuestsCompleted(): ?int
+    {
+        return $this->questsCompleted;
+    }
+
+    /**
+     * @param int|null $questsCompleted
+     * @return PlayerInfo
+     */
+    public function setQuestsCompleted(?int $questsCompleted): PlayerInfo
+    {
+        $this->questsCompleted = $questsCompleted;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getQuestsStarted(): ?int
+    {
+        return $this->questsStarted;
+    }
+
+    /**
+     * @param int|null $questsStarted
+     * @return PlayerInfo
+     */
+    public function setQuestsStarted(?int $questsStarted): PlayerInfo
+    {
+        $this->questsStarted = $questsStarted;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getQuestsNotStarted(): ?int
+    {
+        return $this->questsNotStarted;
+    }
+
+    /**
+     * @param int|null $questsNotStarted
+     * @return PlayerInfo
+     */
+    public function setQuestsNotStarted(?int $questsNotStarted): PlayerInfo
+    {
+        $this->questsNotStarted = $questsNotStarted;
         return $this;
     }
 }

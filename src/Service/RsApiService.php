@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Dto\PlayerInfo;
+use App\Dto\QuestResponse;
+use App\Enum\QuestStatus;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
@@ -13,14 +15,9 @@ use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class RsApiService
 {
-    private string $clanUrl = 'https://services.runescape.com/m=clan-hiscores/members_lite.ws?clanName=%s';
     private Serializer $serializer;
 
     public function __construct()
@@ -40,13 +37,94 @@ class RsApiService
 
     /**
      * @param string $player
+     * @param int $amountOfActivityItems
      * @return PlayerInfo
      * @throws GuzzleException
      */
-    public function getProfile(string $player): PlayerInfo
+    public function getProfile(string $player, int $amountOfActivityItems = 5): PlayerInfo
     {
         $client = new Client();
 
+        $response = $client->request(
+            'GET',
+            'https://apps.runescape.com/runemetrics/profile/profile',
+            [
+                RequestOptions::QUERY => [
+                    'user' => $player,
+                    'activities' => $amountOfActivityItems,
+//                     't' => time()
+                ]
+            ]
+        );
+
+        /** @var PlayerInfo $playerInfo */
+        $playerInfo = $this->serializer->deserialize(
+            $response->getBody()->getContents(),
+            PlayerInfo::class,
+            'json'
+        );
+
+        $quests = $this->getQuests($player);
+        $questsCompleted = 0;
+        $questsStarted = 0;
+        $questsNotStarted = 0;
+
+        array_filter($quests->getQuests(),
+            function ($quest) use (&$questsCompleted, &$questsStarted, &$questsNotStarted) {
+                match ($quest->getStatus()) {
+                    QuestStatus::Completed => $questsCompleted++,
+                    QuestStatus::Started => $questsStarted++,
+                    QuestStatus::NotStarted => $questsNotStarted++
+                };
+            });
+
+        $skills = $playerInfo->getSkillValues();
+
+        usort($skills, function ($a, $b) {
+            return $a->getId()->value - $b->getId()->value;
+        });
+
+        $playerInfo
+            ->setSkillValues($skills)
+            ->setClan($this->getClanName($player))
+            ->setQuests($quests->getQuests())
+            ->setQuestsCompleted($questsCompleted)
+            ->setQuestsStarted($questsStarted)
+            ->setQuestsNotStarted($questsNotStarted);
+
+        return $playerInfo;
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function getQuests(string $player): QuestResponse
+    {
+        $client = new Client();
+
+        $response = $client->request(
+            'GET',
+            'https://apps.runescape.com/runemetrics/quests',
+            [
+                RequestOptions::QUERY => [
+                    'user' => $player
+                ]
+            ]
+        );
+
+        return $this->serializer->deserialize(
+            $response->getBody()->getContents(),
+            QuestResponse::class,
+            'json'
+        );
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function getClanName(string $player): string
+    {
+        $client = new Client();
         $response = $client->request(
             'GET',
             'https://services.runescape.com/m=website-data/playerDetails.ws',
@@ -64,75 +142,15 @@ class RsApiService
             $response->getBody()->getContents(),
             $playerDetails
         );
-        $clan = $this->serializer->decode($playerDetails[1], 'json')[0]['clan'];
 
-        $response = $client->request(
-            'GET',
-            'https://apps.runescape.com/runemetrics/profile/profile',
-            [
-                RequestOptions::QUERY => [
-                    'user' => $player,
-                    'activities' => 25,
-                    // 't' => time() use to force refresh of data
-                ]
-            ]
-        );
+        if (!empty($playerDetails) && array_key_exists(1, $playerDetails)) {
+            $playerDetails = $this->serializer->decode($playerDetails[1], 'json')[0];
 
-        /** @var PlayerInfo $playerInfo */
-        $playerInfo = $this->serializer->deserialize(
-            $response->getBody()->getContents(),
-            PlayerInfo::class,
-            'json'
-        );
-
-        $playerInfo->setClan($clan);
-
-        return $playerInfo;
-    }
-
-    /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ClientExceptionInterface
-     */
-    public function getClanList(string $clan, bool $onlyNames = false): ?array
-    {
-        $response = $this->client->request('GET', sprintf($this->clanUrl, $this->clean($clan)));
-
-        if ($response->getHeaders()['content-type'][0] !== 'text/comma-separated-values') {
-            return null;
-        }
-
-        $clanListCsv = $response->getContent();
-
-        $clanList = [];
-        $csvRows = explode("\n", $clanListCsv);
-
-        foreach ($csvRows as $key => $row) {
-            if ($key === 0 || $key >= count($csvRows) - 1) {
-                continue;
-            }
-
-            $columns = explode(',', $row);
-
-            if ($onlyNames === true) {
-                $clanList[] = $this->clean(utf8_encode($columns[0]));
-            } else {
-                $clanList[] = [
-                    'name' => $this->clean(utf8_encode($columns[0])),
-                    'rank' => $columns[1],
-                    'clan_xp' => $columns[2],
-                    'clan_kills' => $columns[3],
-                ];
+            if (array_key_exists('clan', $playerDetails)) {
+                return $playerDetails['clan'];
             }
         }
 
-        return $clanList;
-    }
-
-    private function clean(string $input): string
-    {
-        return \preg_replace('/[^A-Za-z0-9]++/', '_', strtolower($input));
+        return '';
     }
 }

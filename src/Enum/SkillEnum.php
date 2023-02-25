@@ -2,6 +2,8 @@
 
 namespace App\Enum;
 
+use ReflectionClass;
+
 enum SkillEnum: int
 {
     case Attack = 0;
@@ -32,4 +34,18 @@ enum SkillEnum: int
     case Divination = 25;
     case Invention = 26;
     case Archaeology = 27;
+
+    /**
+     * @return array<int, string>
+     */
+    public static function toArray(): array
+    {
+        $skills = [];
+
+        foreach (self::cases() as $case) {
+            $skills[$case->name] = $case->value;
+        }
+
+        return $skills;
+    }
 }

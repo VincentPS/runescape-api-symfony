@@ -1,9 +1,33 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="container-fluid pt-3">
+    <div class="container-fluid">
+        <!-- Header -->
         <div class="row">
             <div class="col-12">
+                <div class="card card-wrapper">
+                    <div class="card-body pe-3 ps-3 pb-1 pt-1">
+                        <div class="row">
+                            <div class="d-flex justify-content-end">
+                                {{ form(form) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Section -->
+        <div class="row pt-1">
+            <!-- Side Menu -->
+            <div class="col-2 pe-1">
+                <div class="card card-wrapper">
+                    <div class="card-body"></div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="col-10 ps-0">
                 <div class="card card-wrapper">
                     <div class="card-body main-card">
                         <div class="row">
@@ -30,7 +54,7 @@
                                                         <div class="d-flex w-100 justify-content-between">
                                                             <h5 class="mb-0">Time played</h5>
                                                             <p class="mb-0 adventure-log-item-time">
-                                                                630 days, 2 hours
+                                                                NaN
                                                             </p>
                                                         </div>
                                                     </div>
@@ -51,23 +75,41 @@
                                                 <div class="list-group">
                                                     {% for adventureLogItem in playerInfo.activities %}
                                                         <div class="list-group-item list-group-item-action">
-                                                            <div class="d-flex w-100 justify-content-between">
-                                                                <h5 class="mb-0">
-                                                                    {% if adventureLogItem.text is not null and adventureLogItem.text is not empty %}
-                                                                        {% if 'XP' in adventureLogItem.text %}
-                                                                            {{ adventureLogItem.text|split('XP')|first|number_format }} XP{{ adventureLogItem.text|split('XP')|last|trim('.') }}
-                                                                        {% else %}
-                                                                            {{ adventureLogItem.text|trim('.') }}
-                                                                        {% endif %}
+                                                            <div class="row align-items-center">
+                                                                <div class="col-auto pe-0">
+                                                                    {% set skill = get_skill_name(adventureLogItem.text) %}
+                                                                    {% if skill %}
+                                                                        <img src="https://runescape.wiki/images/{{ skill }}-icon.png"
+                                                                             class="skill-icon"
+                                                                             alt="{{ skill }}"
+                                                                             title="{{ skill }}">
+                                                                    {% else %}
+                                                                        <img src="https://runescape.wiki/images/Task_icon.png"
+                                                                             class="skill-icon"
+                                                                             alt="Achievement"
+                                                                             title="Achievement">
                                                                     {% endif %}
-                                                                </h5>
+                                                                </div>
+                                                                <div class="col ps-0">
+                                                                    <div class="d-flex w-100 justify-content-between">
+                                                                        <h5 class="mb-0">
+                                                                            {% if adventureLogItem.text is not null and adventureLogItem.text is not empty %}
+                                                                                {% if 'XP' in adventureLogItem.text %}
+                                                                                    {{ adventureLogItem.text|split('XP')|first|number_format }} XP{{ adventureLogItem.text|split('XP')|last|trim('.') }}
+                                                                                {% else %}
+                                                                                    {{ adventureLogItem.text|trim('.') }}
+                                                                                {% endif %}
+                                                                            {% endif %}
+                                                                        </h5>
+                                                                    </div>
+                                                                    <p class="mb-0 adventure-log-item-time">
+                                                                        <small>
+                                                                            <i class="fa-regular fa-clock"></i>
+                                                                            {{ adventureLogItem.date|date('d-M-Y H:i') }}
+                                                                        </small>
+                                                                    </p>
+                                                                </div>
                                                             </div>
-                                                            <p class="mb-0 adventure-log-item-time">
-                                                                <small>
-                                                                    <i class="fa-regular fa-clock"></i>
-                                                                    {{ adventureLogItem.date|date('d-M-Y H:i') }}
-                                                                </small>
-                                                            </p>
                                                         </div>
                                                     {% endfor %}
                                                     <div class="list-group-item list-group-item-action adventure-log-item custom-card-footer">
@@ -78,7 +120,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                {#                                        <p class="card-text">{{ render_chart(chart) }}</p> #}
                                             </div>
                                         </div>
                                     </div>
@@ -133,12 +174,13 @@
                                                             <img src="https://runescape.wiki/images/{{ skill.id.name }}-icon.png"
                                                                  class="skill-icon" alt="{{ skill.id.name }}"
                                                                  title="{{ skill.id.name }} {{ skill.xp|number_format }} XP">
-                                                            <span title="{{ skill.id.name }} {{ skill.xp|number_format }} XP">
+                                                            <span title="{{ skill.id.name }} {{ skill.xp|number_format }} XP"
+                                                                  class="skill-level">
                                                                 {{ skill.level }}
                                                             </span>
                                                             <br>
                                                             <span title="{{ skill.id.name }} {{ skill.xp|number_format }} XP"
-                                                                  class="skill-xp">
+                                                                  class="skill-xp mt-1">
                                                                 {{ skill.xp|number_format }} XP
                                                             </span>
                                                         </div>
@@ -153,7 +195,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        {#                                        <p class="card-text">{{ render_chart(chart) }}</p> #}
                                     </div>
                                 </div>
                             </div>
@@ -162,24 +203,26 @@
                             <div class="col-4 p2">
                                 <!-- Clan Info -->
                                 <div class="row">
-                                    <div class="col-12 p-2">
-                                        <div class="card sub-card">
-                                            <div class="card-header clan-card-header">
-                                                <a href="https://services.runescape.com/m=clan-home/clan/{{ playerInfo.clan }}"
-                                                   target="_blank">
-                                                    <img src="https://secure.runescape.com/m=avatar-rs/{{ playerInfo.name }}/ownclan.png"
-                                                         alt="{{ playerInfo.clan }} avatar"
-                                                         title="{{ playerInfo.clan }} avatar"
-                                                         class="clan-banner">
-                                                </a>
-                                                <br>
-                                                <a href="https://services.runescape.com/m=clan-home/clan/{{ playerInfo.clan }}"
-                                                   class="clan-name-link" target="_blank">
-                                                    <h2 class="clan-name">{{ playerInfo.clan }}</h2>
-                                                </a>
+                                    {% if playerInfo.clan %}
+                                        <div class="col-12 p-2">
+                                            <div class="card sub-card">
+                                                <div class="card-header clan-card-header">
+                                                    <a href="https://services.runescape.com/m=clan-home/clan/{{ playerInfo.clan }}"
+                                                       target="_blank">
+                                                        <img src="https://secure.runescape.com/m=avatar-rs/{{ playerInfo.name }}/ownclan.png"
+                                                             alt="{{ playerInfo.clan }} avatar"
+                                                             title="{{ playerInfo.clan }} avatar"
+                                                             class="clan-banner">
+                                                    </a>
+                                                    <br>
+                                                    <a href="https://services.runescape.com/m=clan-home/clan/{{ playerInfo.clan }}"
+                                                       class="clan-name-link" target="_blank">
+                                                        <h2 class="clan-name">{{ playerInfo.clan }}</h2>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    {% endif %}
                                 </div>
 
                                 <!-- Quests -->
@@ -204,7 +247,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                {#                                        <p class="card-text">{{ render_chart(chart) }}</p> #}
                                             </div>
                                         </div>
                                     </div>
