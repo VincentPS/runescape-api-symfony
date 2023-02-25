@@ -51,8 +51,7 @@ class RsApiService
             [
                 RequestOptions::QUERY => [
                     'user' => $player,
-                    'activities' => $amountOfActivityItems,
-//                     't' => time()
+                    'activities' => $amountOfActivityItems
                 ]
             ]
         );
@@ -74,7 +73,8 @@ class RsApiService
                 match ($quest->getStatus()) {
                     QuestStatus::Completed => $questsCompleted++,
                     QuestStatus::Started => $questsStarted++,
-                    QuestStatus::NotStarted => $questsNotStarted++
+                    QuestStatus::NotStarted => $questsNotStarted++,
+                    null => null
                 };
             });
 
