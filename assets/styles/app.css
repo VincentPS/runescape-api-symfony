@@ -1,0 +1,191 @@
+body {
+    background-color: #010B10;
+    -webkit-font-smoothing: antialiased;
+    font-family: Roboto, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.card-wrapper {
+    border: 1px solid #2c3d49;
+    --bs-card-bg: #071f2a;
+    --bs-card-border-radius: 0;
+}
+
+.main-card {
+    background-color: #071f2a;
+    overflow: hidden;
+}
+
+.sub-card {
+    background-color: #02131A;
+    border-radius: 0;
+}
+
+.card-header {
+    color: #e1bb34;
+    font-family: cinzel, serif;
+    font-style: normal;
+    font-weight: 700;
+    text-rendering: optimizeLegibility;
+    border: 1px solid #2c3d49;
+    letter-spacing: -0.05em;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.card-header:first-child {
+    border-radius: 0;
+}
+
+.card-header h2 {
+    color: #e1bb34;
+    font-style: normal;
+    font-weight: 700;
+    text-rendering: optimizeLegibility;
+    font-size: 1.4em;
+    line-height: 2em;
+}
+
+.inner-card {
+    padding: 0;
+}
+
+.inner-card .list-group {
+    --bs-list-group-border-color: unset;
+    border-right: 1px solid #2c3d49;
+    border-left: 1px solid #2c3d49;
+    --bs-list-group-action-hover-color: unset;
+    --bs-list-group-action-hover-bg:unset;
+    --bs-list-group-action-active-color: unset;
+    --bs-list-group-action-active-bg: unset;
+    --bs-list-group-border-radius: 0;
+}
+
+.list-group-item:first-child, .list-group-item:last-child {
+    border-radius: 0;
+    border-top: 1px solid #2c3d49;
+}
+
+.list-group-item {
+    background-color: #02131A;
+    border-bottom: 1px solid #2c3d49;
+}
+
+.list-group-item h5 {
+    color: white;
+    font-size: .875rem;
+    line-height: 1.6;
+    list-style-position: outside;
+    margin-bottom: 1.25rem;
+}
+
+.adventure-log-item-time {
+    display: inline-block;
+    color: #6e7879;
+    font-weight: 400;
+}
+
+.custom-card-footer {
+    border-top: 0 !important;
+}
+
+.card-footer-link {
+    position: relative;
+    float: right;
+    padding: 5px 10px 5px;
+    color: #e1bb34;
+    line-height: inherit;
+    text-decoration: none;
+    font-size: .9em;
+}
+
+.card-footer-link::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid #e1bb34;
+}
+
+.skills-container-container {
+    border-top: 0 !important;
+}
+
+.skills-container {
+    flex-wrap: wrap;
+    font-size: .9em;
+    background: rgba(44,61,73,.21);
+}
+
+.skill-icon-container {
+    width: 25%;
+    box-sizing: border-box;
+    padding: 5px;
+    color: #6e7879;
+    border: 5px solid #02131A;
+    display: inline-block;
+    justify-content: center;
+}
+
+.skill-xp {
+    font-size: 13px;
+    font-style: italic;
+}
+
+.skill-icon {
+    width: 40px;
+    height: 25px;
+    padding-right: 15px;
+}
+
+.avatar-container-wrap {
+    float: left;
+    position: relative;
+    width: 65px;
+    height: 65px;
+    margin: 5px 10px 10px 0;
+    padding: 1px;
+    background: linear-gradient(#010b10,#02131a);
+    border: 1px solid #2c3d49;
+    border-radius: 50%;
+    box-shadow: inset 0 0 5px 5px #141414, 0 0 5px 5px rgb(0 0 0 / 30%);
+    clear: both;
+}
+
+.avatar-img {
+    max-width: 100%;
+    height: auto;
+}
+
+.quest-chart {
+    max-width: 50% !important;
+    margin: auto;
+}
+
+.clan-card-header {
+    border-bottom: 1px solid #2c3d49;
+    padding-top: 0;
+}
+
+.clan-banner {
+    min-width: 190px;
+    height: 87px;
+    display: block;
+    margin: auto;
+}
+
+.clan-name {
+    text-align: center;
+    font-size: 1.2em !important;
+    color: #fff !important;
+}
+
+.clan-name-link {
+    text-decoration: none;
+}
