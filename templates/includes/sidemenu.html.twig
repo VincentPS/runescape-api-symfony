@@ -5,7 +5,8 @@
     <div class="card card-wrapper">
         <div class="card-body p-0">
             <div class="list-group overwrite-list-group-border">
-                <a href="{{ path('app_dashboard_summary', {'playerName': searchPlayerName}) }}" class="side-menu-item-link">
+                <a href="{{ path('app_dashboard_summary', {'playerName': searchPlayerName}) }}"
+                   class="side-menu-item-link">
                     <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_summary' ? 'active' : '' }}">
                         <div class="d-flex w-100">
                             <i class="fa-solid fa-house side-menu-icon"></i>
@@ -19,7 +20,8 @@
                         <span class="side-menu-title ms-4">&nbsp;XP and Levels</span>
                     </div>
                 </div>
-                <a href="{{ path('app_dashboard_activity', {'playerName': searchPlayerName}) }}" class="side-menu-item-link">
+                <a href="{{ path('app_dashboard_activity', {'playerName': searchPlayerName}) }}"
+                   class="side-menu-item-link">
                     <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_activity' ? 'active' : '' }}">
                         <div class="d-flex w-100">
                             <i class="fa-solid fa-book-open side-menu-icon"></i>
