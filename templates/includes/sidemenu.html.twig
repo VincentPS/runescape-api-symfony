@@ -14,12 +14,15 @@
                         </div>
                     </div>
                 </a>
-                <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_xp_and_levels' ? 'active' : '' }}">
-                    <div class="d-flex w-100">
-                        <i class="fa-solid fa-chart-simple side-menu-icon"></i>
-                        <span class="side-menu-title ms-4">&nbsp;XP and Levels</span>
+                <a href="{{ path('app_dashboard_levels', {'playerName': searchPlayerName}) }}"
+                   class="side-menu-item-link">
+                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_levels' ? 'active' : '' }}">
+                        <div class="d-flex w-100">
+                            <i class="fa-solid fa-chart-simple side-menu-icon"></i>
+                            <span class="side-menu-title ms-4">&nbsp;Levels</span>
+                        </div>
                     </div>
-                </div>
+                </a>
                 <a href="{{ path('app_dashboard_activity', {'playerName': searchPlayerName}) }}"
                    class="side-menu-item-link">
                     <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_activity' ? 'active' : '' }}">

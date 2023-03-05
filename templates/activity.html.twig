@@ -60,6 +60,12 @@
                                                                             {{ adventureLogItem.details }}
                                                                         {% endif %}
                                                                     </h5>
+                                                                    <p class="mb-0 adventure-log-item-time ms-4">
+                                                                        <small>
+                                                                            <i class="fa-regular fa-clock"></i>
+                                                                            {{ adventureLogItem.date|date('d-M-Y H:i') }}
+                                                                        </small>
+                                                                    </p>
                                                                 </div>
                                                             </div>
                                                         </div>

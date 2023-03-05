@@ -87,6 +87,10 @@ body {
     font-weight: 400;
 }
 
+.activity-page .adventure-log-item-time {
+    min-width: 9rem;
+}
+
 .activity-page .adventure-log-item-details {
     font-size: 17px;
     font-weight: 300;
@@ -247,8 +251,8 @@ body {
     font-size: 15px;
 }
 
-.side-menu-item:first-child {
-    border-top: none;
+.side-menu-item {
+    border-top: none !important;
 }
 
 .side-menu-item:last-child {

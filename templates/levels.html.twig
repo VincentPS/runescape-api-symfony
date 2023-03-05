@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Runescape Dashboard - Levels{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {% include 'includes/header.html.twig' %}
+
+        <!-- Main Section -->
+        <div class="row pt-1">
+            {% include 'includes/sidemenu.html.twig' %}
+
+            <!-- Summary -->
+            <div class="col-10 ps-0">
+                <div class="card card-wrapper">
+                    <div class="card-body main-card">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card sub-card">
+                                    <div class="card-header">
+                                        <h2>TOTAL XP</h2>
+                                    </div>
+                                    <div class="card-body sub-card inner-card">
+                                        <div class="list-group">
+                                            <div class="list-group-item list-group-item-action">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                   {{ render_chart(chart) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

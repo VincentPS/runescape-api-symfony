@@ -2,14 +2,19 @@
 
 namespace App\Service;
 
-use App\Dto\PlayerInfo;
-use App\Dto\QuestResponse;
+use App\Entity\Player;
+use App\Enum\KnownPlayers;
 use App\Enum\QuestStatus;
+use App\Message\HandleDataPointPersist;
+use Doctrine\Common\Annotations\AnnotationReader;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
@@ -19,35 +24,48 @@ use Symfony\Component\Serializer\Serializer;
 class RsApiService
 {
     private Serializer $serializer;
+    private Client $client;
 
-    public function __construct()
-    {
+    public function __construct(
+        GuzzleCachedClient $client,
+        private readonly MessageBusInterface $messageBus
+    ) {
+        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+
         $this->serializer = new Serializer(
             [
                 new DateTimeNormalizer(),
                 new ArrayDenormalizer(),
                 new BackedEnumNormalizer(),
-                new ObjectNormalizer(propertyTypeExtractor: new ReflectionExtractor())
+                new ObjectNormalizer(
+                    classMetadataFactory: $classMetadataFactory,
+                    propertyTypeExtractor: new ReflectionExtractor()
+                )
             ],
             [
                 new JsonEncoder()
             ]
         );
+
+        $this->client = $client->new();
     }
 
     /**
      * @param string $player
      * @param int $amountOfActivityItems
-     * @return PlayerInfo
+     * @param bool $doUpdateCheck
+     * @return Player
      * @throws GuzzleException
      */
-    public function getProfile(string $player, int $amountOfActivityItems = 5): PlayerInfo
+    public function getProfile(string $player, int $amountOfActivityItems = 5, bool $doUpdateCheck = true): Player
     {
         $player = trim($player);
 
-        $client = new Client();
+        if (empty($player)) {
+            $player = KnownPlayers::VincentS->value;
+        }
 
-        $response = $client->request(
+        $response = $this->client->request(
             'GET',
             'https://apps.runescape.com/runemetrics/profile/profile',
             [
@@ -58,43 +76,42 @@ class RsApiService
             ]
         );
 
-        /** @var PlayerInfo $playerInfo */
+        $jsonBody = $response->getBody()->getContents();
+        $jsonDecoded = $this->serializer->decode($jsonBody, 'json');
+        $jsonDecoded['quests'] = $this->getQuests($player);
+
+        /** @var Player $playerInfo */
         $playerInfo = $this->serializer->deserialize(
-            $response->getBody()->getContents(),
-            PlayerInfo::class,
-            'json'
+            $this->serializer->encode($jsonDecoded, 'json'),
+            Player::class,
+            'json',
         );
 
-        $quests = $this->getQuests($player);
         $questsCompleted = 0;
         $questsStarted = 0;
         $questsNotStarted = 0;
 
         array_filter(
-            $quests->getQuests(),
+            $jsonDecoded['quests'],
             function ($quest) use (&$questsCompleted, &$questsStarted, &$questsNotStarted) {
-                match ($quest->getStatus()) {
-                    QuestStatus::Completed => $questsCompleted++,
-                    QuestStatus::Started => $questsStarted++,
-                    QuestStatus::NotStarted => $questsNotStarted++,
-                    null => null
+                match ($quest['status']) {
+                    QuestStatus::Completed->value => $questsCompleted++,
+                    QuestStatus::Started->value => $questsStarted++,
+                    QuestStatus::NotStarted->value => $questsNotStarted++,
+                    default => null,
                 };
             }
         );
 
-        $skills = $playerInfo->getSkillValues();
-
-        usort($skills, function ($a, $b) {
-            return $a->getId()->value - $b->getId()->value;
-        });
-
         $playerInfo
-            ->setSkillValues($skills)
             ->setClan($this->getClanName($player))
-            ->setQuests($quests->getQuests())
             ->setQuestsCompleted($questsCompleted)
             ->setQuestsStarted($questsStarted)
             ->setQuestsNotStarted($questsNotStarted);
+
+        if ($doUpdateCheck) {
+            $this->messageBus->dispatch(new HandleDataPointPersist($playerInfo));
+        }
 
         return $playerInfo;
     }
@@ -102,11 +119,9 @@ class RsApiService
     /**
      * @throws GuzzleException
      */
-    public function getQuests(string $player): QuestResponse
+    public function getQuests(string $player): array
     {
-        $client = new Client();
-
-        $response = $client->request(
+        $response = $this->client->request(
             'GET',
             'https://apps.runescape.com/runemetrics/quests',
             [
@@ -116,11 +131,7 @@ class RsApiService
             ]
         );
 
-        return $this->serializer->deserialize(
-            $response->getBody()->getContents(),
-            QuestResponse::class,
-            'json'
-        );
+        return $this->serializer->decode($response->getBody()->getContents(), 'json')['quests'];
     }
 
     /**
@@ -128,14 +139,13 @@ class RsApiService
      */
     public function getClanName(string $player): string
     {
-        $client = new Client();
-        $response = $client->request(
+        $response = $this->client->request(
             'GET',
             'https://services.runescape.com/m=website-data/playerDetails.ws',
             [
                 RequestOptions::QUERY => [
                     'membership' => true,
-                    'names' => $this->serializer->serialize([$player], 'json'),
+                    'names' => $this->serializer->encode([$player], 'json'),
                     'callback' => 'angular.callbacks._0'
                 ]
             ]
