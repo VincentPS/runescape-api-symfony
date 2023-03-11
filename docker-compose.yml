@@ -8,10 +8,9 @@ services:
       # You should definitely change the password in production
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
       POSTGRES_USER: ${POSTGRES_USER:-app}
-#    volumes:
-#      - database_data:/var/lib/postgresql/data:rw
-
-volumes:
-###> doctrine/doctrine-bundle ###
-  database_data:
-###< doctrine/doctrine-bundle ###
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+  cronjobs:
+    image: alpine:latest
+    volumes:
+      - cronjobs_data:/var/lib/postgresql/data:rw

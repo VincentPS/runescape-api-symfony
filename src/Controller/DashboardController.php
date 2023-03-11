@@ -41,6 +41,12 @@ class DashboardController extends AbstractController
         $playerName = $form->getData()['playerName'] ?? $request->get('playerName') ?: KnownPlayers::VincentS->value;
         $playerInfo = $playerRepository->findLatestByName($playerName);
 
+        if (is_null($playerInfo)) {
+            $messageBus->dispatch(new FetchLatestApiData($playerName));
+
+            return $this->redirectToRoute('app_dashboard_summary');
+        }
+
         $chart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT)
             ->setOptions(['color' => 'rgb(255, 255, 255)'])
             ->setData([
