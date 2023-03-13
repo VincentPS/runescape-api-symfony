@@ -1,0 +1,82 @@
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        types:
+            bool[]: MartinGeorgiev\Doctrine\DBAL\Types\BooleanArray
+            smallint[]: MartinGeorgiev\Doctrine\DBAL\Types\SmallIntArray
+            integer[]: MartinGeorgiev\Doctrine\DBAL\Types\IntegerArray
+            bigint[]: MartinGeorgiev\Doctrine\DBAL\Types\BigIntArray
+            text[]: MartinGeorgiev\Doctrine\DBAL\Types\TextArray
+            jsonb: MartinGeorgiev\Doctrine\DBAL\Types\Jsonb
+            jsonb[]: MartinGeorgiev\Doctrine\DBAL\Types\JsonbArray
+            activity: App\Doctrine\Type\ActivityType
+            skillValue: App\Doctrine\Type\SkillValueType
+            quest: App\Doctrine\Type\QuestType
+        mapping_types:
+            bool[]: bool[]
+            _bool: bool[]
+            smallint[]: smallint[]
+            _int2: smallint[]
+            integer[]: integer[]
+            _int4: integer[]
+            bigint[]: bigint[]
+            _int8: bigint[]
+            text[]: text[]
+            _text: text[]
+            jsonb: jsonb
+            jsonb[]: jsonb[]
+            _jsonb: jsonb[]
+
+        # IMPORTANT: You MUST configure your server version,
+        # either here or in the DATABASE_URL env var (see .env file)
+    orm:
+        auto_generate_proxy_classes: true
+        enable_lazy_ghost_objects: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            App:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App
+        dql:
+            datetime_functions:
+                second: DoctrineExtensions\Query\Postgresql\Second
+                minute: DoctrineExtensions\Query\Postgresql\Minute
+                hour: DoctrineExtensions\Query\Postgresql\Hour
+                day: DoctrineExtensions\Query\Postgresql\Day
+                month: DoctrineExtensions\Query\Postgresql\Month
+                year: DoctrineExtensions\Query\Postgresql\Year
+                date_format: DoctrineExtensions\Query\Postgresql\DateFormat
+                at_time_zone: DoctrineExtensions\Query\Postgresql\AtTimeZoneFunction
+                date_part: DoctrineExtensions\Query\Postgresql\DatePart
+                extract: DoctrineExtensions\Query\Postgresql\ExtractFunction
+                date_trunc: DoctrineExtensions\Query\Postgresql\DateTrunc
+                date: DoctrineExtensions\Query\Postgresql\Date
+
+when@test:
+    doctrine:
+        dbal:
+            # "TEST_TOKEN" is typically set by ParaTest
+            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+
+when@prod:
+    doctrine:
+        orm:
+            auto_generate_proxy_classes: false
+            proxy_dir: '%kernel.build_dir%/doctrine/orm/Proxies'
+            query_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
+            result_cache_driver:
+                type: pool
+                pool: doctrine.result_cache_pool
+
+    framework:
+        cache:
+            pools:
+                doctrine.result_cache_pool:
+                    adapter: cache.app
+                doctrine.system_cache_pool:
+                    adapter: cache.system

@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-Enum QuestDifficulty: int
+enum QuestDifficulty: int
 {
     case Novice = 0;
     case Intermediate = 1;

@@ -87,6 +87,10 @@ body {
     font-weight: 400;
 }
 
+.activity-page .adventure-log-item-time {
+    min-width: 9rem;
+}
+
 .activity-page .adventure-log-item-details {
     font-size: 17px;
     font-weight: 300;
@@ -191,6 +195,29 @@ body {
     height: 87px;
     display: block;
     margin: auto;
+    animation-name: waving;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+
+/* Define the @keyframes rule */
+@keyframes waving {
+    0% {
+        transform: translateX(0) rotate(0deg);
+    }
+    25% {
+        transform: translateX(5px) rotate(3deg);
+    }
+    50% {
+        transform: translateX(0) rotate(0deg);
+    }
+    75% {
+        transform: translateX(-5px) rotate(-3deg);
+    }
+    100% {
+        transform: translateX(0) rotate(0deg);
+    }
 }
 
 .clan-name {
@@ -247,8 +274,8 @@ body {
     font-size: 15px;
 }
 
-.side-menu-item:first-child {
-    border-top: none;
+.side-menu-item {
+    border-top: none !important;
 }
 
 .side-menu-item:last-child {

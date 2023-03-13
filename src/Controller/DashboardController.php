@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
-use App\Service\RsApiService;
-use GuzzleHttp\Exception\GuzzleException;
+use App\Enum\KnownPlayers;
+use App\Message\FetchLatestApiData;
+use App\Repository\PlayerRepository;
+use App\Service\ChartService;
+use App\Service\CorrectDataService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -11,70 +14,76 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
-use Symfony\UX\Chartjs\Model\Chart;
 
 class DashboardController extends AbstractController
 {
-    private const PLAYER_NAME = 'VincentS';
-
-    public function __construct(private readonly FormFactoryInterface $formFactory)
-    {
+    public function __construct(
+        private readonly FormFactoryInterface $formFactory
+    ) {
     }
 
-    /**
-     * @throws GuzzleException
-     */
     #[Route(path: '/', name: 'app_dashboard_summary')]
     public function summary(
-        ChartBuilderInterface $chartBuilder,
-        RsApiService $rsApi,
-        Request $request
+        Request $request,
+        PlayerRepository $playerRepository,
+        MessageBusInterface $messageBus,
+        ChartService $chartService,
+        CorrectDataService $correctDataService
     ): Response {
         $form = $this->headerSearchForm($request);
 
-        $playerName = $form->getData()['playerName'] ?? $request->get('playerName') ?? self::PLAYER_NAME;
-        $playerInfo = $rsApi->getProfile($playerName);
+        $playerName = $form->getData()['playerName'] ?? $request->get('playerName') ?: KnownPlayers::VincentS->value;
+        $player = $playerRepository->findLatestByName($playerName);
 
-        $chart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT)
-            ->setOptions(['color' => 'rgb(255, 255, 255)'])
-            ->setData([
-                'labels' => ['Completed', 'In Progress', 'Not Started'],
-                'datasets' => [
-                    [
-                        'backgroundColor' => ['rgb(225,187,52)', 'rgb(52,189,209)', 'rgb(197,32,55)'],
-                        'borderColor' => 'rgb(0, 0, 0)',
-                        'data' => [
-                            $playerInfo->getQuestsCompleted(),
-                            $playerInfo->getQuestsStarted(),
-                            $playerInfo->getQuestsNotStarted()
-                        ]
-                    ]
-                ]
-            ]);
+        if (is_null($player)) {
+            $messageBus->dispatch(new FetchLatestApiData($playerName));
 
-        return $this->render('index.html.twig', [
-            'chart' => $chart,
-            'playerInfo' => $playerInfo,
-            'form' => $form
+            return $this->redirectToRoute('app_dashboard_summary');
+        }
+
+        $correctDataService->verifyApiDataIntegrity($player);
+
+        return $this->render('summary.html.twig', [
+            'chart' => $chartService->getQuestChart($player),
+            'playerInfo' => $player,
+            'form' => $form->createView()
         ]);
     }
 
-    /**
-     * @throws GuzzleException
-     */
-    #[Route(path: '/activity', name: 'app_dashboard_activity')]
-    public function activity(Request $request, RsApiService $rsApi): Response
+    #[Route(path: '/levels/today', name: 'app_dashboard_levels')]
+    public function levels(Request $request, ChartService $chartService): Response
     {
         $form = $this->headerSearchForm($request);
+        $playerName = $form->getData()['playerName'] ?? $request->get('playerName') ?: KnownPlayers::VincentS->value;
 
-        $playerName = $form->getData()['playerName'] ?? $request->get('playerName') ?? self::PLAYER_NAME;
-        $playerInfo = $rsApi->getProfile($playerName, 20);
+        return $this->render('levels.html.twig', [
+            'chart' => $chartService->getMonthlyTotalXpChart($playerName),
+            'form' => $form->createView()
+        ]);
+    }
+
+    #[Route(path: '/activity', name: 'app_dashboard_activity')]
+    public function activity(
+        Request $request,
+        PlayerRepository $playerRepository,
+        MessageBusInterface $messageBus
+    ): Response {
+        $form = $this->headerSearchForm($request);
+
+        $playerName = $form->getData()['playerName'] ?? $request->get('playerName') ?: KnownPlayers::VincentS->value;
+        $player = $playerRepository->findLatestByName($playerName);
+
+        if (is_null($player)) {
+            $messageBus->dispatch(new FetchLatestApiData($playerName));
+
+            return $this->redirectToRoute('app_dashboard_summary');
+        }
 
         return $this->render('activity.html.twig', [
-            'activities' => $playerInfo->getActivities(),
-            'form' => $form
+            'activities' => $player->getActivities(),
+            'form' => $form->createView()
         ]);
     }
 

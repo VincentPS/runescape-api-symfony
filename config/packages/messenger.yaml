@@ -1,0 +1,18 @@
+framework:
+  messenger:
+    failure_transport: failed
+
+    transports:
+      sync: 'sync://'
+      async: 'doctrine://default?queue_name=async'
+      failed: 'doctrine://default?queue_name=failed'
+
+    routing:
+      App\Message\AsyncEventInterface: async
+      App\Message\FetchLatestApiData: async
+
+when@dev:
+  framework:
+    messenger:
+      routing:
+        App\Message\AsyncEventInterface: sync

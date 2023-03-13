@@ -2,8 +2,6 @@
 
 namespace App\Enum;
 
-use ReflectionClass;
-
 enum SkillEnum: int
 {
     case Attack = 0;
@@ -36,7 +34,7 @@ enum SkillEnum: int
     case Archaeology = 27;
 
     /**
-     * @return array<int, string>
+     * @return array<string, int>
      */
     public static function toArray(): array
     {

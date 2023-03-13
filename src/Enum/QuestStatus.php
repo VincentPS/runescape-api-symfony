@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-Enum QuestStatus: string
+enum QuestStatus: string
 {
     case Completed = 'COMPLETED';
     case Started = 'STARTED';
