@@ -3,9 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Player;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 
 /**
  * @extends ServiceEntityRepository<Player>
@@ -66,14 +70,15 @@ class PlayerRepository extends ServiceEntityRepository
      * @param DateTimeInterface $start
      * @param DateTimeInterface $end
      * @param string $name
-     * @return Player[]
+     * @return array<string, array<int, int>>
      */
-    public function findAllUniqueTotalXpBetweenByName(
+    public function findAllUniqueTotalXpBetweenDatesByNameGroupByDay(
         DateTimeInterface $start,
         DateTimeInterface $end,
         string $name
     ): array {
-        return $this->createQueryBuilder('p')
+        $results = $this->createQueryBuilder('p')
+            ->select('p.totalXp, DATE(p.createdAt) AS day')
             ->andWhere('p.createdAt >= :start')
             ->andWhere('p.createdAt <= :end')
             ->andWhere('p.name = :name')
@@ -82,9 +87,54 @@ class PlayerRepository extends ServiceEntityRepository
                 'end' => $end,
                 'name' => $name
             ])
-            ->addOrderBy('p.createdAt', 'ASC')
+            ->addGroupBy('day, p.totalXp')
+            ->addOrderBy('day', 'ASC')
+            ->addOrderBy('p.totalXp', 'ASC')
             ->setCacheable(true)
             ->getQuery()
             ->getResult();
+
+        $groupedResults = [];
+        foreach ($results as $result) {
+            $day = $result['day'];
+
+            if (!isset($groupedResults[$day])) {
+                $groupedResults[$day] = [];
+            }
+
+            $groupedResults[$day][] = $result['totalXp'];
+        }
+
+        return $groupedResults;
+    }
+
+    /**
+     * @param string $name
+     * @return array<string, DateTimeImmutable>|null
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
+    public function findFirstAndLastDateTimeByName(string $name): ?array
+    {
+        $dateTimes = $this->createQueryBuilder('p')
+            ->select('MIN(p.createdAt) AS minDate, MAX(p.createdAt) AS maxDate')
+            ->andWhere('p.name = :name')
+            ->setParameter('name', $name)
+            ->setCacheable(true)
+            ->getQuery()
+            ->getSingleResult();
+
+        if (is_null($dateTimes['minDate']) || is_null($dateTimes['maxDate'])) {
+            return null;
+        }
+
+        try {
+            return [
+                'minDate' => new DateTimeImmutable($dateTimes['minDate']),
+                'maxDate' => new DateTimeImmutable($dateTimes['maxDate']),
+            ];
+        } catch (Exception) {
+            return null;
+        }
     }
 }

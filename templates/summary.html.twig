@@ -57,7 +57,7 @@
                                             </div>
                                             <div class="card-body sub-card inner-card">
                                                 <div class="list-group">
-                                                    {% for adventureLogItem in playerInfo.activities %}
+                                                    {% for adventureLogItem in playerInfo.activities|slice(0,5) %}
                                                         <div class="list-group-item list-group-item-action">
                                                             <div class="row align-items-center">
                                                                 <div class="col-auto pe-0">

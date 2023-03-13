@@ -57,7 +57,7 @@ class RsApiService
      * @return Player
      * @throws GuzzleException
      */
-    public function getProfile(string $player, int $amountOfActivityItems = 5, bool $doUpdateCheck = true): Player
+    public function getProfile(string $player, int $amountOfActivityItems = 20, bool $doUpdateCheck = true): Player
     {
         $player = trim($player);
 
@@ -71,7 +71,8 @@ class RsApiService
             [
                 RequestOptions::QUERY => [
                     'user' => $player,
-                    'activities' => $amountOfActivityItems
+                    'activities' => $amountOfActivityItems,
+                    'time' => time()
                 ]
             ]
         );
@@ -102,6 +103,16 @@ class RsApiService
                 };
             }
         );
+
+        foreach ($playerInfo->getSkillValues() as $skillValue) {
+            if ($skillValue->getXp() > 200000000) {
+                foreach ($playerInfo->getSkillValues() as $skillValueToCorrect) {
+                    $skillValueToCorrect->setXp($skillValueToCorrect->getXp() / 10);
+                }
+
+                break;
+            }
+        }
 
         $playerInfo
             ->setClan($this->getClanName($player))

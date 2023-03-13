@@ -6,7 +6,6 @@ use App\Message\FetchLatestApiData;
 use App\Service\RsApiService;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 #[AsMessageHandler]
 final class FetchLatestApiDataHandler

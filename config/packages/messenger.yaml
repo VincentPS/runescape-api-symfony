@@ -8,11 +8,11 @@ framework:
       failed: 'doctrine://default?queue_name=failed'
 
     routing:
-      'App\Message\AsyncEventInterface': async
+      App\Message\AsyncEventInterface: async
       App\Message\FetchLatestApiData: async
 
 when@dev:
   framework:
     messenger:
       routing:
-        'App\Message\AsyncEventInterface': sync
+        App\Message\AsyncEventInterface: sync
