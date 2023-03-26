@@ -46,10 +46,13 @@ class ChartService
             $dateTimes = null;
         }
 
+        $startDate = new DateTimeImmutable('first day of this month');
+        $endDate = new DateTimeImmutable('last day of this month');
+
         if (is_null($dateTimes)) {
             $dateTimes = [
-                'minDate' => new DateTimeImmutable(),
-                'maxDate' => new DateTimeImmutable()
+                'minDate' => $startDate,
+                'maxDate' => $endDate
             ];
         }
 
@@ -59,29 +62,17 @@ class ChartService
             $playerName
         );
 
-        $totalXpDiff = [];
-        $averageXpDiffByDay = [];
-
-        foreach ($days as $day => $records) {
-            $totalXpDiff[$day] = end($records) - reset($records);
-        }
-
-        foreach ($totalXpDiff as $day => $totalXpDiffValue) {
-            $averageXpDiffByDay[$day] = round($totalXpDiffValue / count($totalXpDiff));
-        }
-
-        $startDate = new DateTimeImmutable('first day of this month');
-        $endDate = new DateTimeImmutable('last day of this month');
-
         $data = [];
         $labels = [];
+        $averageXpDiffByDay = [];
 
         $currentDate = $startDate;
 
         while ($currentDate <= $endDate) {
             $date = $currentDate->format('Y-m-d');
-            $data[$date] = $totalXpDiff[$date] ?? 0;
+            $data[$date] = $days[$date]['xp_increase'] ?? 0;
             $labels[$date] = $date;
+            $averageXpDiffByDay[$date] = $days[$date]['avg_xp_gained'] ?? 0;
             $currentDate = $currentDate->modify('+1 day');
         }
 
@@ -92,7 +83,17 @@ class ChartService
                     'point' => [
                         'radius' => 0
                     ]
-                ]
+                ],
+                'plugins' => [
+                    'zoom' => [
+                        'zoom' => [
+                            'wheel' => ['enabled' => true],
+                            'pinch' => ['enabled' => true],
+                            'mode' => 'xy',
+                            'speed' => 100
+                        ],
+                    ],
+                ],
             ])
             ->setData([
                 'labels' => array_values($labels),

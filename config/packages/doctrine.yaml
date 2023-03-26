@@ -41,6 +41,9 @@ doctrine:
                 prefix: 'App\Entity'
                 alias: App
         dql:
+            string_functions:
+                ARRAY_AGG: MartinGeorgiev\Doctrine\ORM\Query\AST\Functions\ArrayAgg
+                JSONB_AGG: MartinGeorgiev\Doctrine\ORM\Query\AST\Functions\JsonbAgg
             datetime_functions:
                 second: DoctrineExtensions\Query\Postgresql\Second
                 minute: DoctrineExtensions\Query\Postgresql\Minute

@@ -12,6 +12,8 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 #[ORM\Entity(repositoryClass: PlayerRepository::class)]
 #[ORM\Index(columns: ['name'])]
 #[ORM\Index(columns: ['created_at'])]
+#[ORM\Index(columns: ['name', 'created_at', 'total_xp'])]
+#[ORM\Index(columns: ['created_at', 'total_xp'])]
 class Player
 {
     use TimestampableEntity;

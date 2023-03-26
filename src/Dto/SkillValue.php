@@ -8,7 +8,7 @@ class SkillValue
 {
     private ?SkillEnum $id = null;
     private ?int $level = null;
-    private ?int $xp = null;
+    private ?float $xp = null;
     private ?int $rank = null;
 
     /**
@@ -48,18 +48,18 @@ class SkillValue
     }
 
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getXp(): ?int
+    public function getXp(): ?float
     {
         return $this->xp;
     }
 
     /**
-     * @param int|null $xp
+     * @param float|null $xp
      * @return SkillValue
      */
-    public function setXp(?int $xp): SkillValue
+    public function setXp(?float $xp): SkillValue
     {
         $this->xp = $xp;
         return $this;

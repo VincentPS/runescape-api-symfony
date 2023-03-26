@@ -1,5 +1,6 @@
 {
     "devDependencies": {
+        "@aziz403/ux-datatable": "file:vendor/aziz403/ux-datatable/assets",
         "@babel/core": "^7.17.0",
         "@babel/preset-env": "^7.16.0",
         "@hotwired/stimulus": "^3.0.0",
@@ -8,6 +9,9 @@
         "@symfony/webpack-encore": "^4.2.0",
         "chart.js": "^3.4.1",
         "core-js": "^3.23.0",
+        "datatables.net": "^1.12.1",
+        "datatables.net-dt": "^1.12.1",
+        "jquery": "^3.6.1",
         "regenerator-runtime": "^0.13.9",
         "webpack": "^5.74.0",
         "webpack-cli": "^4.10.0",

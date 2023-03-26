@@ -14,7 +14,7 @@
             <div class="col-10 ps-0 activity-page">
                 <div class="card card-wrapper">
                     <div class="card-header no-border">
-                        <h2>Activity</h2>
+                        <h2>ACTIVITY (Todo: add filters)</h2>
                     </div>
                     <div class="card-body main-card">
                         <div class="row">
@@ -31,6 +31,21 @@
                                                              class="skill-icon"
                                                              alt="{{ skill }}"
                                                              title="{{ skill }}">
+                                                    {% elseif 'quest' in adventureLogItem.text|lower %}
+                                                        <img src="https://runescape.wiki/images/Quest.png"
+                                                             class="skill-icon"
+                                                             alt="Quest"
+                                                             title="Quest">
+                                                    {% elseif 'archaeological mystery' in adventureLogItem.text|lower %}
+                                                        <img src="https://runescape.wiki/images/Archaeology_-_Mysteries_achievement_icon.png"
+                                                             class="skill-icon"
+                                                             alt="Archaeology Mystery"
+                                                             title="Archaeology Mystery">
+                                                    {% elseif 'i killed' in adventureLogItem.text|lower %}
+                                                        <img src="https://runescape.wiki/images/Combat_icon_large.png"
+                                                             class="skill-icon"
+                                                             alt="Monstery Kills"
+                                                             title="Monster Kills">
                                                     {% else %}
                                                         <img src="https://runescape.wiki/images/Task_icon.png"
                                                              class="skill-icon"

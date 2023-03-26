@@ -1,4 +1,16 @@
 {
+    "aziz403/ux-datatable": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "2639c7739b1ebf09227bd520586f14b67da6c9bf"
+        },
+        "files": [
+            "./config/packages/datatable.yaml"
+        ]
+    },
     "doctrine/annotations": {
         "version": "2.0",
         "recipe": {
