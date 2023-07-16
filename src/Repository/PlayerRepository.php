@@ -10,6 +10,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use RuntimeException;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @extends ServiceEntityRepository<Player>
@@ -69,6 +73,7 @@ class PlayerRepository extends ServiceEntityRepository
      */
     public function findLatestByName(string $name): ?Player
     {
+        /** @var array<int, Player> $dataPoints */
         $dataPoints = $this->createQueryBuilder('p')
             ->andWhere('p.name = :name')
             ->setParameter('name', $name)
@@ -101,7 +106,7 @@ class PlayerRepository extends ServiceEntityRepository
      *
      * @throws \Doctrine\DBAL\Exception If an error occurs while executing the query.
      */
-    public function findAllUniqueActivitiesByName(string $name): string | bool
+    public function findAllUniqueActivitiesByName(string $name): string|bool
     {
         $stmt = <<<SQL
             SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
@@ -111,11 +116,13 @@ class PlayerRepository extends ServiceEntityRepository
             WHERE activity IS NOT NULL;
         SQL;
 
-        return $this
+        $result = $this
             ->getEntityManager()
             ->getConnection()
             ->executeQuery($stmt, ['name' => $name])
             ->fetchOne();
+
+        return !is_string($result) ? false : $result;
     }
 
     /**
@@ -128,8 +135,7 @@ class PlayerRepository extends ServiceEntityRepository
      * @return array<string, array{
      *     'date': string,
      *     'xp_increase': int,
-     *     'unique_xp': array<int, string>,
-     *     'avg_xp_gained': float
+     *     'unique_xp': array<int, string>
      * }>
      * An array of XP data for each day within the specified date range.
      * Each element of the array is keyed by the date in 'YYYY-MM-DD' format.
@@ -146,10 +152,12 @@ class PlayerRepository extends ServiceEntityRepository
         DateTimeInterface $end,
         string $name
     ): array {
+        $serializer = new Serializer([new ArrayDenormalizer()], [new JsonEncoder()]);
+
         $stmt = <<<SQL
             SELECT DATE_TRUNC('day', p.created_at)::date AS date,
                    MAX(p.total_xp) - MIN(p.total_xp) AS xp_increase,
-                   ARRAY_AGG(p.total_xp) AS unique_xp
+                   jsonb_agg(p.total_xp) AS unique_xp
             FROM player p
             WHERE p.created_at >= :start
               AND p.created_at <= :end
@@ -171,15 +179,20 @@ class PlayerRepository extends ServiceEntityRepository
         $groupedResults = [];
 
         foreach ($results as &$result) {
-            $result['unique_xp'] = explode(
-                ',',
-                str_replace(['{', '}'], '', $result['unique_xp'])
-            );
+            if (!is_string($result['unique_xp'])) {
+                throw new RuntimeException('Unexpected type for "unique_xp" column.');
+            }
 
+            $result['unique_xp'] = $serializer->decode($result['unique_xp'], 'json');
             $groupedResults[$result['date']] = $result;
-            $groupedResults[$result['date']]['avg_xp_gained'] = round($result['xp_increase'] / count($results));
         }
 
+        /** @var array<string, array{
+         *     'date': string,
+         *     'xp_increase': int,
+         *     'unique_xp': array<int, string>,
+         * }> $groupedResults
+         */
         return $groupedResults;
     }
 
@@ -199,6 +212,7 @@ class PlayerRepository extends ServiceEntityRepository
      */
     public function findFirstAndLastDateTimeByName(string $name): ?array
     {
+        /** @var array{'minDate': ?string, 'maxDate': ?string} $dateTimes */
         $dateTimes = $this->createQueryBuilder('p')
             ->select('MIN(p.createdAt) AS minDate, MAX(p.createdAt) AS maxDate')
             ->andWhere('p.name = :name')

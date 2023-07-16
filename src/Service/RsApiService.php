@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Player;
 use App\Enum\KnownPlayers;
 use App\Enum\QuestStatus;
+use App\Exception\PlayerApi\PlayerApiDataConversionException;
 use App\Message\HandleDataPointPersist;
 use Doctrine\Common\Annotations\AnnotationReader;
 use GuzzleHttp\Client;
@@ -13,6 +14,7 @@ use GuzzleHttp\RequestOptions;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
@@ -30,7 +32,11 @@ class RsApiService
         GuzzleCachedClient $client,
         private readonly MessageBusInterface $messageBus
     ) {
-        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+        $classMetadataFactory = new ClassMetadataFactory(
+            new AnnotationLoader(
+                new AnnotationReader()
+            )
+        );
 
         $this->serializer = new Serializer(
             [
@@ -56,6 +62,8 @@ class RsApiService
      * @param bool $doUpdateCheck
      * @return Player
      * @throws GuzzleException
+     * @throws PlayerApiDataConversionException
+     * @throws ExceptionInterface
      */
     public function getProfile(string $player, int $amountOfActivityItems = 20, bool $doUpdateCheck = true): Player
     {
@@ -78,7 +86,44 @@ class RsApiService
         );
 
         $jsonBody = $response->getBody()->getContents();
+
+        if (empty($jsonBody)) {
+            throw new PlayerApiDataConversionException('No response from RuneScape API');
+        }
+
+        /**
+         * @var array{
+         *     magic: int,
+         *     questsstarted: int,
+         *     totalskill: int,
+         *     questscomplete: int,
+         *     questsnotstarted: int,
+         *     totalxp: int,
+         *     ranged: int,
+         *     activities: array{
+         *          date: string,
+         *          details: string,
+         *          text: string
+         *     }[],
+         *     skillvalues: array{
+         *          level: int,
+         *          xp: int,
+         *          rank: int,
+         *          id: int
+         *     }[],
+         *     name: string,
+         *     rank: string,
+         *     melee: int,
+         *     combatlevel: int,
+         *     loggedIn: string
+         * }|array{error: string, loggedIn: string} $jsonDecoded
+         */
         $jsonDecoded = $this->serializer->decode($jsonBody, 'json');
+
+        if (array_key_exists('error', $jsonDecoded) && $jsonDecoded['error'] === 'NO_PROFILE') {
+            throw new PlayerApiDataConversionException('No player found with name: ' . $player);
+        }
+
         $jsonDecoded['quests'] = $this->getQuests($player);
 
         /** @var Player $playerInfo */
@@ -105,9 +150,9 @@ class RsApiService
         );
 
         foreach ($playerInfo->getSkillValues() as $skillValue) {
-            if ($skillValue->getXp() > 200000000) {
+            if ($skillValue->xp > 200000000) {
                 foreach ($playerInfo->getSkillValues() as $skillValueToCorrect) {
-                    $skillValueToCorrect->setXp($skillValueToCorrect->getXp() / 10);
+                    $skillValueToCorrect->xp = $skillValueToCorrect->xp / 10;
                 }
 
                 break;
@@ -128,6 +173,14 @@ class RsApiService
     }
 
     /**
+     * @return array{
+     *      title: string,
+     *      status: string,
+     *      difficulty: string,
+     *      members: bool,
+     *      questPoints: int,
+     *      userEligible: bool
+     * }[]
      * @throws GuzzleException
      */
     public function getQuests(string $player): array
@@ -142,7 +195,21 @@ class RsApiService
             ]
         );
 
-        return $this->serializer->decode($response->getBody()->getContents(), 'json')['quests'];
+        /**
+         * @var array{
+         *     quests: array{
+         *          title: string,
+         *          status: string,
+         *          difficulty: string,
+         *          members: bool,
+         *          questPoints: int,
+         *          userEligible: bool
+         *     }[]
+         * } $jsonDecoded
+         */
+        $jsonDecoded = $this->serializer->decode($response->getBody()->getContents(), 'json');
+
+        return $jsonDecoded['quests'];
     }
 
     /**
@@ -150,6 +217,8 @@ class RsApiService
      */
     public function getClanName(string $player): string
     {
+        $playerDetails = [];
+
         $response = $this->client->request(
             'GET',
             'https://services.runescape.com/m=website-data/playerDetails.ws',
@@ -162,6 +231,16 @@ class RsApiService
             ]
         );
 
+        /**
+         * @var array<int, array{
+         *     isSuffix: bool,
+         *     recruiting: bool,
+         *     name: string,
+         *     clan: string,
+         *     title: string
+         * }> $playerDetails
+         */
+
         preg_match(
             '/angular\.callbacks\._0\((.*?)\)/',
             $response->getBody()->getContents(),
@@ -169,7 +248,16 @@ class RsApiService
         );
 
         if (!empty($playerDetails) && array_key_exists(1, $playerDetails)) {
-            $playerDetails = $this->serializer->decode($playerDetails[1], 'json')[0];
+            /** @var array<int, array{
+             *     isSuffix: bool,
+             *     recruiting: bool,
+             *     name: string,
+             *     clan: string,
+             *     title: string
+             * }> $playerDetailsFromArray
+             */
+            $playerDetailsFromArray = $this->serializer->decode($playerDetails[1], 'json');
+            $playerDetails = $playerDetailsFromArray[0];
 
             if (array_key_exists('clan', $playerDetails)) {
                 return $playerDetails['clan'];

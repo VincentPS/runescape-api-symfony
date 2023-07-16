@@ -2,6 +2,7 @@
 
 namespace App\MessageHandler;
 
+use App\Exception\PlayerApi\PlayerApiDataConversionException;
 use App\Message\FetchLatestApiData;
 use App\Service\RsApiService;
 use GuzzleHttp\Exception\GuzzleException;
@@ -16,6 +17,7 @@ final class FetchLatestApiDataHandler
 
     /**
      * @throws GuzzleException
+     * @throws PlayerApiDataConversionException
      */
     public function __invoke(FetchLatestApiData $message): void
     {

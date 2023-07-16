@@ -9,18 +9,11 @@ class QuestResponse
     /** @var Quest[]|null */
     private ?array $quests = null;
 
-    /**
-     * @return string|null
-     */
     public function getLoggedIn(): ?string
     {
         return $this->loggedIn;
     }
 
-    /**
-     * @param string|null $loggedIn
-     * @return QuestResponse
-     */
     public function setLoggedIn(?string $loggedIn): QuestResponse
     {
         $this->loggedIn = $loggedIn;
@@ -45,10 +38,6 @@ class QuestResponse
         return $this;
     }
 
-    /**
-     * @param Quest $quest
-     * @return $this
-     */
     public function addQuest(Quest $quest): QuestResponse
     {
         $this->quests[] = $quest;
