@@ -1,8 +1,7 @@
+name: "PHPStan"
+
 on:
   push:
-  pull_request:
-
-name: "PHPStan"
 
 jobs:
   phpstan:

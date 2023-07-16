@@ -1,11 +1,6 @@
-name: "PHPCS"
+name: "CodeSniffer"
 
 on:
-  pull_request:
-    paths:
-      - "**.php"
-      - "phpcs.xml"
-      - ".github/workflows/phpcs.yml"
   push:
     paths:
       - "**.php"
@@ -31,4 +26,4 @@ jobs:
         with:
           files: "**.php" # you may customize glob as needed
           phpcs_path: php phpcs.phar
-          standard: phpcs.xml
+          standard: PSR12
