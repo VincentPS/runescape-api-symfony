@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
-        uses: php-actions/composer@master
-        with:
-          php_version: '8.2'
+#      - name: Install dependencies
+#        uses: php-actions/composer@master
+#        with:
+#          php_version: '8.2'
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
   lint:
