@@ -1,11 +1,11 @@
-name: PHP 8.2 Composer Lint
+name: PHP 8.2 Lint && Tests
 
 on:
   pull_request:
 
 jobs:
   lint:
-    name: Composer Lint
+    name: Linter & Unit Tests
     runs-on: ubuntu-latest
 
     steps:
