@@ -1,22 +1,24 @@
-name: "Lint"
-#todo: fix this cause it doesnt work the way it should
+name: PHP 8.2 Composer Lint
+
 on:
   pull_request:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: php-actions/composer@v6
-        with:
-          php_version: '8.2'
-          command: install --prefer-dist --no-progress --no-suggest
   lint:
-    name: Lint
+    name: Composer Lint
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: lint
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+
+      - name: Install Composer dependencies
+        run: composer install
+
+      - name: Composer lint
         run: composer lint
