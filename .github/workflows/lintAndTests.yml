@@ -1,4 +1,4 @@
-name: Code Quality
+name: Code Quality & Unit Tests
 
 on:
   pull_request:
