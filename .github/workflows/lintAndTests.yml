@@ -1,4 +1,4 @@
-name: PHP 8.2 Lint && Tests
+name: Code Quality
 
 on:
   pull_request:
