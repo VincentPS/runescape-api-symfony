@@ -22,3 +22,6 @@ jobs:
 
       - name: Composer lint
         run: composer lint
+
+      - name: Composer test
+        run: composer test
