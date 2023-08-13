@@ -1,5 +1,5 @@
 name: "Lint"
-
+#todo: fix this cause it doesnt work the way it should
 on:
   pull_request:
 

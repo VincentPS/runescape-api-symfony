@@ -32,6 +32,7 @@ enum SkillEnum: int
     case Divination = 25;
     case Invention = 26;
     case Archaeology = 27;
+    case Necromancy = 28;
 
     /**
      * @return array<string, int>

@@ -7,7 +7,6 @@ use App\Enum\KnownPlayers;
 use App\Message\FetchLatestApiData;
 use App\Repository\PlayerRepository;
 use App\Service\ChartService;
-use App\Service\RsApiService;
 use Doctrine\DBAL\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
