@@ -29,7 +29,7 @@ class Player
     #[ORM\Column]
     private ?int $totalXp = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $rank = null;
 
     #[ORM\Column]
@@ -50,16 +50,16 @@ class Player
     #[ORM\Column]
     private ?int $questsNotStarted = null;
 
-    #[ORM\Column(type: 'activity')]
     /** @var Activity[] $activities */
+    #[ORM\Column(type: 'activity')]
     private array $activities = [];
 
-    #[ORM\Column(type: 'skillValue')]
     /** @var SkillValue[] $skillValues */
+    #[ORM\Column(type: 'skillValue')]
     private array $skillValues = [];
 
-    #[ORM\Column(type: 'quest')]
     /** @var Quest[] $quests */
+    #[ORM\Column(type: 'quest')]
     private array $quests = [];
 
     public function getId(): ?int
@@ -96,7 +96,7 @@ class Player
         return $this->rank;
     }
 
-    public function setRank(string $rank): self
+    public function setRank(?string $rank): self
     {
         $this->rank = $rank;
 
@@ -183,6 +183,9 @@ class Player
         return $this->activities;
     }
 
+    /**
+     * @param Activity[] $activities
+     */
     public function setActivities(array $activities): self
     {
         $this->activities = $activities;
@@ -202,12 +205,24 @@ class Player
     public function getSkillValues(): array
     {
         usort($this->skillValues, function ($a, $b) {
-            return $a->getId()->value - $b->getId()->value;
+            /**
+             * @var SkillValue $a
+             * @var SkillValue $b
+             */
+
+            if (is_null($a->id) || is_null($b->id)) {
+                return 0;
+            }
+
+            return $a->id->value - $b->id->value;
         });
 
         return $this->skillValues;
     }
 
+    /**
+     * @param SkillValue[] $skillValues
+     */
     public function setSkillValues(array $skillValues): self
     {
         $this->skillValues = $skillValues;
@@ -229,6 +244,9 @@ class Player
         return $this->quests;
     }
 
+    /**
+     * @param Quest[] $quests
+     */
     public function setQuests(array $quests): self
     {
         $this->quests = $quests;

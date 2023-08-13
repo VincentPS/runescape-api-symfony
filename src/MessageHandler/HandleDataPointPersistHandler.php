@@ -18,23 +18,19 @@ final class HandleDataPointPersistHandler
 
     public function __invoke(HandleDataPointPersist $message): void
     {
-        $doPersist = true;
         $player = $message->dataPoint;
+
+        if (is_null($player->getName())) {
+            return;
+        }
+
         $latestDataPoint = $this->playerRepository->findLatestByName($player->getName());
 
-        if (!is_null($latestDataPoint)) {
-            if (
-//                $latestDataPoint->getActivities() == $player->getActivities()
-//                && $latestDataPoint->getQuests() == $player->getQuests()
-                $latestDataPoint->getTotalXp() === $player->getTotalXp()
-            ) {
-                $doPersist = false;
-            }
+        if (!is_null($latestDataPoint) && $latestDataPoint->getTotalXp() === $player->getTotalXp()) {
+            return;
         }
 
-        if ($doPersist) {
-            $this->entityManager->persist($player);
-            $this->entityManager->flush();
-        }
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
     }
 }

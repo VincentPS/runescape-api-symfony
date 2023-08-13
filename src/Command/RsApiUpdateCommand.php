@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Message\FetchLatestApiData;
+use App\Repository\PlayerRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,8 +18,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 )]
 class RsApiUpdateCommand extends Command
 {
-    public function __construct(private readonly MessageBusInterface $messageBus, string $name = null)
-    {
+    public function __construct(
+        private readonly MessageBusInterface $messageBus,
+        private readonly PlayerRepository $playerRepository,
+        string $name = null
+    ) {
         parent::__construct($name);
     }
 
@@ -31,14 +35,47 @@ class RsApiUpdateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $playerName = $input->getArgument('playerName');
+        $playerName = strval($input->getArgument('playerName'));
 
         if (empty($playerName)) {
-            $io->error('You did not provide a player name.');
+            $io->error('Please provide a player name.');
         }
 
-        $io->success("Data will be updated for player: $playerName");
+        $latestDataPointBeforeUpdate = $this->playerRepository->findLatestByName($playerName);
+
+        $io->info('Data will be updated for player: ' . $playerName);
         $this->messageBus->dispatch(new FetchLatestApiData($playerName));
+
+        $latestDataPointAfterUpdate = $this->playerRepository->findLatestByName($playerName);
+
+        if (is_null($latestDataPointBeforeUpdate) || is_null($latestDataPointAfterUpdate)) {
+            $io->error([
+                'No data was found for player: ' . $playerName,
+                'Please check the spelling of the player name.',
+            ]);
+
+            return Command::FAILURE;
+        }
+
+        if ($latestDataPointBeforeUpdate->getCreatedAt() === $latestDataPointAfterUpdate->getCreatedAt()) {
+            $io->info([
+                'No new data was found',
+                'Latest data point was created at: ' .
+                $latestDataPointBeforeUpdate
+                    ->getCreatedAt()
+                    ->format('D, d M Y H:i:s'),
+            ]);
+
+            return Command::SUCCESS;
+        }
+
+        $io->success([
+            'Data updated for player: ' . $playerName,
+            'Latest data point now at: ' .
+            $latestDataPointAfterUpdate
+                ->getCreatedAt()
+                ->format('D, d M Y H:i:s'),
+        ]);
 
         return Command::SUCCESS;
     }

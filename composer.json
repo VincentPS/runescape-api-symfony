@@ -4,7 +4,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "aziz403/ux-datatable": "^1.0",
@@ -38,9 +38,14 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan-doctrine": "^1.3",
         "phpstan/phpstan-symfony": "^1.2",
+        "phpunit/phpunit": "^9.5",
         "squizlabs/php_codesniffer": "^3.7",
+        "symfony/browser-kit": "6.2.*",
+        "symfony/css-selector": "6.2.*",
         "symfony/maker-bundle": "^1.48",
+        "symfony/phpunit-bridge": "^6.3",
         "symfony/stopwatch": "6.2.*",
         "symfony/web-profiler-bundle": "6.2.*"
     },
@@ -88,6 +93,16 @@
         ],
         "setup": [
             "php bin/console doctrine:migrations:migrate"
+        ],
+        "lint": [
+            "php vendor/bin/phpcs -d memory_limit=128M",
+            "php vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 1024M --xdebug"
+        ],
+        "lint-fix": [
+            "php vendor/bin/phpcbf"
+        ],
+        "test": [
+            "php vendor/bin/phpunit --colors=always"
         ]
     },
     "conflict": {

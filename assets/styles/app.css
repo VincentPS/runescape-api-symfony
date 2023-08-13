@@ -129,7 +129,6 @@ body {
 .skills-container {
     flex-wrap: wrap;
     font-size: .9em;
-    background: rgba(44,61,73,.21);
 }
 
 .skill-icon-container {
@@ -140,6 +139,7 @@ body {
     border: 5px solid #02131A;
     display: inline-block;
     justify-content: center;
+    background: rgba(44,61,73,.21);
 }
 
 .skill-level {

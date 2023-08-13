@@ -46,8 +46,9 @@ class ChartService
             $dateTimes = null;
         }
 
-        $startDate = new DateTimeImmutable('first day of this month');
-        $endDate = new DateTimeImmutable('last day of this month');
+        //todo set year dynamically based on dateTimes result
+        $startDate = new DateTimeImmutable('first day of January this year');
+        $endDate = new DateTimeImmutable('last day of December this year');
 
         if (is_null($dateTimes)) {
             $dateTimes = [
@@ -64,7 +65,6 @@ class ChartService
 
         $data = [];
         $labels = [];
-        $averageXpDiffByDay = [];
 
         $currentDate = $startDate;
 
@@ -72,7 +72,6 @@ class ChartService
             $date = $currentDate->format('Y-m-d');
             $data[$date] = $days[$date]['xp_increase'] ?? 0;
             $labels[$date] = $date;
-            $averageXpDiffByDay[$date] = $days[$date]['avg_xp_gained'] ?? 0;
             $currentDate = $currentDate->modify('+1 day');
         }
 
@@ -98,16 +97,6 @@ class ChartService
             ->setData([
                 'labels' => array_values($labels),
                 'datasets' => [
-                    [
-                        'label' => 'Average Total XP Diff',
-                        'type' => 'line',
-                        'fill' => true,
-                        'backgroundColor' => 'rgba(95,37,37, 0.7)',
-                        'borderColor' => 'rgba(95,37,37, 0.7)',
-                        'borderWidth' => 1,
-                        'tension' => 0.5,
-                        'data' => $averageXpDiffByDay,
-                    ],
                     [
                         'label' => 'Total XP',
                         'backgroundColor' => 'rgb(181,153,47)',

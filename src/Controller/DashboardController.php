@@ -16,6 +16,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,6 +26,8 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
+//todo add tests
+//todo make separate controllers for each page and make base controller for shared methods
 class DashboardController extends AbstractController
 {
     public function __construct(
@@ -40,12 +43,16 @@ class DashboardController extends AbstractController
         ChartService $chartService
     ): Response {
         $form = $this->headerSearchForm($request);
-
-        $playerName = $form->getData()['playerName'] ?? $request->get('playerName') ?: KnownPlayers::VincentS->value;
+        $playerName = $this->getPlayerNameFromRequest($request);
         $player = $playerRepository->findLatestByName($playerName);
 
         if (is_null($player)) {
-            $messageBus->dispatch(new FetchLatestApiData($playerName));
+            try {
+                $messageBus->dispatch(new FetchLatestApiData($playerName));
+            } catch (HandlerFailedException) {
+                // todo implement alerts in the UI and show error that the player could not be found
+                return $this->redirectToRoute('app_dashboard_summary');
+            }
 
             return $this->redirectToRoute('app_dashboard_summary');
         }
@@ -61,7 +68,7 @@ class DashboardController extends AbstractController
     public function levels(Request $request, ChartService $chartService): Response
     {
         $form = $this->headerSearchForm($request);
-        $playerName = $form->getData()['playerName'] ?? $request->get('playerName') ?: KnownPlayers::VincentS->value;
+        $playerName = $this->getPlayerNameFromRequest($request);
 
         return $this->render('levels.html.twig', [
             'chart' => $chartService->getMonthlyTotalXpChart($playerName),
@@ -75,10 +82,7 @@ class DashboardController extends AbstractController
         PlayerRepository $playerRepository
     ): Response {
         $form = $this->headerSearchForm($request);
-
-        $playerName = $form->getData()['playerName']
-            ?? $request->get('playerName')
-            ?: KnownPlayers::VincentS->value;
+        $playerName = $this->getPlayerNameFromRequest($request);
 
         try {
             $activities = $playerRepository->findAllUniqueActivitiesByName($playerName);
@@ -97,6 +101,7 @@ class DashboardController extends AbstractController
             ]
         );
 
+        /** @var array<int, Activity> $activities */
         $activities = $serializer->deserialize(
             $activities,
             Activity::class . '[]',
@@ -104,7 +109,7 @@ class DashboardController extends AbstractController
         );
 
         usort($activities, function ($a, $b) {
-            return $b->getDate() <=> $a->getDate();
+            return $b->date <=> $a->date;
         });
 
         return $this->render('activity.html.twig', [
@@ -143,5 +148,17 @@ class DashboardController extends AbstractController
         $form->handleRequest($request);
 
         return $form;
+    }
+
+    private function getPlayerNameFromRequest(Request $request): string
+    {
+        $form = $this->headerSearchForm($request);
+
+        /** @var array{'playerName': ?string} $formData */
+        $formData = $form->getData();
+
+        return $formData['playerName']
+            ?? $request->query->getAlnum('playerName')
+            ?: KnownPlayers::VincentS->value;
     }
 }
