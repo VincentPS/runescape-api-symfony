@@ -1,6 +1,6 @@
 # RuneMetrics Re-Creation Project
 
-![example workflow](https://github.com/VincentPS/runescape-api-symfony/actions/workflows/lintAndTests.yml/badge.svg)
+![main branch](https://github.com/VincentPS/runescape-api-symfony/actions/workflows/lintAndTests.yml/badge.svg)
 
 Welcome to the RuneMetrics Re-Creation project! This Symfony 6.2 application, built using PHP 8.2, aims to recreate the functionality of the RuneMetrics apps from Jagex. It leverages the public RuneScape API to gather player data and provides a user-friendly interface to view and analyze the data. This README will guide you through the setup, configuration, and usage of the project.
 
