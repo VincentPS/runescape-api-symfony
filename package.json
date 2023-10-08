@@ -1,10 +1,10 @@
 {
     "devDependencies": {
-        "@aziz403/ux-datatable": "file:vendor/aziz403/ux-datatable/assets",
         "@babel/core": "^7.17.0",
         "@babel/preset-env": "^7.16.0",
         "@hotwired/stimulus": "^3.0.0",
         "@symfony/stimulus-bridge": "^3.2.0",
+        "@symfony/stimulus-bundle": "file:vendor/symfony/stimulus-bundle/assets",
         "@symfony/ux-chartjs": "file:vendor/symfony/ux-chartjs/assets",
         "@symfony/webpack-encore": "^4.2.0",
         "chart.js": "^3.4.1",

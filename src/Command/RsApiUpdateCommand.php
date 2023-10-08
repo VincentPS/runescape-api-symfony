@@ -35,9 +35,11 @@ class RsApiUpdateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $playerName = strval($input->getArgument('playerName'));
 
-        if (empty($playerName)) {
+        /** @var string $playerName */
+        $playerName = $input->getArgument('playerName');
+
+        if (empty($playerName) || !is_string($playerName)) {
             $io->error('Please provide a player name.');
         }
 
@@ -63,7 +65,7 @@ class RsApiUpdateCommand extends Command
                 'Latest data point was created at: ' .
                 $latestDataPointBeforeUpdate
                     ->getCreatedAt()
-                    ->format('D, d M Y H:i:s'),
+                    ?->format('D, d M Y H:i:s'),
             ]);
 
             return Command::SUCCESS;
@@ -74,7 +76,7 @@ class RsApiUpdateCommand extends Command
             'Latest data point now at: ' .
             $latestDataPointAfterUpdate
                 ->getCreatedAt()
-                ->format('D, d M Y H:i:s'),
+                ?->format('D, d M Y H:i:s'),
         ]);
 
         return Command::SUCCESS;

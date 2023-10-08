@@ -1,16 +1,4 @@
 {
-    "aziz403/ux-datatable": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "1.0",
-            "ref": "2639c7739b1ebf09227bd520586f14b67da6c9bf"
-        },
-        "files": [
-            "./config/packages/datatable.yaml"
-        ]
-    },
     "doctrine/annotations": {
         "version": "2.0",
         "recipe": {
@@ -200,6 +188,15 @@
             "./config/packages/routing.yaml",
             "./config/routes.yaml"
         ]
+    },
+    "symfony/stimulus-bundle": {
+        "version": "2.12",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.8",
+            "ref": "9e33a8a3794b603fb4be6c04ee5ecab901ce549e"
+        }
     },
     "symfony/twig-bundle": {
         "version": "6.2",
