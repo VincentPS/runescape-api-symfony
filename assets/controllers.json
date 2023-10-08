@@ -1,15 +1,5 @@
 {
     "controllers": {
-        "@aziz403/ux-datatable": {
-            "simple_datatable": {
-                "enabled": true,
-                "fetch": "eager"
-            },
-            "entity_datatable": {
-                "enabled": true,
-                "fetch": "eager"
-            }
-        },
         "@symfony/ux-chartjs": {
             "chart": {
                 "enabled": true,
