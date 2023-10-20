@@ -47,12 +47,7 @@ class DashboardController extends AbstractController
         $player = $playerRepository->findLatestByName($playerName);
 
         if (is_null($player)) {
-            try {
-                $messageBus->dispatch(new FetchLatestApiData($playerName));
-            } catch (HandlerFailedException) {
-                // todo implement alerts in the UI and show error that the player could not be found
-                return $this->redirectToRoute('app_dashboard_summary');
-            }
+            $messageBus->dispatch(new FetchLatestApiData($playerName));
 
             return $this->redirectToRoute('app_dashboard_summary');
         }
