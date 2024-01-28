@@ -26,8 +26,7 @@ class Player
     #[ORM\Column]
     private ?int $totalSkill = null;
 
-    /** @todo change to bigint, because total xp can be 5.800.000.000 (5.8b) */
-    #[ORM\Column]
+    #[ORM\Column(type: 'bigint')]
     private ?int $totalXp = null;
 
     #[ORM\Column(length: 255, nullable: true)]

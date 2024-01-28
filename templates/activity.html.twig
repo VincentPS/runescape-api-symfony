@@ -46,6 +46,11 @@
                                                              class="skill-icon"
                                                              alt="Monstery Kills"
                                                              title="Monster Kills">
+                                                    {% elseif 'i found a' in adventureLogItem.text|lower %}
+                                                        <img src="https://runescape.wiki/images/{{ make_loot_image(adventureLogItem) }}"
+                                                             class="skill-icon"
+                                                             alt="{{ get_loot_name(adventureLogItem) }}"
+                                                             title="{{ get_loot_name(adventureLogItem) }}">
                                                     {% else %}
                                                         <img src="https://runescape.wiki/images/Task_icon.png"
                                                              class="skill-icon"

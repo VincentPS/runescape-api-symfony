@@ -57,7 +57,7 @@
                                             </div>
                                             <div class="card-body sub-card inner-card">
                                                 <div class="list-group">
-                                                    {% for adventureLogItem in playerInfo.activities|slice(0,5) %}
+                                                    {% for adventureLogItem in playerInfo.activities|slice(0,9) %}
                                                         <div class="list-group-item list-group-item-action">
                                                             <div class="row align-items-center">
                                                                 <div class="col-auto pe-0">
@@ -82,6 +82,11 @@
                                                                              class="skill-icon"
                                                                              alt="Monstery Kills"
                                                                              title="Monster Kills">
+                                                                    {% elseif 'i found a' in adventureLogItem.text|lower %}
+                                                                        <img src="https://runescape.wiki/images/{{ make_loot_image(adventureLogItem) }}"
+                                                                             class="skill-icon"
+                                                                             alt="{{ get_loot_name(adventureLogItem) }}"
+                                                                             title="{{ get_loot_name(adventureLogItem) }}">
                                                                     {% else %}
                                                                         <img src="https://runescape.wiki/images/Task_icon.png"
                                                                              class="skill-icon"
