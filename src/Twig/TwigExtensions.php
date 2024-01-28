@@ -15,6 +15,7 @@ class TwigExtensions extends AbstractExtension
         return [
             new TwigFunction('get_skill_name', [$this, 'getSkillName']),
             new TwigFunction('make_loot_image', [$this, 'makeLootImage']),
+            new TwigFunction('get_loot_name', [$this, 'getLootItemName']),
         ];
     }
 
@@ -40,6 +41,37 @@ class TwigExtensions extends AbstractExtension
 
     public function makeLootImage(Activity $adventureLogItem): ?string
     {
+        $imageName = $this->makeLootNameBasedOnAdventureLogItem($adventureLogItem);
+
+        if (!empty($imageName)) {
+            return $imageName . '_detail.png';
+        }
+
+        return 'RuneMetrics_icon.png';
+    }
+
+    public function getLootItemName(Activity $adventureLogItem): string
+    {
+        $imageName = $this->makeLootNameBasedOnAdventureLogItem($adventureLogItem);
+
+        if (!empty($imageName)) {
+            return str_replace(['_'], [' '], $imageName);
+        }
+
+        return 'Loot';
+    }
+
+    /**
+     * @return string[]
+     */
+    public function pregMatchFilter(string $string, string $pattern): array
+    {
+        preg_match($pattern, $string, $matches);
+        return $matches;
+    }
+
+    private function makeLootNameBasedOnAdventureLogItem(Activity $adventureLogItem): string
+    {
         //check if last character of the string is a period and remove it
         $lastCharacter = substr((string)$adventureLogItem->text, -1);
         if ($lastCharacter === '.') {
@@ -64,21 +96,10 @@ class TwigExtensions extends AbstractExtension
 
                 $imageName = str_replace(['s\'', ' '], ['', '_'], ucfirst($extractedString));
                 $imageName = $this->handleLootImageSpecialCases($imageName);
-
-                return $imageName . '_detail.png';
             }
         }
 
-        return 'RuneMetrics_icon.png';
-    }
-
-    /**
-     * @return string[]
-     */
-    public function pregMatchFilter(string $string, string $pattern): array
-    {
-        preg_match($pattern, $string, $matches);
-        return $matches;
+        return $imageName ?? '';
     }
 
     private function handleLootImageSpecialCases(string $imageName): string
