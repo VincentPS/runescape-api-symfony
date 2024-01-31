@@ -14,9 +14,10 @@
             <div class="col-10 ps-0 activity-page">
                 <div class="card card-wrapper">
                     <div class="card-header no-border">
-                        <h2>ACTIVITY (Todo: add filters)</h2>
+                        <h2>ACTIVITY</h2>
                     </div>
                     <div class="card-body main-card">
+                        <div class="row g-2">{{ form(filterForm) }}</div>
                         <div class="row">
                             {% for adventureLogItem in activities %}
                                 <div class="row">
@@ -51,6 +52,11 @@
                                                              class="skill-icon"
                                                              alt="{{ get_loot_name(adventureLogItem) }}"
                                                              title="{{ get_loot_name(adventureLogItem) }}">
+                                                    {% elseif 'levelled all' in adventureLogItem.text|lower %}
+                                                        <img src="https://runescape.wiki/images/Statistics.png"
+                                                             class="skill-icon"
+                                                             alt="Total Skills Milestone"
+                                                             title="Total Skills Milestone">
                                                     {% else %}
                                                         <img src="https://runescape.wiki/images/Task_icon.png"
                                                              class="skill-icon"

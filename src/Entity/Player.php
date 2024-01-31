@@ -14,6 +14,9 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 #[ORM\Index(columns: ['created_at'])]
 #[ORM\Index(columns: ['name', 'created_at', 'total_xp'])]
 #[ORM\Index(columns: ['created_at', 'total_xp'])]
+#[ORM\Index(columns: ['activities'], flags: ['jsonb_path_ops'])]
+#[ORM\Index(columns: ['skill_values'], flags: ['jsonb_path_ops'])]
+#[ORM\Index(columns: ['quests'], flags: ['jsonb_path_ops'])]
 class Player
 {
     use TimestampableEntity;
