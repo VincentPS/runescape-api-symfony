@@ -3,7 +3,7 @@
 {% block title %}Runescape Dashboard - Summary{% endblock %}
 
 {% block body %}
-    <div class="container-fluid">
+    <div class="container-fluid" {{ stimulus_controller('activities') }}>
         {% include 'includes/header.html.twig' %}
 
         <!-- Main Section -->
@@ -12,11 +12,15 @@
 
             <!-- Summary -->
             <div class="col-10 ps-0 activity-page">
+                <button type="button" class="btn btn-custom btn-floating btn-lg" id="btn-back-to-top">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
                 <div class="card card-wrapper">
                     <div class="card-header no-border">
-                        <h2>ACTIVITY (Todo: add filters)</h2>
+                        <h2>ACTIVITY</h2>
                     </div>
                     <div class="card-body main-card">
+                        <div class="row g-2">{{ form(filterForm) }}</div>
                         <div class="row">
                             {% for adventureLogItem in activities %}
                                 <div class="row">
@@ -25,33 +29,7 @@
                                         <div class="card sub-card">
                                             <div class="card-header">
                                                 <h2>
-                                                    {% set skill = get_skill_name(adventureLogItem.text) %}
-                                                    {% if skill %}
-                                                        <img src="https://runescape.wiki/images/{{ skill }}-icon.png"
-                                                             class="skill-icon"
-                                                             alt="{{ skill }}"
-                                                             title="{{ skill }}">
-                                                    {% elseif 'quest' in adventureLogItem.text|lower %}
-                                                        <img src="https://runescape.wiki/images/Quest.png"
-                                                             class="skill-icon"
-                                                             alt="Quest"
-                                                             title="Quest">
-                                                    {% elseif 'archaeological mystery' in adventureLogItem.text|lower %}
-                                                        <img src="https://runescape.wiki/images/Archaeology_-_Mysteries_achievement_icon.png"
-                                                             class="skill-icon"
-                                                             alt="Archaeology Mystery"
-                                                             title="Archaeology Mystery">
-                                                    {% elseif 'i killed' in adventureLogItem.text|lower %}
-                                                        <img src="https://runescape.wiki/images/Combat_icon_large.png"
-                                                             class="skill-icon"
-                                                             alt="Monstery Kills"
-                                                             title="Monster Kills">
-                                                    {% else %}
-                                                        <img src="https://runescape.wiki/images/Task_icon.png"
-                                                             class="skill-icon"
-                                                             alt="Achievement"
-                                                             title="Achievement">
-                                                    {% endif %}
+                                                    {% include 'includes/activity_item.html.twig' %}
                                                     {% if adventureLogItem.text is not null and adventureLogItem.text is not empty %}
                                                         {% if 'XP' in adventureLogItem.text %}
                                                             {{ adventureLogItem.text|split('XP')|first|number_format }} XP{{ adventureLogItem.text|split('XP')|last|trim('.') }}
@@ -67,7 +45,7 @@
                                                         <div class="row align-items-center">
                                                             <div class="col ps-0">
                                                                 <div class="d-flex w-100 justify-content-between">
-                                                                    <h5 class="mb-0 ps-3 adventure-log-item-details">
+                                                                    <h5 class="mb-0 ps-3 p-2 adventure-log-item-details">
                                                                         {% set matches = adventureLogItem.details|preg_match('/([0-9,]+) experience points? in the (.+) skill\./') %}
                                                                         {% if matches is not empty %}
                                                                             I now have at least {{ matches[1]|number_format }} experience points in the {{ matches[2] }} skill.
@@ -75,7 +53,7 @@
                                                                             {{ adventureLogItem.details }}
                                                                         {% endif %}
                                                                     </h5>
-                                                                    <p class="mb-0 adventure-log-item-time ms-4">
+                                                                    <p class="mb-0 adventure-log-item-time ms-4 p-2">
                                                                         <small>
                                                                             <i class="fa-regular fa-clock"></i>
                                                                             {{ adventureLogItem.date|date('d-M-Y H:i') }}

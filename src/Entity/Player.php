@@ -14,6 +14,9 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 #[ORM\Index(columns: ['created_at'])]
 #[ORM\Index(columns: ['name', 'created_at', 'total_xp'])]
 #[ORM\Index(columns: ['created_at', 'total_xp'])]
+#[ORM\Index(columns: ['activities'], flags: ['jsonb_path_ops'])]
+#[ORM\Index(columns: ['skill_values'], flags: ['jsonb_path_ops'])]
+#[ORM\Index(columns: ['quests'], flags: ['jsonb_path_ops'])]
 class Player
 {
     use TimestampableEntity;
@@ -26,8 +29,7 @@ class Player
     #[ORM\Column]
     private ?int $totalSkill = null;
 
-    /** @todo change to bigint, because total xp can be 5.800.000.000 (5.8b) */
-    #[ORM\Column]
+    #[ORM\Column(type: 'bigint')]
     private ?int $totalXp = null;
 
     #[ORM\Column(length: 255, nullable: true)]

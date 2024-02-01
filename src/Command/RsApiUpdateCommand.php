@@ -50,21 +50,28 @@ class RsApiUpdateCommand extends Command
 
         $latestDataPointAfterUpdate = $this->playerRepository->findLatestByName($playerName);
 
-        if (is_null($latestDataPointBeforeUpdate) || is_null($latestDataPointAfterUpdate)) {
+        if (is_null($latestDataPointBeforeUpdate)) {
+            $io->info([
+                'No data was found for player: ' . $playerName . ' yet.',
+                'Attempting to fetch data from the API.',
+            ]);
+        }
+
+        if (is_null($latestDataPointAfterUpdate)) {
             $io->error([
-                'No data was found for player: ' . $playerName,
-                'Please check the spelling of the player name.',
+                'No data was found for player: ' . $playerName . ' after attempting to fetch data from the API.',
+                'Please check the logs for more information.',
             ]);
 
             return Command::FAILURE;
         }
 
-        if ($latestDataPointBeforeUpdate->getCreatedAt() === $latestDataPointAfterUpdate->getCreatedAt()) {
+        if ($latestDataPointBeforeUpdate?->getCreatedAt() === $latestDataPointAfterUpdate->getCreatedAt()) {
             $io->info([
                 'No new data was found',
                 'Latest data point was created at: ' .
                 $latestDataPointBeforeUpdate
-                    ->getCreatedAt()
+                    ?->getCreatedAt()
                     ?->format('D, d M Y H:i:s'),
             ]);
 

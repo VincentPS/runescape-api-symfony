@@ -7,6 +7,7 @@ use App\Message\FetchLatestApiData;
 use App\Service\RsApiService;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 #[AsMessageHandler]
 final class FetchLatestApiDataHandler
@@ -16,8 +17,10 @@ final class FetchLatestApiDataHandler
     }
 
     /**
+     * @param FetchLatestApiData $message
      * @throws GuzzleException
      * @throws PlayerApiDataConversionException
+     * @throws ExceptionInterface
      */
     public function __invoke(FetchLatestApiData $message): void
     {

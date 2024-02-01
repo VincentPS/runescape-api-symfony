@@ -7,6 +7,24 @@ body {
     line-height: 1.5;
 }
 
+.btn-custom {
+    background: linear-gradient(#fff2c5, #fad54f, #ffb500, #ce720a) !important;
+    border: none;
+    transition: background 0.3s ease;
+}
+
+.btn-custom:hover {
+    background: linear-gradient(#ce720a, #ffb500, #fad54f, #fff2c5) !important;
+}
+
+#btn-back-to-top {
+    position: fixed;
+    bottom: 2em;
+    right: 2em;
+    display: none;
+    z-index: 1;
+}
+
 .card-wrapper {
     border: 1px solid #2c3d49;
     --bs-card-bg: #071f2a;
@@ -44,7 +62,7 @@ body {
     font-style: normal;
     font-weight: 700;
     text-rendering: optimizeLegibility;
-    font-size: 1.4em;
+    font-size: 1.3em;
     line-height: 2em;
 }
 
@@ -57,7 +75,7 @@ body {
     border-right: 1px solid #2c3d49;
     border-left: 1px solid #2c3d49;
     --bs-list-group-action-hover-color: unset;
-    --bs-list-group-action-hover-bg:unset;
+    --bs-list-group-action-hover-bg: unset;
     --bs-list-group-action-active-color: unset;
     --bs-list-group-action-active-bg: unset;
     --bs-list-group-border-radius: 0;
@@ -89,10 +107,11 @@ body {
 
 .activity-page .adventure-log-item-time {
     min-width: 9rem;
+    font-size: 1em;
 }
 
 .activity-page .adventure-log-item-details {
-    font-size: 17px;
+    font-size: 1em;
     font-weight: 300;
 }
 
@@ -139,7 +158,7 @@ body {
     border: 5px solid #02131A;
     display: inline-block;
     justify-content: center;
-    background: rgba(44,61,73,.21);
+    background: rgba(44, 61, 73, .21);
 }
 
 .skill-level {
@@ -168,7 +187,7 @@ body {
     height: 65px;
     margin: 5px 10px 10px 0;
     padding: 1px;
-    background: linear-gradient(#010b10,#02131a);
+    background: linear-gradient(#010b10, #02131a);
     border: 1px solid #2c3d49;
     border-radius: 50%;
     box-shadow: inset 0 0 5px 5px #141414, 0 0 5px 5px rgb(0 0 0 / 30%);
@@ -222,7 +241,7 @@ body {
     font-size: 1rem;
     height: 2.3125rem;
     box-sizing: border-box;
-    transition: border-color .15s linear,background .15s linear;
+    transition: border-color .15s linear, background .15s linear;
     width: 167px;
     padding: 0.7rem;
 }
@@ -244,7 +263,7 @@ body {
     margin: 0 0 0 -5px;
     padding: 6px;
     height: 2.3125rem;
-    background: linear-gradient(#fff2c5,#fad54f,#ffb500,#ce720a);
+    background: linear-gradient(#fff2c5, #fad54f, #ffb500, #ce720a);
 }
 
 .player-name-search-button i {

@@ -96,7 +96,7 @@
         ],
         "lint": [
             "php vendor/bin/phpcs -d memory_limit=128M",
-            "php vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 1024M --xdebug"
+            "php vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 1024M"
         ],
         "lint-fix": [
             "php vendor/bin/phpcbf"

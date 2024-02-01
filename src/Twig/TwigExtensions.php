@@ -2,6 +2,7 @@
 
 namespace App\Twig;
 
+use App\Dto\Activity;
 use App\Enum\SkillEnum;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -12,7 +13,9 @@ class TwigExtensions extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('get_skill_name', [$this, 'getSkillName'])
+            new TwigFunction('get_skill_name', [$this, 'getSkillName']),
+            new TwigFunction('make_loot_image', [$this, 'makeLootImage']),
+            new TwigFunction('get_loot_name', [$this, 'getLootItemName']),
         ];
     }
 
@@ -36,6 +39,28 @@ class TwigExtensions extends AbstractExtension
         return null;
     }
 
+    public function makeLootImage(Activity $adventureLogItem): ?string
+    {
+        $imageName = $this->makeLootNameBasedOnAdventureLogItem($adventureLogItem);
+
+        if (!empty($imageName)) {
+            return $imageName . '_detail.png';
+        }
+
+        return 'RuneMetrics_icon.png';
+    }
+
+    public function getLootItemName(Activity $adventureLogItem): string
+    {
+        $imageName = $this->makeLootNameBasedOnAdventureLogItem($adventureLogItem);
+
+        if (!empty($imageName)) {
+            return str_replace(['_'], [' '], $imageName);
+        }
+
+        return 'Loot';
+    }
+
     /**
      * @return string[]
      */
@@ -43,5 +68,45 @@ class TwigExtensions extends AbstractExtension
     {
         preg_match($pattern, $string, $matches);
         return $matches;
+    }
+
+    private function makeLootNameBasedOnAdventureLogItem(Activity $adventureLogItem): string
+    {
+        //check if last character of the string is a period and remove it
+        $lastCharacter = substr((string)$adventureLogItem->text, -1);
+        if ($lastCharacter === '.') {
+            $adventureLogItem->text = substr((string)$adventureLogItem->text, 0, -1);
+        }
+
+        $foundPositionAn = strpos((string)$adventureLogItem->text, "I found an");
+        $foundPositionA = strpos((string)$adventureLogItem->text, "I found a");
+
+        if ($foundPositionAn !== false || $foundPositionA !== false) {
+            $foundString = ($foundPositionAn !== false) ? "I found an" : "I found a";
+
+            $foundPosition = strpos((string)$adventureLogItem->text, $foundString);
+
+            if ($foundPosition !== false) {
+                $extractedString = trim(
+                    substr(
+                        (string)$adventureLogItem->text,
+                        $foundPosition + strlen($foundString)
+                    )
+                );
+
+                $imageName = str_replace(['s\'', ' '], ['', '_'], ucfirst($extractedString));
+                $imageName = $this->handleLootImageSpecialCases($imageName);
+            }
+        }
+
+        return $imageName ?? '';
+    }
+
+    private function handleLootImageSpecialCases(string $imageName): string
+    {
+        return match ($imageName) {
+            'Crystal_triskelion_fragment' => 'Crystal_triskelion',
+            default => $imageName,
+        };
     }
 }

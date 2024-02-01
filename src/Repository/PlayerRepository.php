@@ -3,9 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Player;
+use App\Enum\ActivityFilter;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -104,9 +106,9 @@ class PlayerRepository extends ServiceEntityRepository
      * The activities are unique (i.e. there are no duplicate activities in the array) and are sorted in descending
      * order by their "date" property. If the player has no activities, an empty array is returned.
      *
-     * @throws \Doctrine\DBAL\Exception If an error occurs while executing the query.
+     * @throws DBALException If an error occurs while executing the query.
      */
-    public function findAllUniqueActivitiesByName(string $name): string|bool
+    public function findAllUniqueActivitiesByPlayerName(string $name): string|bool
     {
         $stmt = <<<SQL
             SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
@@ -145,7 +147,7 @@ class PlayerRepository extends ServiceEntityRepository
      * - 'unique_xp': An array containing all the unique XP values recorded for that day, in ascending order.
      * - 'avg_xp_gained': The average amount of XP gained by the player for that day.
      *
-     * @throws \Doctrine\DBAL\Exception If an error occurs while executing the database query.
+     * @throws DBALException If an error occurs while executing the database query.
      */
     public function findAllUniqueTotalXpBetweenDatesByNameGroupByDay(
         DateTimeInterface $start,
@@ -233,5 +235,45 @@ class PlayerRepository extends ServiceEntityRepository
         } catch (Exception) {
             return null;
         }
+    }
+
+    /**
+     * Finds all player activities of a specific type based on the provided ActivityFilter.
+     *
+     * @param ActivityFilter $type The type of activities to filter (e.g., 'skills', 'quests', 'bosskills', 'loot').
+     * @return string|bool Returns a JSON string containing the aggregated activities of the specified type,
+     *                    or `false` if an error occurs during the database query.
+     * @throws DBALException If an error occurs during the database query execution.
+     */
+    public function findAllUniqueActivitiesByPlayerNameAndActivityFilter(
+        string $playerName,
+        ActivityFilter $type
+    ): string|bool {
+        $stmt = <<<SQL
+            SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
+            FROM (SELECT DISTINCT jsonb_array_elements(activities) AS activity
+                  FROM player
+                  WHERE name = :name) AS all_activities
+            WHERE activity IS NOT NULL
+                      AND CASE
+                          WHEN :type = 'skills' THEN activity ->> 'text' ILIKE '%levelled%' OR
+                                                     activity ->> 'text' ILIKE '%xp in%'
+                          WHEN :type = 'quests' THEN activity ->> 'text' ILIKE '%quest complete%'
+                          WHEN :type = 'bosses' THEN activity ->> 'text' ILIKE '%killed%'
+                          WHEN :type = 'loot'   THEN activity ->> 'text' ILIKE '%i found%' AND
+                                                     activity ->> 'text' NOT ILIKE '%pet%'
+                          WHEN :type = 'pets'   THEN activity ->> 'text' ILIKE '%i found%' AND
+                                                     activity ->> 'text' ILIKE '%pet%'
+                          ELSE FALSE
+                      END
+        SQL;
+
+        $result = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($stmt, ['name' => $playerName, 'type' => strtolower($type->name)])
+            ->fetchOne();
+
+        return !is_string($result) ? false : $result;
     }
 }
