@@ -8,11 +8,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final class HandleDataPointPersistHandler
+final readonly class HandleDataPointPersistHandler
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly PlayerRepository $playerRepository
+        private EntityManagerInterface $entityManager,
+        private PlayerRepository $playerRepository
     ) {
     }
 

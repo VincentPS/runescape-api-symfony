@@ -7,7 +7,6 @@ use App\Enum\KnownPlayers;
 use App\Enum\QuestStatus;
 use App\Exception\PlayerApi\PlayerApiDataConversionException;
 use App\Message\HandleDataPointPersist;
-use Doctrine\Common\Annotations\AnnotationReader;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
@@ -16,7 +15,7 @@ use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
@@ -32,11 +31,7 @@ class RsApiService
         GuzzleCachedClient $client,
         private readonly MessageBusInterface $messageBus
     ) {
-        $classMetadataFactory = new ClassMetadataFactory(
-            new AnnotationLoader(
-                new AnnotationReader()
-            )
-        );
+        $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
 
         $this->serializer = new Serializer(
             [
@@ -120,6 +115,12 @@ class RsApiService
          */
         $jsonDecoded = $this->serializer->decode($jsonBody, 'json');
 
+        // this is a workaround for the fact that the API returns an integer for totalxp, but it can be larger than
+        // PHP's max int
+        if (array_key_exists('totalxp', $jsonDecoded)) {
+            $jsonDecoded['totalxp'] = (string)$jsonDecoded['totalxp'];
+        }
+
         if (array_key_exists('error', $jsonDecoded) && $jsonDecoded['error'] === 'NO_PROFILE') {
             throw new PlayerApiDataConversionException('No player found with name: ' . $player);
         }
@@ -140,7 +141,7 @@ class RsApiService
         array_filter(
             $jsonDecoded['quests'],
             function ($quest) use (&$questsCompleted, &$questsStarted, &$questsNotStarted) {
-                match ($quest['status']) {
+                return match ($quest['status']) {
                     QuestStatus::Completed->value => $questsCompleted++,
                     QuestStatus::Started->value => $questsStarted++,
                     QuestStatus::NotStarted->value => $questsNotStarted++,
