@@ -9,6 +9,20 @@ body {
 
 .btn-custom {
     background: linear-gradient(#fff2c5, #fad54f, #ffb500, #ce720a) !important;
+    border: none;
+    transition: background 0.3s ease;
+}
+
+.btn-custom:hover {
+    background: linear-gradient(#ce720a, #ffb500, #fad54f, #fff2c5) !important;
+}
+
+#btn-back-to-top {
+    position: fixed;
+    bottom: 2em;
+    right: 2em;
+    display: none;
+    z-index: 1;
 }
 
 .card-wrapper {
@@ -48,7 +62,7 @@ body {
     font-style: normal;
     font-weight: 700;
     text-rendering: optimizeLegibility;
-    font-size: 1.4em;
+    font-size: 1.3em;
     line-height: 2em;
 }
 
@@ -93,10 +107,11 @@ body {
 
 .activity-page .adventure-log-item-time {
     min-width: 9rem;
+    font-size: 1em;
 }
 
 .activity-page .adventure-log-item-details {
-    font-size: 17px;
+    font-size: 1em;
     font-weight: 300;
 }
 

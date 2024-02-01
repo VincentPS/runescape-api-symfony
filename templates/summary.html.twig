@@ -61,38 +61,7 @@
                                                         <div class="list-group-item list-group-item-action">
                                                             <div class="row align-items-center">
                                                                 <div class="col-auto pe-0">
-                                                                    {% set skill = get_skill_name(adventureLogItem.text) %}
-                                                                    {% if skill %}
-                                                                        <img src="https://runescape.wiki/images/{{ skill }}-icon.png"
-                                                                             class="skill-icon"
-                                                                             alt="{{ skill }}"
-                                                                             title="{{ skill }}">
-                                                                    {% elseif 'quest' in adventureLogItem.text|lower %}
-                                                                        <img src="https://runescape.wiki/images/Quest.png"
-                                                                             class="skill-icon"
-                                                                             alt="Quest"
-                                                                             title="Quest">
-                                                                    {% elseif 'archaeological mystery' in adventureLogItem.text|lower %}
-                                                                        <img src="https://runescape.wiki/images/Archaeology_-_Mysteries_achievement_icon.png"
-                                                                             class="skill-icon"
-                                                                             alt="Archaeology Mystery"
-                                                                             title="Archaeology Mystery">
-                                                                    {% elseif 'i killed' in adventureLogItem.text|lower %}
-                                                                        <img src="https://runescape.wiki/images/Combat_icon_large.png"
-                                                                             class="skill-icon"
-                                                                             alt="Monstery Kills"
-                                                                             title="Monster Kills">
-                                                                    {% elseif 'i found a' in adventureLogItem.text|lower %}
-                                                                        <img src="https://runescape.wiki/images/{{ make_loot_image(adventureLogItem) }}"
-                                                                             class="skill-icon"
-                                                                             alt="{{ get_loot_name(adventureLogItem) }}"
-                                                                             title="{{ get_loot_name(adventureLogItem) }}">
-                                                                    {% else %}
-                                                                        <img src="https://runescape.wiki/images/Task_icon.png"
-                                                                             class="skill-icon"
-                                                                             alt="Achievement"
-                                                                             title="Achievement">
-                                                                    {% endif %}
+                                                                    {% include 'includes/activity_item.html.twig' %}
                                                                 </div>
                                                                 <div class="col ps-0">
                                                                     <div class="d-flex w-100 justify-content-between">
