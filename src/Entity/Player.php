@@ -30,7 +30,7 @@ class Player
     private ?int $totalSkill = null;
 
     #[ORM\Column(type: 'bigint')]
-    private ?int $totalXp = null;
+    private ?string $totalXp = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $rank = null;
@@ -82,12 +82,12 @@ class Player
         return $this;
     }
 
-    public function getTotalXp(): ?int
+    public function getTotalXp(): ?string
     {
         return $this->totalXp;
     }
 
-    public function setTotalXp(int $totalXp): self
+    public function setTotalXp(string $totalXp): self
     {
         $this->totalXp = $totalXp;
 
