@@ -36,6 +36,10 @@ body {
     overflow: hidden;
 }
 
+.main-card-header {
+    border-bottom: 1px solid #2c3d49 !important;
+}
+
 .sub-card {
     background-color: #02131A;
     border-radius: 0;
@@ -106,7 +110,7 @@ body {
 }
 
 .activity-page .adventure-log-item-time {
-    min-width: 9rem;
+    min-width: 10rem;
     font-size: 1em;
 }
 
