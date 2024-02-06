@@ -14,7 +14,7 @@
          class="skill-icon"
          alt="Archaeology Mystery"
          title="Archaeology Mystery">
-{% elseif 'i killed' in adventureLogItem.text|lower %}
+{% elseif 'i killed' or 'i defeated' in adventureLogItem.text|lower %}
     <img src="https://runescape.wiki/images/Combat_icon_large.png"
          class="skill-icon"
          alt="Monstery Kills"

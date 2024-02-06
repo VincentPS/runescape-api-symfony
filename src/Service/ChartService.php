@@ -10,11 +10,11 @@ use Doctrine\ORM\NoResultException;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 
-class ChartService
+readonly class ChartService
 {
     public function __construct(
-        private readonly ChartBuilderInterface $chartBuilder,
-        private readonly PlayerRepository $playerRepository
+        private ChartBuilderInterface $chartBuilder,
+        private PlayerRepository $playerRepository
     ) {
     }
 
@@ -47,8 +47,11 @@ class ChartService
         }
 
         //todo set year dynamically based on dateTimes result
-        $startDate = new DateTimeImmutable('first day of January this year');
-        $endDate = new DateTimeImmutable('last day of December this year');
+//        $startDate = new DateTimeImmutable('first day of January this year');
+//        $endDate = new DateTimeImmutable('last day of December this year');
+
+        $startDate = new DateTimeImmutable('first day of this month');
+        $endDate = new DateTimeImmutable('last day of this month');
 
         if (is_null($dateTimes)) {
             $dateTimes = [
