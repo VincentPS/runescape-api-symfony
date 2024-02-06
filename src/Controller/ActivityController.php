@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Dto\Activity;
 use App\Enum\ActivityFilter;
+use App\Enum\SkillEnum;
 use App\Repository\PlayerRepository;
 use Doctrine\DBAL\Exception;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
@@ -29,14 +30,29 @@ class ActivityController extends AbstractBaseController
             $activities = [];
 
             if ($filterForm->isSubmitted() && $filterForm->isValid()) {
-                /** @var array{'acitivityCategory': ActivityFilter} $formData */
+                /** @var array{
+                 *     'acitivityCategory': ActivityFilter,
+                 *     'skillCategory': SkillEnum
+                 * } $formData
+                 */
                 $formData = $filterForm->getData();
 
                 if ($formData['acitivityCategory'] !== ActivityFilter::All) {
-                    $activities = $playerRepository->findAllUniqueActivitiesByPlayerNameAndActivityFilter(
-                        $playerName,
-                        $formData['acitivityCategory']
-                    );
+                    if (
+                        $formData['acitivityCategory'] == ActivityFilter::Skills
+                        && array_key_exists('skillCategory', $formData)
+                        && $formData['skillCategory'] !== null
+                    ) {
+                        $activities = $playerRepository->findAllUniqueActivitiesByPlayerNameAndSkill(
+                            $playerName,
+                            $formData['skillCategory']
+                        );
+                    } else {
+                        $activities = $playerRepository->findAllUniqueActivitiesByPlayerNameAndActivityFilter(
+                            $playerName,
+                            $formData['acitivityCategory']
+                        );
+                    }
                 }
             }
 
@@ -74,7 +90,7 @@ class ActivityController extends AbstractBaseController
         $form = $this->formFactory
             ->createNamedBuilder(name: 'filter_activities_form', options: [
                 'attr' => [
-                    'class' => 'align-items-center d-flex'
+                    'class' => 'align-items-center d-flex mb-1'
 
                 ]
             ])
@@ -85,15 +101,34 @@ class ActivityController extends AbstractBaseController
                 ],
                 'label' => false,
                 'class' => ActivityFilter::class
-            ])
-            ->add('search', SubmitType::class, [
-                'label' => 'Filter',
-                'attr' => [
-                    'class' => 'ms-2 btn btn-custom'
-                ]
-            ])
-            ->getForm();
+            ]);
 
+        // If the form is submitted and the activity category skills is selected, then show the skill category
+        if (
+            is_array($request->request->all())
+            && array_key_exists('filter_activities_form', $request->request->all())
+            && is_array($request->request->all()['filter_activities_form'])
+            && array_key_exists('acitivityCategory', $request->request->all()['filter_activities_form'])
+            && $request->request->all()['filter_activities_form']['acitivityCategory'] === ActivityFilter::Skills->value
+        ) {
+            $form->add('skillCategory', EnumType::class, [
+                'attr' => [
+                    'class' => 'form-select ms-2 pe-4',
+                    'placeholder' => 'filter'
+                ],
+                'label' => false,
+                'class' => SkillEnum::class,
+            ]);
+        }
+
+        $form->add('search', SubmitType::class, [
+            'label' => 'Filter',
+            'attr' => [
+                'class' => 'ms-3 btn btn-custom'
+            ]
+        ]);
+
+        $form = $form->getForm();
         $form->handleRequest($request);
 
         return $form;

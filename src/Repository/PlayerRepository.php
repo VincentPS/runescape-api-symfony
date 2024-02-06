@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Player;
 use App\Enum\ActivityFilter;
+use App\Enum\SkillEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -272,6 +273,35 @@ class PlayerRepository extends ServiceEntityRepository
             ->getEntityManager()
             ->getConnection()
             ->executeQuery($stmt, ['name' => $playerName, 'type' => strtolower($type->name)])
+            ->fetchOne();
+
+        return !is_string($result) ? false : $result;
+    }
+
+    /**
+     * Finds all player activities of a specific type based on the provided ActivityFilter.
+     *
+     * @param SkillEnum $skill The skill to filter activities by.
+     * @return string|bool Returns a JSON string containing the aggregated activities of the specified type,
+     *                    or `false` if an error occurs during the database query.
+     * @throws DBALException If an error occurs during the database query execution.
+     */
+    public function findAllUniqueActivitiesByPlayerNameAndSkill(string $playerName, SkillEnum $skill): string|bool
+    {
+        $stmt = <<<SQL
+            SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
+            FROM (SELECT DISTINCT jsonb_array_elements(activities) AS activity
+                  FROM player
+                  WHERE name = :name) AS all_activities
+            WHERE activity IS NOT NULL
+              AND (activity ->> 'text' ILIKE '%levelled%' OR activity ->> 'text' ILIKE '%xp in%')
+              AND activity ->> 'text' ILIKE '%' || :skill || '%'
+        SQL;
+
+        $result = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($stmt, ['name' => $playerName, 'skill' => $skill->name])
             ->fetchOne();
 
         return !is_string($result) ? false : $result;
