@@ -1,11 +1,11 @@
 # RuneMetrics Re-Creation Project
 
 [![main branch](https://github.com/VincentPS/runescape-api-symfony/actions/workflows/lintAndTests.yml/badge.svg)](https://github.com/VincentPS/runescape-api-symfony)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D_8.2-8892BF.svg?logo=php)](https://www.php.net/releases/8.2/en.php)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D_8.3-8892BF.svg?logo=php)](https://www.php.net/releases/8.3/en.php)
 [![Static Badge](https://img.shields.io/badge/symfony-%3E%3D_7-green?logo=symfony)](https://symfony.com/7)
 
 
-Welcome to the RuneMetrics Re-Creation project! This Symfony 6.2 application, built using PHP 8.2, aims to recreate the functionality of the RuneMetrics apps from Jagex. It leverages the public RuneScape API to gather player data and provides a user-friendly interface to view and analyze the data. This README will guide you through the setup, configuration, and usage of the project.
+Welcome to the RuneMetrics Re-Creation project! This Symfony 7 application, built using PHP 8.3, aims to recreate the functionality of the RuneMetrics apps from Jagex. It leverages the public RuneScape API to gather player data and provides a user-friendly interface to view and analyze the data. This README will guide you through the setup, configuration, and usage of the project.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ Welcome to the RuneMetrics Re-Creation project! This Symfony 6.2 application, bu
 
 Before getting started, ensure you have the following prerequisites installed:
 
-- PHP 8.2
+- PHP 8.3
 - Composer (Dependency Manager for PHP)
 - Symfony CLI
 - Git
