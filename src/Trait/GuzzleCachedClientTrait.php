@@ -43,18 +43,19 @@ trait GuzzleCachedClientTrait
     private function getProjectDir(): ?string
     {
         $markerFiles = ['.env', 'composer.json'];
-        $currentDir = realpath(getcwd());
+
+        $currentDir = realpath((string)getcwd());
 
         while ($currentDir !== '/') {
             foreach ($markerFiles as $marker) {
                 $markerPath = $currentDir . DIRECTORY_SEPARATOR . $marker;
 
                 if (file_exists($markerPath)) {
-                    return $currentDir;
+                    return (string)$currentDir;
                 }
             }
 
-            $currentDir = dirname($currentDir);
+            $currentDir = dirname((string)$currentDir);
         }
 
         return null;

@@ -56,11 +56,12 @@ enum CatalogueCategory: int
     public static function getRepresentableCases(): array
     {
         $cases = self::cases();
+        $representableCases = [];
 
         foreach ($cases as $case) {
             $representableCases[str_replace('_', ' ', $case->name)] = $case->value;
         }
 
-        return $representableCases ?? [];
+        return $representableCases;
     }
 }

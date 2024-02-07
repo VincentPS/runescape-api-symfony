@@ -21,7 +21,7 @@ class CatalogueResponseCollection
     }
 
     /**
-     * @param array $categories
+     * @param CatalogueResponseCategory[] $categories
      */
     public function setCategories(array $categories): void
     {
