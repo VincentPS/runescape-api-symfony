@@ -19,7 +19,3 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
-    App\Service\GuzzleCachedClient:
-        arguments:
-            $projectDir: '%kernel.project_dir%'

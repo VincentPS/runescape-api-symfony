@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Runescape Dashboard - Grand Exchange{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {% include 'includes/header.html.twig' %}
+
+        <!-- Main Section -->
+        <div class="row pt-1">
+            {% include 'includes/sidemenu.html.twig' %}
+
+            <!-- Grand Exchange -->
+            <div class="col-10 ps-0">
+                <div class="card card-wrapper">
+                    <div class="card-header no-border main-card-header">
+                        <h2>GRAND EXCHANGE</h2>
+                    </div>
+                    <div class="card-body main-card">
+                        {% include 'includes/alerts.html.twig' %}
+
+                        <div class="row g-2">
+                            {{ form(itemForm) }}
+                        </div>
+                        <div class="row">
+                            {% if catalogueResponseCollection is not null %}
+                                {% for category in catalogueResponseCollection.categories %}
+                                    {% if category.catalogueResponse.items is not empty %}
+                                        <div class="col-6">
+                                            {% if multipleCategories %}
+                                                <h3 class="text-light">
+                                                    {{ category.category.name|replace({'_': ' '}) }}
+                                                </h3>
+                                            {% endif %}
+                                            <div class="table-responsive">
+                                                <table class="table table-custom">
+                                                    <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Item</th>
+                                                        <th>Price</th>
+                                                        <th>Members</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for item in category.catalogueResponse.items %}
+                                                        <tr>
+                                                            <td>
+                                                                <img src="{{ item.icon }}"
+                                                                     alt="{{ item.name }}"
+                                                                     class="item-icon">
+                                                            </td>
+                                                            <td>{{ item.name }}</td>
+                                                            <td>{{ item.current.price }}</td>
+                                                            <td>
+                                                                {% if item.members %}
+                                                                    <img src="https://runescape.wiki/images/P2P_icon.png"
+                                                                         alt="Members"
+                                                                         class="ge-members-icon">
+                                                                {% else %}
+                                                                    <img src="https://runescape.wiki/images/F2P_icon.png"
+                                                                         alt="Non-Members"
+                                                                         class="ge-members-icon">
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

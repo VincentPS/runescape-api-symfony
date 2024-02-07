@@ -32,6 +32,15 @@
                         </div>
                     </div>
                 </a>
+                <a href="{{ path('app_dashboard_grand_exchange') }}"
+                   class="side-menu-item-link">
+                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_grand_exchange' ? 'active' : '' }}">
+                        <div class="d-flex w-100">
+                            <i class="fa-solid fa-coins side-menu-icon"></i>
+                            <span class="side-menu-title ms-4">Grand Exchange</span>
+                        </div>
+                    </div>
+                </a>
                 <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_drops' ? 'active' : '' }}">
                     <div class="d-flex w-100">
                         <i class="fa-solid fa-coins side-menu-icon"></i>
