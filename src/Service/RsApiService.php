@@ -7,48 +7,21 @@ use App\Enum\KnownPlayers;
 use App\Enum\QuestStatus;
 use App\Exception\PlayerApi\PlayerApiDataConversionException;
 use App\Message\HandleDataPointPersist;
-use GuzzleHttp\Client;
+use App\Trait\GuzzleCachedClientTrait;
+use App\Trait\SerializerAwareTrait;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
-use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
-use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 class RsApiService
 {
-    private Serializer $serializer;
-    private Client $client;
+    use GuzzleCachedClientTrait;
+    use SerializerAwareTrait;
 
     public function __construct(
-        GuzzleCachedClient $client,
         private readonly MessageBusInterface $messageBus
     ) {
-        $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
-
-        $this->serializer = new Serializer(
-            [
-                new DateTimeNormalizer(),
-                new ArrayDenormalizer(),
-                new BackedEnumNormalizer(),
-                new ObjectNormalizer(
-                    classMetadataFactory: $classMetadataFactory,
-                    propertyTypeExtractor: new ReflectionExtractor()
-                )
-            ],
-            [
-                new JsonEncoder()
-            ]
-        );
-
-        $this->client = $client->new();
     }
 
     /**
@@ -68,7 +41,7 @@ class RsApiService
             $player = KnownPlayers::VincentS->value;
         }
 
-        $response = $this->client->request(
+        $response = $this->getClient()->request(
             'GET',
             'https://apps.runescape.com/runemetrics/profile/profile',
             [
@@ -113,7 +86,7 @@ class RsApiService
          *     loggedIn: string
          * }|array{error: string, loggedIn: string} $jsonDecoded
          */
-        $jsonDecoded = $this->serializer->decode($jsonBody, 'json');
+        $jsonDecoded = $this->getSerializer()->decode($jsonBody, 'json');
 
         // this is a workaround for the fact that the API returns an integer for totalxp, but it can be larger than
         // PHP's max int
@@ -128,8 +101,8 @@ class RsApiService
         $jsonDecoded['quests'] = $this->getQuests($player);
 
         /** @var Player $playerInfo */
-        $playerInfo = $this->serializer->deserialize(
-            $this->serializer->encode($jsonDecoded, 'json'),
+        $playerInfo = $this->getSerializer()->deserialize(
+            $this->getSerializer()->encode($jsonDecoded, 'json'),
             Player::class,
             'json',
         );
@@ -186,7 +159,7 @@ class RsApiService
      */
     public function getQuests(string $player): array
     {
-        $response = $this->client->request(
+        $response = $this->getClient()->request(
             'GET',
             'https://apps.runescape.com/runemetrics/quests',
             [
@@ -208,7 +181,7 @@ class RsApiService
          *     }[]
          * } $jsonDecoded
          */
-        $jsonDecoded = $this->serializer->decode($response->getBody()->getContents(), 'json');
+        $jsonDecoded = $this->getSerializer()->decode($response->getBody()->getContents(), 'json');
 
         return $jsonDecoded['quests'];
     }
@@ -220,13 +193,13 @@ class RsApiService
     {
         $playerDetails = [];
 
-        $response = $this->client->request(
+        $response = $this->getClient()->request(
             'GET',
             'https://services.runescape.com/m=website-data/playerDetails.ws',
             [
                 RequestOptions::QUERY => [
                     'membership' => true,
-                    'names' => $this->serializer->encode([$player], 'json'),
+                    'names' => $this->getSerializer()->encode([$player], 'json'),
                     'callback' => 'angular.callbacks._0'
                 ]
             ]
@@ -257,7 +230,7 @@ class RsApiService
              *     title: string
              * }> $playerDetailsFromArray
              */
-            $playerDetailsFromArray = $this->serializer->decode($playerDetails[1], 'json');
+            $playerDetailsFromArray = $this->getSerializer()->decode($playerDetails[1], 'json');
             $playerDetails = $playerDetailsFromArray[0];
 
             if (array_key_exists('clan', $playerDetails)) {

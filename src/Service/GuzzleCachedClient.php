@@ -8,17 +8,19 @@ use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\GreedyCacheStrategy;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\HttpKernel\KernelInterface;
 
-class GuzzleCachedClient
+readonly class GuzzleCachedClient
 {
-    public function __construct(private readonly string $projectDir)
-    {
+    public function __construct(
+        private KernelInterface $kernel
+    ) {
     }
 
     public function new(): Client
     {
         $requestCacheFolderName = 'GuzzleFileCache';
-        $cacheFolderPath = "$this->projectDir/var/cache";
+        $cacheFolderPath = $this->kernel->getProjectDir() . '/var/cache';
         $cache_storage = new Psr6CacheStorage(
             new FilesystemAdapter(
                 $requestCacheFolderName,

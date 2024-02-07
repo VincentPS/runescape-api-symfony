@@ -7,6 +7,7 @@
         "@symfony/stimulus-bundle": "file:vendor/symfony/stimulus-bundle/assets",
         "@symfony/ux-chartjs": "file:vendor/symfony/ux-chartjs/assets",
         "@symfony/webpack-encore": "^4.2.0",
+        "bootstrap": "^5.3.2",
         "chart.js": "^3.4.1",
         "core-js": "^3.23.0",
         "datatables.net": "^1.12.1",
@@ -24,8 +25,5 @@
         "dev": "encore dev",
         "watch": "encore dev --watch",
         "build": "encore production --progress"
-    },
-    "dependencies": {
-        "bootstrap": "^5.3.0-alpha1"
     }
 }

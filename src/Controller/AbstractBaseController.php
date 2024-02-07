@@ -33,7 +33,7 @@ abstract class AbstractBaseController extends AbstractController
     {
         $form = $this->formFactory->createNamedBuilder(name: 'search_form', options: [
             'attr' => [
-                'class' => 'row-cols-lg-auto g-3 align-items-center d-flex'
+                'class' => 'd-flex'
             ]
         ])
             ->add('playerName', TextType::class, [
