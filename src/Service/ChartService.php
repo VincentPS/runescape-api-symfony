@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use App\Entity\Player;
+use App\Enum\SkillEnum;
 use App\Repository\PlayerRepository;
 use DateTimeImmutable;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
@@ -51,6 +53,8 @@ readonly class ChartService
 //        $endDate = new DateTimeImmutable('last day of December this year');
 
         $startDate = new DateTimeImmutable('first day of this month');
+        $startDate = $startDate->modify('+2 days');
+
         $endDate = new DateTimeImmutable('last day of this month');
 
         if (is_null($dateTimes)) {
@@ -107,6 +111,96 @@ readonly class ChartService
                         'data' => $data
                     ],
                 ]
+            ]);
+    }
+
+    /**
+     * @param string $playerName
+     * @param SkillEnum[] $skills
+     * @return Chart
+     * @throws Exception
+     */
+    public function getMonthlyTotalXpChartBySkills(string $playerName, array $skills): Chart
+    {
+        try {
+            $dateTimes = $this->playerRepository->findFirstAndLastDateTimeByName($playerName);
+        } catch (NoResultException | NonUniqueResultException) {
+            $dateTimes = null;
+        }
+
+        $startDate = new DateTimeImmutable('first day of this month');
+//        $startDate = $startDate->modify('+2 days');
+
+        $endDate = new DateTimeImmutable('last day of this month');
+
+        if (is_null($dateTimes)) {
+            $dateTimes = [
+                'minDate' => $startDate,
+                'maxDate' => $endDate
+            ];
+        }
+
+        $skillsData = [];
+
+        foreach ($skills as $skill) {
+            $skillsData[] = [
+                'skill' => $skill,
+                'data' => $this->playerRepository
+                    ->findAllXpDifferencesBetweenDatesByNameGroupByDayAndSkill(
+                        $dateTimes['minDate'],
+                        $dateTimes['maxDate'],
+                        $playerName,
+                        $skill
+                    )
+            ];
+        }
+
+        $dataSets = [];
+        $labels = [];
+
+        foreach ($skillsData as $skillsDataItem) {
+            $data = [];
+            $currentDate = $startDate;
+
+            while ($currentDate <= $endDate) {
+                foreach ($skillsDataItem['data'] as $day) {
+                    if ($day['date'] === $currentDate->format('Y-m-d')) {
+                        $date = $currentDate->format('Y-m-d');
+                        $data[$date] = $day['xp_difference'];
+                        $labels[$date] = $date;
+                    }
+                }
+
+                if (!array_key_exists($currentDate->format('Y-m-d'), $data)) {
+                    $date = $currentDate->format('Y-m-d');
+                    $data[$date] = 0;
+                    $labels[$date] = $date;
+                }
+
+                $currentDate = $currentDate->modify('+1 day');
+            }
+
+            $dataSets[] = [
+                'label' => $skillsDataItem['skill']->name . ' XP',
+                'backgroundColor' => $skillsDataItem['skill']->graphColor(),
+                'borderColor' => $skillsDataItem['skill']->graphColor(),
+                'data' => array_values($data)
+            ];
+        }
+
+        return $this->chartBuilder->createChart(Chart::TYPE_BAR)
+            ->setOptions([
+                'color' => '#ffffff',
+                'font-family' => 'Cinzel, sarif',
+                'elements' => [
+                    'point' => [
+                        'radius' => 0
+                    ]
+                ]
+            ])
+            ->setData([
+                'labels' => array_values($labels),
+                'datasets' => $dataSets
             ]);
     }
 }

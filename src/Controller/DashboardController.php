@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Message\FetchLatestApiData;
 use App\Repository\PlayerRepository;
 use App\Service\ChartService;
+use App\Service\DoubleXpService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -12,12 +13,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractBaseController
 {
-    #[Route(path: '/', name: 'app_dashboard_summary')]
+    #[Route(path: '/', name: 'summary')]
     public function summary(
         Request $request,
         PlayerRepository $playerRepository,
         MessageBusInterface $messageBus,
-        ChartService $chartService
+        ChartService $chartService,
+        DoubleXpService $doubleXpService
     ): Response {
         $form = $this->headerSearchForm($request);
         $playerName = $this->getPlayerNameFromRequest($request);
@@ -26,13 +28,14 @@ class DashboardController extends AbstractBaseController
         if (is_null($player)) {
             $messageBus->dispatch(new FetchLatestApiData($playerName));
 
-            return $this->redirectToRoute('app_dashboard_summary');
+            return $this->redirectToRoute('summary');
         }
 
         return $this->render('summary.html.twig', [
             'chart' => $chartService->getQuestChart($player),
             'playerInfo' => $player,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'isDoubleXpLive' => $doubleXpService->isDoubleXpLive(),
         ]);
     }
 }

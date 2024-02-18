@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Player;
-use App\Enum\KnownPlayers;
 use App\Enum\QuestStatus;
 use App\Exception\PlayerApi\PlayerApiDataConversionException;
 use App\Message\HandleDataPointPersist;
@@ -13,6 +12,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class RsApiService
 {
@@ -25,99 +26,45 @@ class RsApiService
     }
 
     /**
-     * @param string $player
-     * @param int $amountOfActivityItems
-     * @param bool $doUpdateCheck
-     * @return Player
      * @throws GuzzleException
      * @throws PlayerApiDataConversionException
      * @throws ExceptionInterface
      */
-    public function getProfile(string $player, int $amountOfActivityItems = 20, bool $doUpdateCheck = true): Player
+    public function getProfile(string $player, int $amountOfActivityItems = 20): Player
     {
-        $player = trim($player);
+        $playerJsonResponse = $this
+            ->getProfileJsonResponse($player, $amountOfActivityItems);
 
-        if (empty($player)) {
-            $player = KnownPlayers::VincentS->value;
-        }
+        $questJsonResponse = $this
+            ->getQuestsJsonResponse($player);
 
-        $response = $this->getClient()->request(
-            'GET',
-            'https://apps.runescape.com/runemetrics/profile/profile',
-            [
-                RequestOptions::QUERY => [
-                    'user' => $player,
-                    'activities' => $amountOfActivityItems,
-                    'time' => time()
-                ]
-            ]
+        $playerAndQuestsJsonString = sprintf(
+            '%s,%s',
+            rtrim($playerJsonResponse, '}'),
+            substr($questJsonResponse, 1)
         );
-
-        $jsonBody = $response->getBody()->getContents();
-
-        if (empty($jsonBody)) {
-            throw new PlayerApiDataConversionException('No response from RuneScape API');
-        }
-
-        /**
-         * @var array{
-         *     magic: int,
-         *     questsstarted: int,
-         *     totalskill: int,
-         *     questscomplete: int,
-         *     questsnotstarted: int,
-         *     totalxp: int,
-         *     ranged: int,
-         *     activities: array{
-         *          date: string,
-         *          details: string,
-         *          text: string
-         *     }[],
-         *     skillvalues: array{
-         *          level: int,
-         *          xp: int,
-         *          rank: int,
-         *          id: int
-         *     }[],
-         *     name: string,
-         *     rank: string,
-         *     melee: int,
-         *     combatlevel: int,
-         *     loggedIn: string
-         * }|array{error: string, loggedIn: string} $jsonDecoded
-         */
-        $jsonDecoded = $this->getSerializer()->decode($jsonBody, 'json');
-
-        // this is a workaround for the fact that the API returns an integer for totalxp, but it can be larger than
-        // PHP's max int
-        if (array_key_exists('totalxp', $jsonDecoded)) {
-            $jsonDecoded['totalxp'] = (string)$jsonDecoded['totalxp'];
-        }
-
-        if (array_key_exists('error', $jsonDecoded) && $jsonDecoded['error'] === 'NO_PROFILE') {
-            throw new PlayerApiDataConversionException('No player found with name: ' . $player);
-        }
-
-        $jsonDecoded['quests'] = $this->getQuests($player);
 
         /** @var Player $playerInfo */
-        $playerInfo = $this->getSerializer()->deserialize(
-            $this->getSerializer()->encode($jsonDecoded, 'json'),
-            Player::class,
-            'json',
-        );
+        $playerInfo = $this
+            ->getSerializer()
+            ->deserialize(
+                $playerAndQuestsJsonString,
+                Player::class,
+                'json',
+                [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
+            );
 
         $questsCompleted = 0;
         $questsStarted = 0;
         $questsNotStarted = 0;
 
         array_filter(
-            $jsonDecoded['quests'],
+            $playerInfo->getQuests(),
             function ($quest) use (&$questsCompleted, &$questsStarted, &$questsNotStarted) {
-                return match ($quest['status']) {
-                    QuestStatus::Completed->value => $questsCompleted++,
-                    QuestStatus::Started->value => $questsStarted++,
-                    QuestStatus::NotStarted->value => $questsNotStarted++,
+                return match ($quest->status) {
+                    QuestStatus::Completed => $questsCompleted++,
+                    QuestStatus::Started => $questsStarted++,
+                    QuestStatus::NotStarted => $questsNotStarted++,
                     default => null,
                 };
             }
@@ -139,51 +86,72 @@ class RsApiService
             ->setQuestsStarted($questsStarted)
             ->setQuestsNotStarted($questsNotStarted);
 
-        if ($doUpdateCheck) {
-            $this->messageBus->dispatch(new HandleDataPointPersist($playerInfo));
-        }
+        $this->messageBus
+            ->dispatch(new HandleDataPointPersist($playerInfo));
 
         return $playerInfo;
     }
 
     /**
-     * @return array{
-     *      title: string,
-     *      status: string,
-     *      difficulty: string,
-     *      members: bool,
-     *      questPoints: int,
-     *      userEligible: bool
-     * }[]
      * @throws GuzzleException
+     * @throws PlayerApiDataConversionException
      */
-    public function getQuests(string $player): array
+    private function getProfileJsonResponse(string $player, int $amountOfActivityItems = 20): string
     {
         $response = $this->getClient()->request(
             'GET',
-            'https://apps.runescape.com/runemetrics/quests',
+            'https://apps.runescape.com/runemetrics/profile/profile',
             [
                 RequestOptions::QUERY => [
-                    'user' => $player
+                    'user' => $player,
+                    'activities' => $amountOfActivityItems,
+                    'time' => time()
                 ]
             ]
         );
 
-        /**
-         * @var array{
-         *     quests: array{
-         *          title: string,
-         *          status: string,
-         *          difficulty: string,
-         *          members: bool,
-         *          questPoints: int,
-         *          userEligible: bool
-         *     }[]
-         * } $jsonDecoded
-         */
-        $jsonDecoded = $this->getSerializer()->decode($response->getBody()->getContents(), 'json');
+        $jsonResponse = $response
+            ->getBody()
+            ->getContents();
 
-        return $jsonDecoded['quests'];
+        if (empty($jsonResponse)) {
+            throw new PlayerApiDataConversionException('No response from RuneScape API');
+        }
+
+        if (str_contains($jsonResponse, 'NO_PROFILE')) {
+            throw new PlayerApiDataConversionException('No player found with name: ' . $player);
+        }
+
+        return $jsonResponse;
+    }
+
+    /**
+     * @throws GuzzleException
+     * @throws PlayerApiDataConversionException
+     */
+    private function getQuestsJsonResponse(string $player): string
+    {
+        $response = $this
+            ->getClient()
+            ->request(
+                'GET',
+                'https://apps.runescape.com/runemetrics/quests',
+                [
+                    RequestOptions::QUERY => [
+                        'user' => $player
+                    ]
+                ]
+            );
+
+        $jsonResponse = $response
+            ->getBody()
+            ->getContents();
+
+        if (str_contains($jsonResponse, '"quests": [],')) {
+            throw new PlayerApiDataConversionException('No quests found for player: ' . $player);
+        }
+
+        return $jsonResponse;
     }
 
     /**

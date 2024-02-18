@@ -10,9 +10,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 #[AsMessageHandler]
-final class FetchLatestApiDataHandler
+final readonly class FetchLatestApiDataHandler
 {
-    public function __construct(private readonly RsApiService $rsApiService)
+    public function __construct(private RsApiService $rsApiService)
     {
     }
 

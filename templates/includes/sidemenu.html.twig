@@ -5,30 +5,30 @@
     <div class="card card-wrapper">
         <div class="card-body p-0">
             <div class="list-group overwrite-list-group-border">
-                <a href="{{ path('app_dashboard_summary', {'playerName': searchPlayerName}) }}"
+                <a href="{{ path('summary', {'playerName': searchPlayerName}) }}"
                    class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_summary' ? 'active' : '' }}">
+                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'summary' ? 'active' : '' }}">
                         <div class="d-flex w-100">
                             <i class="fa-solid fa-house side-menu-icon"></i>
                             <span class="side-menu-title ms-4">Summary</span>
                         </div>
                     </div>
                 </a>
-                <a href="{{ path('app_dashboard_levels', {'playerName': searchPlayerName}) }}"
+                <a href="{{ path('activities', {'playerName': searchPlayerName}) }}"
                    class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_levels' ? 'active' : '' }}">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-chart-simple side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">&nbsp;Levels</span>
-                        </div>
-                    </div>
-                </a>
-                <a href="{{ path('app_dashboard_activity', {'playerName': searchPlayerName}) }}"
-                   class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_activity' ? 'active' : '' }}">
+                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'activities' ? 'active' : '' }}">
                         <div class="d-flex w-100">
                             <i class="fa-solid fa-book-open side-menu-icon"></i>
                             <span class="side-menu-title ms-4">Activity</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="{{ path('summary', {'playerName': searchPlayerName}) }}"
+                   class="side-menu-item-link">
+                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_drops' ? 'active' : '' }}">
+                        <div class="d-flex w-100">
+                            <i class="fa-solid fa-coins side-menu-icon"></i>
+                            <span class="side-menu-title ms-4">Drops</span>
                         </div>
                     </div>
                 </a>
@@ -41,12 +41,24 @@
                         </div>
                     </div>
                 </a>
-                <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_drops' ? 'active' : '' }}">
-                    <div class="d-flex w-100">
-                        <i class="fa-solid fa-coins side-menu-icon"></i>
-                        <span class="side-menu-title ms-4">Drops</span>
+                <a href="{{ path('app_dashboard_levels', {'playerName': searchPlayerName}) }}"
+                   class="side-menu-item-link">
+                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_levels' ? 'active' : '' }}">
+                        <div class="d-flex w-100">
+                            <i class="fa-solid fa-chart-simple side-menu-icon"></i>
+                            <span class="side-menu-title ms-4">&nbsp;Levels</span>
+                        </div>
                     </div>
-                </div>
+                </a>
+                <a href="{{ path('quests') }}"
+                   class="side-menu-item-link">
+                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'quests' ? 'active' : '' }}">
+                        <div class="d-flex w-100">
+                            <i class="fa-solid fa-book side-menu-icon"></i>
+                            <span class="side-menu-title ms-4">&nbsp;Quests</span>
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
