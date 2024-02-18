@@ -89,7 +89,7 @@
                                                     {% endfor %}
                                                     <div class="list-group-item list-group-item-action adventure-log-item custom-card-footer">
                                                         <div class="d-flex w-100 justify-content-end">
-                                                            <a href="{{ path('app_dashboard_activity') }}"
+                                                            <a href="{{ path('activities') }}"
                                                                class="mb-0 card-footer-link">
                                                                 All activity
                                                             </a>
@@ -165,7 +165,7 @@
                                             </div>
                                             <div class="list-group-item list-group-item-action adventure-log-item custom-card-footer">
                                                 <div class="d-flex w-100 justify-content-end">
-                                                    <a href="{{ path('app_dashboard_summary') }}"
+                                                    <a href="{{ path('summary') }}"
                                                        class="mb-0 card-footer-link">
                                                         All levels
                                                     </a>
@@ -218,7 +218,7 @@
                                                     </div>
                                                     <div class="list-group-item list-group-item-action adventure-log-item custom-card-footer">
                                                         <div class="d-flex w-100 justify-content-end">
-                                                            <a href="{{ path('app_dashboard_summary') }}"
+                                                            <a href="{{ path('quests') }}"
                                                                class="mb-0 card-footer-link">
                                                                 All quests
                                                             </a>
@@ -229,6 +229,31 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Double XP -->
+                                {% if isDoubleXpLive %}
+                                    <div class="row">
+                                        <div class="col-12 p-2">
+                                            <div class="card sub-card">
+                                                <div class="card-header">
+                                                    <h2>DOUBLE XP</h2>
+                                                </div>
+                                                <div class="card-body sub-card inner-card">
+                                                    <div class="list-group">
+                                                        <div class="list-group-item list-group-item-action">
+                                                            <div class="d-flex w-100 justify-content-between">
+                                                                <div class="pulse"></div>
+                                                                <h5 class="mb-0 ms-5">
+                                                                    Double XP is currently live!
+                                                                </h5>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

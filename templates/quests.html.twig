@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Runescape Dashboard - Quests{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {% include 'includes/header.html.twig' %}
+
+        <!-- Main Section -->
+        <div class="row pt-1">
+            {% include 'includes/sidemenu.html.twig' %}
+
+            <!-- Summary -->
+            <div class="col-10 ps-0 activity-page">
+                <button type="button" class="btn btn-custom btn-floating btn-lg" id="btn-back-to-top">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+                <div class="card card-wrapper">
+                    <div class="card-header no-border main-card-header">
+                        <h2>QUESTS</h2>
+                    </div>
+                    <div class="card-body main-card">
+                        <div class="row">
+                            <div id="quests" class="text-white">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Insert this at the end of your body element, but before the closing tag -->
+    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+
+    <script>
+        $(function() {
+            $('#quests').initDataTables({{ datatable_settings(datatable) }});
+        });
+    </script>
+{% endblock %}

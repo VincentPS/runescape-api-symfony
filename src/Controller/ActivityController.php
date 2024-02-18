@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ActivityController extends AbstractBaseController
 {
-    #[Route(path: '/activity', name: 'app_dashboard_activity')]
+    #[Route(path: '/activity', name: 'activities')]
     public function activity(
         Request $request,
         PlayerRepository $playerRepository
@@ -78,7 +78,7 @@ class ActivityController extends AbstractBaseController
             return $b->date <=> $a->date;
         });
 
-        return $this->render('activity.html.twig', [
+        return $this->render('activities.html.twig', [
             'activities' => $activities,
             'form' => $form->createView(),
             'filterForm' => $filterForm->createView()

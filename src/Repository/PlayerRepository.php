@@ -2,12 +2,14 @@
 
 namespace App\Repository;
 
+use App\Dto\Quest;
 use App\Entity\Player;
 use App\Enum\ActivityFilter;
 use App\Enum\SkillEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -109,7 +111,7 @@ class PlayerRepository extends ServiceEntityRepository
      *
      * @throws DBALException If an error occurs while executing the query.
      */
-    public function findAllUniqueActivitiesByPlayerName(string $name): string|bool
+    public function findAllUniqueActivitiesByPlayerName(string $name): string | bool
     {
         $stmt = <<<SQL
             SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
@@ -200,6 +202,57 @@ class PlayerRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return array{int: array{date: string, xp_difference: string}}
+     * @throws DBALException
+     */
+    public function findAllXpDifferencesBetweenDatesByNameGroupByDayAndSkill(
+        DateTimeInterface $start,
+        DateTimeInterface $end,
+        string $name,
+        SkillEnum $skillEnum
+    ): array {
+        $stmt = <<<SQL
+WITH min_max_values
+         AS (SELECT DATE_TRUNC('day', p.created_at)::date                                               AS date,
+                    FIRST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric))
+                    OVER (PARTITION BY DATE_TRUNC('day', p.created_at)::date
+                        ORDER BY p.created_at)                                                          AS first_xp,
+                    LAST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric))
+                    OVER (PARTITION BY DATE_TRUNC('day', p.created_at)::date
+                        ORDER BY p.created_at ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_xp
+             FROM player p
+                      CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
+             WHERE p.created_at BETWEEN :start_date AND :end_date
+               AND jsonb_element ->> 'id' = :skill_id
+             GROUP BY DATE_TRUNC('day', p.created_at)::date, p.created_at, jsonb_element ->> 'xp')
+SELECT mm.date,
+       mm.last_xp - mm.first_xp as xp_difference
+FROM player p
+         CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
+         INNER JOIN min_max_values mm ON mm.date = DATE_TRUNC('day', p.created_at)::date
+WHERE p.created_at BETWEEN :start_date AND :end_date
+  AND jsonb_element ->> 'id' = :skill_id
+  AND p.name = :name
+GROUP BY mm.date, mm.first_xp, mm.last_xp
+ORDER BY mm.date;
+SQL;
+
+        /** @var array{int: array{date: string, xp_difference: string}} $results */
+        $results = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($stmt, [
+                'start_date' => $start->format('Y-m-d H:i:s'),
+                'end_date' => $end->format('Y-m-d H:i:s'),
+                'name' => $name,
+                'skill_id' => $skillEnum->value
+            ])
+            ->fetchAllAssociative();
+
+        return $results;
+    }
+
+    /**
      * Finds the earliest and latest DateTime objects for a given name.
      *
      * @param string $name The name to search for.
@@ -249,7 +302,7 @@ class PlayerRepository extends ServiceEntityRepository
     public function findAllUniqueActivitiesByPlayerNameAndActivityFilter(
         string $playerName,
         ActivityFilter $type
-    ): string|bool {
+    ): string | bool {
         $stmt = <<<SQL
             SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
             FROM (SELECT DISTINCT jsonb_array_elements(activities) AS activity
@@ -286,7 +339,7 @@ class PlayerRepository extends ServiceEntityRepository
      *                    or `false` if an error occurs during the database query.
      * @throws DBALException If an error occurs during the database query execution.
      */
-    public function findAllUniqueActivitiesByPlayerNameAndSkill(string $playerName, SkillEnum $skill): string|bool
+    public function findAllUniqueActivitiesByPlayerNameAndSkill(string $playerName, SkillEnum $skill): string | bool
     {
         $stmt = <<<SQL
             SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
@@ -305,5 +358,26 @@ class PlayerRepository extends ServiceEntityRepository
             ->fetchOne();
 
         return !is_string($result) ? false : $result;
+    }
+
+    /**
+     * @return Quest[]
+     * @throws NonUniqueResultException
+     */
+    public function findAllQuests(string $playerName): array
+    {
+        /**
+         * @var array{quests: Quest[] | null} $result
+         */
+        $result = $this->createQueryBuilder('p')
+            ->select('p.quests')
+            ->where('p.name = :name')
+            ->setParameter('name', $playerName)
+            ->orderBy('p.createdAt', Criteria::DESC)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result['quests'] ?? [];
     }
 }
