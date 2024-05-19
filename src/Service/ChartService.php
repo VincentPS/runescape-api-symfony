@@ -52,10 +52,10 @@ readonly class ChartService
 //        $startDate = new DateTimeImmutable('first day of January this year');
 //        $endDate = new DateTimeImmutable('last day of December this year');
 
-        $startDate = new DateTimeImmutable('first day of this month');
-        $startDate = $startDate->modify('+2 days');
+        $startDate = new DateTimeImmutable('-1 month');
+//        $startDate = $startDate->modify('+2 days');
 
-        $endDate = new DateTimeImmutable('last day of this month');
+        $endDate = new DateTimeImmutable();
 
         if (is_null($dateTimes)) {
             $dateTimes = [
@@ -128,10 +128,11 @@ readonly class ChartService
             $dateTimes = null;
         }
 
-        $startDate = new DateTimeImmutable('first day of this month');
+        $startDate = new DateTimeImmutable('-1 month');
 //        $startDate = $startDate->modify('+2 days');
+//        $startDate = (new DateTimeImmutable())->setTime(0, 0);
 
-        $endDate = new DateTimeImmutable('last day of this month');
+        $endDate = new DateTimeImmutable();
 
         if (is_null($dateTimes)) {
             $dateTimes = [

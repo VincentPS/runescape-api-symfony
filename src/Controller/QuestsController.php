@@ -42,7 +42,25 @@ class QuestsController extends AbstractController
                 'autoWidth' => true,
                 'pageLength' => 0,
             ])
-            ->add('title', TextColumn::class, ['label' => 'Title'])
+            ->add(
+                'title',
+                TextColumn::class,
+                [
+                    'label' => 'Title',
+                    'render' => static function ($value) {
+                        $url = sprintf(
+                            'https://runescape.wiki/w/%s/Quick_guide',
+                            str_replace(' ', '_', $value)
+                        );
+
+                        return sprintf(
+                            '<a class="text-white text-decoration-none" href="%s" target="_blank">%s</a>',
+                            $url,
+                            $value
+                        );
+                    }
+                ]
+            )
             ->add(
                 'difficulty',
                 TextColumn::class,

@@ -29,7 +29,7 @@
                                         <div class="card sub-card">
                                             <div class="card-header">
                                                 <h2>
-                                                    {% include 'includes/activity_item.html.twig' %}
+                                                    {{ make_activity_log_item_image(adventureLogItem)|raw }}
                                                     {% if adventureLogItem.text is not null and adventureLogItem.text is not empty %}
                                                         {% if 'XP' in adventureLogItem.text %}
                                                             {{ adventureLogItem.text|split('XP')|first|number_format }} XP{{ adventureLogItem.text|split('XP')|last|trim('.') }}

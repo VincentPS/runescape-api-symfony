@@ -61,7 +61,7 @@
                                                         <div class="list-group-item list-group-item-action">
                                                             <div class="row align-items-center">
                                                                 <div class="col-auto pe-0">
-                                                                    {% include 'includes/activity_item.html.twig' %}
+                                                                    {{ make_activity_log_item_image(adventureLogItem)|raw }}
                                                                 </div>
                                                                 <div class="col ps-0">
                                                                     <div class="d-flex w-100 justify-content-between">

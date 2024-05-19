@@ -5,11 +5,10 @@ namespace App\Controller;
 use App\Enum\SkillEnum;
 use App\Service\ChartService;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LevelsController extends AbstractBaseController
 {
@@ -27,10 +26,7 @@ class LevelsController extends AbstractBaseController
             ])
             ->add('skillCategory', ChoiceType::class, [
                 'label' => 'Skill',
-                'choices' => [
-//                    ...['All' => 999],
-                    ...SkillEnum::toArray()
-                ],
+                'choices' => SkillEnum::toArray(),
                 'multiple' => true
             ])
             ->add('search', SubmitType::class, [
