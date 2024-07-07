@@ -26,7 +26,7 @@ abstract class AbstractBaseController extends AbstractController
 
         return $formData['playerName']
             ?? $request->query->getAlnum('playerName')
-            ?: KnownPlayers::VincentS->value;
+            ?: KnownPlayers::Dapestave->value;
     }
 
     protected function headerSearchForm(Request $request): FormInterface

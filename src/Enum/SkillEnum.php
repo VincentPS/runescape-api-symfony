@@ -82,4 +82,12 @@ enum SkillEnum: int
             self::Woodcutting => 'rgb(126, 79, 53)',
         };
     }
+
+    public function isElite(): bool
+    {
+        return match ($this) {
+            self::Invention => true,
+            default => false,
+        };
+    }
 }

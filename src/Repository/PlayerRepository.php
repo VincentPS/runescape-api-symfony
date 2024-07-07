@@ -212,29 +212,28 @@ class PlayerRepository extends ServiceEntityRepository
         SkillEnum $skillEnum
     ): array {
         $stmt = <<<SQL
-WITH min_max_values
-         AS (SELECT DATE_TRUNC('day', p.created_at)::date                                               AS date,
-                    FIRST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric))
-                    OVER (PARTITION BY DATE_TRUNC('day', p.created_at)::date
-                        ORDER BY p.created_at)                                                          AS first_xp,
-                    LAST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric))
-                    OVER (PARTITION BY DATE_TRUNC('day', p.created_at)::date
-                        ORDER BY p.created_at ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_xp
-             FROM player p
-                      CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
-             WHERE p.created_at BETWEEN :start_date AND :end_date
-               AND jsonb_element ->> 'id' = :skill_id
-             GROUP BY DATE_TRUNC('day', p.created_at)::date, p.created_at, jsonb_element ->> 'xp')
-SELECT mm.date,
-       mm.last_xp - mm.first_xp as xp_difference
-FROM player p
-         CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
-         INNER JOIN min_max_values mm ON mm.date = DATE_TRUNC('day', p.created_at)::date
-WHERE p.created_at BETWEEN :start_date AND :end_date
-  AND jsonb_element ->> 'id' = :skill_id
-  AND p.name = :name
-GROUP BY mm.date, mm.first_xp, mm.last_xp
-ORDER BY mm.date;
+WITH min_max_values AS (
+    SELECT
+        DATE_TRUNC('day', p.created_at)::date AS date,
+        FIRST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric)) OVER (
+            PARTITION BY DATE_TRUNC('day', p.created_at)::date
+            ORDER BY p.created_at
+            ) AS first_xp,
+        LAST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric)) OVER (
+            PARTITION BY DATE_TRUNC('day', p.created_at)::date
+            ORDER BY p.created_at ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+            ) AS last_xp
+    FROM player p
+             CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
+    WHERE p.created_at BETWEEN :start_date AND :end_date
+      AND jsonb_element ->> 'id' = :skill_id
+      AND p.name = :name
+)
+SELECT DISTINCT
+    date,
+    last_xp - first_xp AS xp_difference
+FROM min_max_values
+ORDER BY date;
 SQL;
 
         /** @var array{int: array{date: string, xp_difference: string}} $results */

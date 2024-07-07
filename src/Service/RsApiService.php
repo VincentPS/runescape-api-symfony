@@ -13,7 +13,6 @@ use GuzzleHttp\RequestOptions;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
-use Symfony\Component\Stopwatch\Stopwatch;
 
 class RsApiService
 {
@@ -21,7 +20,8 @@ class RsApiService
     use SerializerAwareTrait;
 
     public function __construct(
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly XpBoundaryService $xpBoundaryService,
     ) {
     }
 
@@ -70,17 +70,24 @@ class RsApiService
             }
         );
 
-        foreach ($playerInfo->getSkillValues() as $skillValue) {
-            if ($skillValue->xp > 200000000) {
-                foreach ($playerInfo->getSkillValues() as $skillValueToCorrect) {
-                    $skillValueToCorrect->xp = $skillValueToCorrect->xp / 10;
-                }
+        foreach ($skillValues = $playerInfo->getSkillValues() as $skillValue) {
+            if ($skillValue->id === null) {
+                continue;
+            }
 
-                break;
+            $xpWithinBoundary = $this->xpBoundaryService->isXpWithinLevelBoundaries(
+                $skillValue->id,
+                (int)$skillValue->level,
+                (float)$skillValue->xp
+            );
+
+            if ($xpWithinBoundary === false) {
+                $skillValue->xp /= 10;
             }
         }
 
         $playerInfo
+            ->setSkillValues($skillValues)
             ->setClan($this->getClanName($player))
             ->setQuestsCompleted($questsCompleted)
             ->setQuestsStarted($questsStarted)
