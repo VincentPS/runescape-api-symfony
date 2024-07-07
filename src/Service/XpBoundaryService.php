@@ -302,4 +302,3 @@ class XpBoundaryService
         return $xp >= $boundaries['start'] && $xp < $boundaries['end'];
     }
 }
-
