@@ -74,6 +74,7 @@ class TwigExtensions extends AbstractExtension
     public function makeActivityLogItemImage(Activity $activity): string
     {
         $text = strtolower($activity->text ?? '');
+        $details = strtolower($activity->details ?? '');
 
         switch (true) {
             case str_contains($text, 'levelled all'):
@@ -81,7 +82,7 @@ class TwigExtensions extends AbstractExtension
                 $alt = 'Total Skills Milestone';
                 $title = 'Total Skills Milestone';
                 break;
-            case str_contains($text, 'dungeon floor'):
+            case str_contains($details, 'daemonheim'):
                 $imagePath = 'Dungeoneering.png';
                 $alt = 'Dungeoneering Milestone';
                 $title = 'Dungeoneering Milestone';

@@ -40,7 +40,7 @@ readonly class ChartService
             ]);
     }
 
-    public function getMonthlyTotalXpChart(string $playerName): Chart
+    public function getMonthlyTotalXpChart(string $playerName, string $chartType = Chart::TYPE_BAR): Chart
     {
         try {
             $dateTimes = $this->playerRepository->findFirstAndLastDateTimeByName($playerName);
@@ -48,13 +48,7 @@ readonly class ChartService
             $dateTimes = null;
         }
 
-        //todo set year dynamically based on dateTimes result
-//        $startDate = new DateTimeImmutable('first day of January this year');
-//        $endDate = new DateTimeImmutable('last day of December this year');
-
         $startDate = new DateTimeImmutable('-1 month');
-//        $startDate = $startDate->modify('+2 days');
-
         $endDate = new DateTimeImmutable();
 
         if (is_null($dateTimes)) {
@@ -82,7 +76,7 @@ readonly class ChartService
             $currentDate = $currentDate->modify('+1 day');
         }
 
-        return $this->chartBuilder->createChart(Chart::TYPE_BAR)
+        return $this->chartBuilder->createChart($chartType)
             ->setOptions([
                 'color' => 'rgb(181,153,47)',
                 'elements' => [
@@ -117,11 +111,15 @@ readonly class ChartService
     /**
      * @param string $playerName
      * @param SkillEnum[] $skills
+     * @param string $chartType
      * @return Chart
      * @throws Exception
      */
-    public function getMonthlyTotalXpChartBySkills(string $playerName, array $skills): Chart
-    {
+    public function getMonthlyTotalXpChartBySkills(
+        string $playerName,
+        array $skills,
+        string $chartType = Chart::TYPE_BAR
+    ): Chart {
         try {
             $dateTimes = $this->playerRepository->findFirstAndLastDateTimeByName($playerName);
         } catch (NoResultException | NonUniqueResultException) {
@@ -129,9 +127,6 @@ readonly class ChartService
         }
 
         $startDate = new DateTimeImmutable('-1 month');
-//        $startDate = $startDate->modify('+2 days');
-//        $startDate = (new DateTimeImmutable())->setTime(0, 0);
-
         $endDate = new DateTimeImmutable();
 
         if (is_null($dateTimes)) {
@@ -189,7 +184,7 @@ readonly class ChartService
             ];
         }
 
-        return $this->chartBuilder->createChart(Chart::TYPE_BAR)
+        return $this->chartBuilder->createChart($chartType)
             ->setOptions([
                 'color' => '#ffffff',
                 'font-family' => 'Cinzel, sarif',

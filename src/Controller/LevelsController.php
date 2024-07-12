@@ -27,7 +27,15 @@ class LevelsController extends AbstractBaseController
             ->add('skillCategory', ChoiceType::class, [
                 'label' => 'Skill',
                 'choices' => SkillEnum::toArray(),
-                'multiple' => true
+                'multiple' => true,
+                'required' => false
+            ])
+            ->add('chartType', ChoiceType::class, [
+                'label' => 'Graph Type',
+                'choices' => [
+                    'Bars' => 'bar',
+                    'Lines' => 'line'
+                ]
             ])
             ->add('search', SubmitType::class, [
                 'label' => 'Filter',
@@ -40,13 +48,18 @@ class LevelsController extends AbstractBaseController
         $filterForm->handleRequest($request);
 
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
-            /** @var array{skillCategory: int[]} $data */
+            /** @var array{skillCategory: int[], chartType: string} $data */
             $data = $filterForm->getData();
 
-            $chart = $chartService->getMonthlyTotalXpChartBySkills(
-                $playerName,
-                array_map(fn($skill) => SkillEnum::from($skill), $data['skillCategory'])
-            );
+            if (empty($data['skillCategory'])) {
+                $chart = $chartService->getMonthlyTotalXpChart($playerName, $data['chartType']);
+            } else {
+                $chart = $chartService->getMonthlyTotalXpChartBySkills(
+                    $playerName,
+                    array_map(fn($skill) => SkillEnum::from($skill), $data['skillCategory']),
+                    $data['chartType']
+                );
+            }
         }
 
         return $this->render('levels.html.twig', [
