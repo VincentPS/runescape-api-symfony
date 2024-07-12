@@ -303,23 +303,33 @@ SQL;
         ActivityFilter $type
     ): string | bool {
         $stmt = <<<SQL
-            SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
-            FROM (SELECT DISTINCT jsonb_array_elements(activities) AS activity
-                  FROM player
-                  WHERE name = :name) AS all_activities
-            WHERE activity IS NOT NULL
-                      AND CASE
-                          WHEN :type = 'skills' THEN activity ->> 'text' ILIKE '%levelled%' OR
-                                                     activity ->> 'text' ILIKE '%xp in%'
-                          WHEN :type = 'quests' THEN activity ->> 'text' ILIKE '%quest complete%'
-                          WHEN :type = 'bosses' THEN activity ->> 'text' ILIKE '%killed%'
-                          WHEN :type = 'loot'   THEN activity ->> 'text' ILIKE '%i found%' AND
-                                                     activity ->> 'text' NOT ILIKE '%pet%'
-                          WHEN :type = 'pets'   THEN activity ->> 'text' ILIKE '%i found%' AND
-                                                     activity ->> 'text' ILIKE '%pet%'
-                          ELSE FALSE
-                      END
-        SQL;
+SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
+FROM (
+    SELECT DISTINCT jsonb_array_elements(activities) AS activity
+    FROM player
+    WHERE name = :name
+) AS all_activities
+WHERE activity IS NOT NULL
+  AND CASE
+      WHEN :type = 'skills' THEN 
+           activity ->> 'text' ILIKE '%levelled%' OR
+           activity ->> 'text' ILIKE '%xp in%'
+      WHEN :type = 'quests' THEN 
+           activity ->> 'text' ILIKE '%quest complete%'
+      WHEN :type = 'bosses' THEN 
+           activity ->> 'text' ILIKE '%killed%'
+      WHEN :type = 'loot' THEN 
+           activity ->> 'text' ILIKE '%i found%' AND
+           activity ->> 'text' NOT ILIKE '%pet%'
+      WHEN :type = 'pets' THEN 
+           activity ->> 'text' ILIKE '%i found%' AND
+           activity ->> 'text' ILIKE '%pet%'
+      WHEN :type = 'dungeoneering' THEN 
+           activity ->> 'details' ILIKE '%daemonheim%'
+      ELSE 
+           FALSE
+  END;
+SQL;
 
         $result = $this
             ->getEntityManager()

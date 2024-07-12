@@ -6,6 +6,7 @@ enum ActivityFilter: string
 {
     case All = 'All';
     case Bosses = 'Bosses';
+    case Dungeoneering = 'Dungeoneering';
     case Loot = 'Loot';
     case Pets = 'Pets';
     case Quests = 'Quests';
