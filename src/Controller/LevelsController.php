@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Chartjs\Model\Chart;
 
 class LevelsController extends AbstractBaseController
 {
@@ -33,8 +34,14 @@ class LevelsController extends AbstractBaseController
             ->add('chartType', ChoiceType::class, [
                 'label' => 'Graph Type',
                 'choices' => [
-                    'Bars' => 'bar',
-                    'Lines' => 'line'
+                    'Bars' => Chart::TYPE_BAR,
+//                    'Bubble' => Chart::TYPE_BUBBLE,
+//                    'Doughnut' => Chart::TYPE_DOUGHNUT,
+                    'Lines' => Chart::TYPE_LINE,
+//                    'Pie' => Chart::TYPE_PIE,
+//                    'Polar Area' => Chart::TYPE_POLAR_AREA,
+//                    'Radar' => Chart::TYPE_RADAR,
+//                    'Scatter' => Chart::TYPE_SCATTER
                 ]
             ])
             ->add('search', SubmitType::class, [
