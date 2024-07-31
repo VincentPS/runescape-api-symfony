@@ -77,7 +77,13 @@ class TwigExtensions extends AbstractExtension
         $details = strtolower($activity->details ?? '');
 
         switch (true) {
+            case str_contains($text, 'qualification'):
+                $imagePath = 'Archaeology-icon.png';
+                $alt = 'Qualification';
+                $title = 'Qualification';
+                break;
             case str_contains($text, 'levelled all'):
+            case str_contains($text, 'total levels'):
                 $imagePath = 'Statistics.png';
                 $alt = 'Total Skills Milestone';
                 $title = 'Total Skills Milestone';

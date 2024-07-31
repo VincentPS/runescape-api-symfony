@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Enum\SkillEnum;
 use App\Repository\PlayerRepository;
 use App\Service\XpBoundaryService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,12 +46,12 @@ class VerifyPlayerDataIntegrityCommand extends Command
 
         $io->info('Data will be verified for player: ' . $playerName);
 
-        $dataPoints = $this->playerRepository->findBy(['name' => $playerName]);
+        $dataPoints = $this->playerRepository->findAllByName($playerName);
 
         foreach ($dataPoints as $dataPoint) {
             foreach ($skillValues = $dataPoint->getSkillValues() as $skillValue) {
                 if ($skillValue->id === null) {
-                    $io->info('Skill was not found for id: ' . $skillValue->id . ', removing data point.');
+                    $io->info('Skill was not found, removing data point.');
                     $this->playerRepository->remove($dataPoint);
                     continue;
                 }

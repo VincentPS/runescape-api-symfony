@@ -389,4 +389,17 @@ SQL;
 
         return $result['quests'] ?? [];
     }
+
+    /**
+     * @param string $playerName
+     * @return Player[]
+     */
+    public function findAllByName(string $playerName): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.name = :name')
+            ->setParameter('name', $playerName)
+            ->getQuery()
+            ->getResult();
+    }
 }

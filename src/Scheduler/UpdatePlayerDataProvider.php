@@ -17,7 +17,7 @@ class UpdatePlayerDataProvider implements ScheduleProviderInterface
         return (new Schedule())->add(
             RecurringMessage::cron(
                 '*/1 * * * *',
-                new FetchLatestApiData(KnownPlayers::Dapestave->value)
+                new FetchLatestApiData(KnownPlayers::VincentS->value)
             )
         );
     }

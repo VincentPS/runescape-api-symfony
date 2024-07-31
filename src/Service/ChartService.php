@@ -188,6 +188,7 @@ readonly class ChartService
             ->setOptions([
                 'color' => '#ffffff',
                 'font-family' => 'Cinzel, sarif',
+                'tension' => 0.3,
                 'elements' => [
                     'point' => [
                         'radius' => 0
