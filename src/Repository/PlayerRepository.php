@@ -396,10 +396,13 @@ SQL;
      */
     public function findAllByName(string $playerName): array
     {
-        return $this->createQueryBuilder('p')
+        /** @var Player[] $result */
+        $result = $this->createQueryBuilder('p')
             ->andWhere('p.name = :name')
             ->setParameter('name', $playerName)
             ->getQuery()
             ->getResult();
+
+        return $result;
     }
 }
