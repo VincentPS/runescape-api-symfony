@@ -56,9 +56,18 @@ docker compose up
 
 2. Configure any other desired settings in the `.env.local` file.
 
-4. Create the database schema:
+3. Create the database schema:
    php bin/console doctrine:database:create
    php bin/console doctrine:migrations:migrate
+
+## Cetrificate for Curl (Guzzle)
+Download the latest cacert.pem file from https://curl.se/docs/caextract.html and configure your php.ini file to use it:
+ ```ini
+ [curl]
+ curl.cainfo = "{path to cacert.pem file}"
+ [openssl]
+ openssl.cafile = "{path to cacert.pem file}"
+ ```
 
 ## Usage
 
