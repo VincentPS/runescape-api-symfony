@@ -28,12 +28,6 @@
             </div>
         </div>
     </div>
-    <!-- Insert this at the end of your body element, but before the closing tag -->
     <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
-
-    <script>
-        $(function() {
-            $('#quests').initDataTables({{ datatable_settings(datatable) }});
-        });
-    </script>
+    <script>$(() => $('#quests').initDataTables({{ datatable_settings(datatable) }}));</script>
 {% endblock %}

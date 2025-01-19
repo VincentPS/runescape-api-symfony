@@ -488,6 +488,10 @@ form select[multiple] {
     border: none;
 }
 
+table.dataTable>tbody>tr {
+    background-color: transparent;
+}
+
 .dataTable tr:nth-of-type(even) {
     background: #010b10;
 }
@@ -510,4 +514,47 @@ form select[multiple] {
 
 .quests-members {
     width: 30px;
+}
+
+.skills-progression-card-content h2 {
+    display: block;
+    text-align: center;
+    font-size: 2em;
+    margin: -3px 0;
+    color: #fff;
+    font-weight: 700;
+}
+
+.skills-progression-card-content p {
+    text-align: center;
+    margin: -3px 0;
+    color: #6e7879;
+    font-weight: 700;
+}
+
+.skills-progression-outer-container {
+    display: flex;
+    border: 3px solid #122937;
+    border-radius: 2px;
+}
+
+.skills-progression-container {
+    background-color: rgba(1,11,16,0);
+    width: 70%;
+    height: 21px;
+    border-radius: revert;
+}
+
+.skills-progression-percentage {
+    width: 30%;
+    background-color: #122937;
+    font-size: .875rem;
+}
+
+#levelsProgress .dataTable td {
+    font-size: 1rem;
+}
+
+.card-without-footer {
+    border-bottom: 1px solid #2c3d49;
 }

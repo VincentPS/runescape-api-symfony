@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Player;
 use App\Enum\SkillEnum;
 use App\Repository\PlayerRepository;
+use DateMalformedStringException;
 use DateTimeImmutable;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\NonUniqueResultException;
@@ -40,7 +41,7 @@ readonly class ChartService
             ]);
     }
 
-    public function getMonthlyTotalXpChart(string $playerName, string $chartType = Chart::TYPE_BAR): Chart
+    public function getMonthlyTotalXpChart(string $playerName, string $chartType = Chart::TYPE_LINE): Chart
     {
         try {
             $dateTimes = $this->playerRepository->findFirstAndLastDateTimeByName($playerName);
@@ -78,10 +79,15 @@ readonly class ChartService
 
         return $this->chartBuilder->createChart($chartType)
             ->setOptions([
+                'scales' => [
+                    'y' => ['grid' => ['color' => 'rgba(44, 61, 73, 0.3)']],
+                    'x' => ['grid' => ['color' => 'rgba(44, 61, 73, 0.3)']]
+                ],
                 'color' => 'rgb(181,153,47)',
+                'tension' => 0.3,
                 'elements' => [
                     'point' => [
-                        'radius' => 0
+                        'radius' => 3
                     ]
                 ],
                 'plugins' => [
@@ -90,10 +96,10 @@ readonly class ChartService
                             'wheel' => ['enabled' => true],
                             'pinch' => ['enabled' => true],
                             'mode' => 'xy',
-                            'speed' => 100
+                            'drag' => ['enabled' => true],
                         ],
                     ],
-                ],
+                ]
             ])
             ->setData([
                 'labels' => array_values($labels),
@@ -109,11 +115,14 @@ readonly class ChartService
     }
 
     /**
+     * Note: Will only return datasets of the skills that have at least one day with a positive xp difference.
+     *
      * @param string $playerName
      * @param SkillEnum[] $skills
      * @param string $chartType
      * @return Chart
      * @throws Exception
+     * @throws DateMalformedStringException
      */
     public function getMonthlyTotalXpChartBySkills(
         string $playerName,
@@ -139,15 +148,29 @@ readonly class ChartService
         $skillsData = [];
 
         foreach ($skills as $skill) {
+            $xpData = $this->playerRepository
+                ->findAllXpDifferencesBetweenDatesByNameGroupByDayAndSkill(
+                    $dateTimes['minDate'],
+                    $dateTimes['maxDate'],
+                    $playerName,
+                    $skill
+                );
+
+            $hasChanges = false;
+
+            foreach ($xpData as $xpDate) {
+                if ($xpDate['xp_difference'] > 0) {
+                    $hasChanges = true;
+                }
+            }
+
+            if ($hasChanges === false) {
+                continue;
+            }
+
             $skillsData[] = [
                 'skill' => $skill,
-                'data' => $this->playerRepository
-                    ->findAllXpDifferencesBetweenDatesByNameGroupByDayAndSkill(
-                        $dateTimes['minDate'],
-                        $dateTimes['maxDate'],
-                        $playerName,
-                        $skill
-                    )
+                'data' => $xpData
             ];
         }
 
@@ -186,13 +209,27 @@ readonly class ChartService
 
         return $this->chartBuilder->createChart($chartType)
             ->setOptions([
+                'scales' => [
+                    'y' => ['grid' => ['color' => 'rgba(44, 61, 73, 0.3)']],
+                    'x' => ['grid' => ['color' => 'rgba(44, 61, 73, 0.3)']]
+                ],
                 'color' => '#ffffff',
                 'font-family' => 'Cinzel, sarif',
-                'tension' => 0.3,
+                'tension' => 0.19,
                 'elements' => [
                     'point' => [
-                        'radius' => 0
+                        'radius' => 3
                     ]
+                ],
+                'plugins' => [
+                    'zoom' => [
+                        'zoom' => [
+                            'wheel' => ['enabled' => true],
+                            'pinch' => ['enabled' => true],
+                            'mode' => 'xy',
+                            'drag' => ['enabled' => true],
+                        ],
+                    ],
                 ]
             ])
             ->setData([

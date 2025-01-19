@@ -28,7 +28,7 @@ class QuestsController extends AbstractController
         PlayerRepository $playerRepository
     ): Response {
         $quests = $playerRepository
-            ->findAllQuests(KnownPlayers::VincentS->value);
+            ->findAllQuests(KnownPlayers::currentMainAsString());
 
         $quests = array_map(
             fn(Quest $quest) => $this->getSerializer()->normalize($quest, Quest::class),
@@ -37,15 +37,21 @@ class QuestsController extends AbstractController
 
         $table = $dataTableFactory
             ->create([
-                'paging' => false,
-                'order' => [[0, 'asc']],
+                'paging' => true,
+                'pagingType' => 'simple_numbers',
+                'ordering' => true,
+                'lengthMenu' => [[10, 25, 50, -1], [10, 25, 50, 'All']],
+                'jQueryUI' => true,
                 'autoWidth' => true,
-                'pageLength' => 0,
+                'pageLength' => 30,
+                'searching' => true,
             ])
             ->add(
                 'title',
                 TextColumn::class,
                 [
+                    'searchable' => true,
+                    'orderable' => true,
                     'label' => 'Title',
                     'render' => static function ($value) {
                         $url = sprintf(
@@ -65,6 +71,7 @@ class QuestsController extends AbstractController
                 'difficulty',
                 TextColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'Difficulty',
                     'render' => fn($value) => QuestDifficulty::from($value)->name
                 ]
@@ -74,6 +81,7 @@ class QuestsController extends AbstractController
                 'members',
                 BoolColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'Members',
                     'render' => fn($value) => $value === 'true'
                         ? '<img class="quests-members" 
@@ -86,6 +94,7 @@ class QuestsController extends AbstractController
                 'status',
                 TextColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'Status',
                     'render' => fn($value) => match ($value) {
                         'COMPLETED' => '<span class="badge bg-success">Completed</span>',
@@ -95,6 +104,7 @@ class QuestsController extends AbstractController
                     }
                 ]
             )
+            ->addOrderBy('title')
             ->createAdapter(ArrayAdapter::class, $quests)
             ->handleRequest($request);
 
