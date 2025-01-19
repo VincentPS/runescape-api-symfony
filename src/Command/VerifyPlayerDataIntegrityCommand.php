@@ -22,7 +22,7 @@ class VerifyPlayerDataIntegrityCommand extends Command
         private readonly EntityManagerInterface $entityManager,
         private readonly PlayerRepository $playerRepository,
         private readonly XpBoundaryService $xpBoundaryService,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($name);
     }

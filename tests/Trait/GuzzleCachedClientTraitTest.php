@@ -2,9 +2,9 @@
 
 namespace App\Tests\Trait;
 
-use PHPUnit\Framework\TestCase;
-use GuzzleHttp\Client;
 use App\Trait\GuzzleCachedClientTrait;
+use GuzzleHttp\Client;
+use PHPUnit\Framework\TestCase;
 
 class GuzzleCachedClientTraitTest extends TestCase
 {

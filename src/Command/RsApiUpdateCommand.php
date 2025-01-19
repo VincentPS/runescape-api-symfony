@@ -21,7 +21,7 @@ class RsApiUpdateCommand extends Command
     public function __construct(
         private readonly MessageBusInterface $messageBus,
         private readonly PlayerRepository $playerRepository,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($name);
     }

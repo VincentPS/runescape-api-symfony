@@ -488,6 +488,10 @@ form select[multiple] {
     border: none;
 }
 
+table.dataTable>tbody>tr {
+    background-color: transparent;
+}
+
 .dataTable tr:nth-of-type(even) {
     background: #010b10;
 }
@@ -510,4 +514,24 @@ form select[multiple] {
 
 .quests-members {
     width: 30px;
+}
+
+.levels-progress-card-content h2 {
+    display: block;
+    text-align: center;
+    font-size: 2em;
+    margin: -3px 0;
+    color: #fff;
+    font-weight: 700;
+}
+
+.levels-progress-card-content p {
+    text-align: center;
+    margin: -3px 0;
+    color: #6e7879;
+    font-weight: 700;
+}
+
+.card-without-footer {
+    border-bottom: 1px solid #2c3d49;
 }

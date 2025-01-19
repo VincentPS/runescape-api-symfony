@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Runescape Dashboard - Levels - Progress{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {% include 'includes/header.html.twig' %}
+
+        <!-- Main Section -->
+        <div class="row pt-1">
+            {% include 'includes/sidemenu.html.twig' %}
+
+            <!-- Summary -->
+            <div class="col-10 ps-0 activity-page">
+                <div class="card card-wrapper">
+                    <div class="card-header no-border main-card-header">
+                        <h2>Levels - Progress</h2>
+                    </div>
+                    <div class="card-body main-card">
+                        <div class="row">
+                            <div class="col-4 p2">
+                                <div class="card sub-card levels-progress-card-content card-without-footer">
+                                    <div class="card-header">
+                                        <p>Total XP</p>
+                                        <h2>{{ playerData.totalXp|number_format }}</h2>
+                                    </div>
+                                    <div class="card-body sub-card inner-card"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-4 p2">
+                                <div class="card sub-card levels-progress-card-content card-without-footer">
+                                    <div class="card-header">
+                                        <p>Total Level</p>
+                                        <h2>{{ playerData.totalSkill|number_format }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-4 p2">
+                                <div class="card sub-card levels-progress-card-content card-without-footer">
+                                    <div class="card-header">
+                                        <p>Combat Level</p>
+                                        <h2>{{ playerData.combatLevel|number_format }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pt-3">
+                            <div id="levelsProgress" class="text-white">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+    <script>$(() => $('#levelsProgress').initDataTables({{ datatable_settings(datatable) }}));</script>
+{% endblock %}

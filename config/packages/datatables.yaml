@@ -9,6 +9,7 @@ datatables:
     template_parameters:
         # Example classes to integrate nicely with Bootstrap 3.x
         className: 'table table-striped table-bordered table-hover data-table'
+        columnFilter: 'both'
 
     # You can for example override this to "tables" to keep the translation domains separated nicely
     translation_domain: 'messages'
