@@ -516,7 +516,7 @@ table.dataTable>tbody>tr {
     width: 30px;
 }
 
-.levels-progress-card-content h2 {
+.skills-progression-card-content h2 {
     display: block;
     text-align: center;
     font-size: 2em;
@@ -525,11 +525,34 @@ table.dataTable>tbody>tr {
     font-weight: 700;
 }
 
-.levels-progress-card-content p {
+.skills-progression-card-content p {
     text-align: center;
     margin: -3px 0;
     color: #6e7879;
     font-weight: 700;
+}
+
+.skills-progression-outer-container {
+    display: flex;
+    border: 3px solid #122937;
+    border-radius: 2px;
+}
+
+.skills-progression-container {
+    background-color: rgba(1,11,16,0);
+    width: 70%;
+    height: 21px;
+    border-radius: revert;
+}
+
+.skills-progression-percentage {
+    width: 30%;
+    background-color: #122937;
+    font-size: .875rem;
+}
+
+#levelsProgress .dataTable td {
+    font-size: 1rem;
 }
 
 .card-without-footer {

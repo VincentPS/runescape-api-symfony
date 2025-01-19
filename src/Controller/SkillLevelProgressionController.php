@@ -17,12 +17,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class LevelsProgressController extends AbstractBaseController
+class SkillLevelProgressionController extends AbstractBaseController
 {
     use SerializerAwareTrait;
 
-    #[Route(path: '/levels/progress', name: 'app_dashboard_levels_progress')]
-    public function levels(
+    #[Route(path: '/levels/progress', name: 'app_dashboard_skill_level_progression')]
+    public function skillLevelProgression(
         Request $request,
         DataTableFactory $dataTableFactory,
         PlayerRepository $playerRepository
@@ -73,7 +73,7 @@ class LevelsProgressController extends AbstractBaseController
                         $skill = SkillEnum::from($value);
 
                         $imageUrl = <<<HTML
-                        <img src="https://runescape.wiki/images/%s-icon.png" class="skill-icon" alt="%s" title="%s">                
+                        <img src="https://runescape.wiki/images/%s-icon.png" class="skill-icon" alt="%s" title="%s">
                         HTML;
 
                         return
@@ -99,9 +99,7 @@ class LevelsProgressController extends AbstractBaseController
                 NumberColumn::class,
                 [
                     'label' => 'Level',
-                    'render' => static function (int $value) {
-                        return $value;
-                    }
+                    'render' => static fn(int $value) => $value
                 ]
             )
             ->add(
@@ -121,8 +119,8 @@ class LevelsProgressController extends AbstractBaseController
                         }
 
                         return <<<HTML
-                            <div style="display: flex; border: 3px solid #122937; border-radius: 2px">
-                                <div class="progress" style="background-color: rgba(1,11,16,0); width: 70%; height: 21px; border-radius: revert;">
+                            <div class="skills-progression-outer-container">
+                                <div class="progress skills-progression-container">
                                     <div class="progress-bar"
                                          role="progressbar"
                                          style="width: $value%; background-color: $color;"
@@ -131,7 +129,7 @@ class LevelsProgressController extends AbstractBaseController
                                          aria-valuemax="100">
                                     </div>
                                 </div>
-                                <div class="text-center text-white" style="width: 30%; background-color: #122937;">
+                                <div class="text-center text-white skills-progression-percentage">
                                     $displayValue%
                                 </div>
                             </div>

@@ -50,9 +50,9 @@
                         </div>
                     </div>
                 </a>
-                <a href="{{ path('app_dashboard_levels_progress', {'playerName': searchPlayerName}) }}"
+                <a href="{{ path('app_dashboard_skill_level_progression', {'playerName': searchPlayerName}) }}"
                    class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_levels_progress' ? 'active' : '' }}">
+                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_skill_level_progression' ? 'active' : '' }}">
                         <div class="d-flex w-100">
                             <i class="fa-solid fa-chart-simple side-menu-icon"></i>
                             <span class="side-menu-title ms-4">&nbsp;Levels - Progress</span>
