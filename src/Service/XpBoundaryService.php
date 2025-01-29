@@ -294,6 +294,9 @@ class XpBoundaryService
         150 => ['start' => 194927409, 'end' => 200000001]
     ];
 
+    /**
+     * @todo replace with a more efficient implementation using {@see SkillLevelXpEnum} & {@see EliteSkillLevelXpEnum}
+     */
     public function isXpWithinLevelBoundaries(SkillEnum $skill, int $level, float $xp): bool
     {
         $xpTable = $skill->isElite() ? self::ELITE_XP_TABLE : self::XP_TABLE;
