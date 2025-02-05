@@ -91,6 +91,9 @@ Download the latest cacert.pem file from https://curl.se/docs/caextract.html and
 5. A scheduled task can be set up to update the data of a user every minute. To do this, you can use the following command:
    ```php bin/console messenger:consume scheduler_update_player_data```, which user is updated can be changed in ```KnownPlayers::currentMain()```.
 
+6. There is a way to validate the integrity of the data stored for a single user. To do this, you can use the following command:
+   ```php bin/console db:verify-player-data-integrity <player-name>```.
+
 ## API Wrapper
 
 This project includes an API wrapper for the RuneScape API to simplify data fetching. The wrapper can be found in the `src/Service/RSApiService.php` file. You can extend this wrapper to add more functionality or customize the API calls as needed.
