@@ -85,6 +85,12 @@ Download the latest cacert.pem file from https://curl.se/docs/caextract.html and
 
 3. Explore the various features provided by the application, such as viewing player stats, activities, and other RuneMetrics data.
 
+4. If you want to update the data of a user through the CLI you can do so by using the following command:
+   ```php bin/console rsapi:update <player-name>```.
+
+5. A scheduled task can be set up to update the data of a user every minute. To do this, you can use the following command:
+   ```php bin/console messenger:consume scheduler_update_player_data```, which user is updated can be changed in ```KnownPlayers::currentMain()```.
+
 ## API Wrapper
 
 This project includes an API wrapper for the RuneScape API to simplify data fetching. The wrapper can be found in the `src/Service/RSApiService.php` file. You can extend this wrapper to add more functionality or customize the API calls as needed.
