@@ -67,6 +67,16 @@ npm run dev
    php bin/console doctrine:database:create
    php bin/console doctrine:migrations:migrate
 
+4. The PHP modules are configured in the `php.ini` file, the following modules are required:
+ ```
+extension=curl
+extension=ftp
+extension=intl
+extension=openssl
+extension=pdo_pgsql
+extension=pgsql
+```
+
 ## Cetrificate for Curl (Guzzle)
 Download the latest cacert.pem file from https://curl.se/docs/caextract.html and configure your php.ini file to use it:
  ```ini
