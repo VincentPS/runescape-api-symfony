@@ -27,8 +27,8 @@ class SkillLevelProgressionController extends AbstractBaseController
         DataTableFactory $dataTableFactory,
         PlayerRepository $playerRepository
     ): Response {
-        $playerName = $this->getPlayerNameFromRequest($request);
-        $playerData = $playerRepository->findLatestByName($playerName);
+        $form = $this->headerSearchForm();
+        $playerData = $playerRepository->findLatestByName($this->getCurrentPlayerName());
 
         if ($playerData === null) {
             return $this->redirectToRoute('summary');
@@ -40,6 +40,8 @@ class SkillLevelProgressionController extends AbstractBaseController
                  * @var array{id: int, xp: float, level: int, rank: int} $array
                  */
                 $array = $this->getSerializer()->normalize($skillValue, SkillValue::class);
+
+                //todo: fix the progress bar for skills that have virtual levels (100-127)
 
                 //determine progress
                 $skill = SkillEnum::from($array['id']);
@@ -175,6 +177,7 @@ class SkillLevelProgressionController extends AbstractBaseController
         return $this->render('levels_progress.html.twig', [
             'datatable' => $table,
             'playerData' => $playerData,
+            'form' => $form->createView()
         ]);
     }
 }

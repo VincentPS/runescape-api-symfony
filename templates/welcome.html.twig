@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RuneMetrics Re-Created{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {% include 'includes/header.html.twig' %}
+
+        <!-- Main Section -->
+        <div class="row pt-1">
+            {% include 'includes/sidemenu.html.twig' %}
+
+            <!-- Main Card -->
+            <div class="col-10 ps-0 activity-page">
+                <div class="card card-wrapper">
+                    <div class="card-header no-border main-card-header">
+                        <h2>Welcome</h2>
+                    </div>
+                    <div class="card-body main-card">
+                        <div class="row">
+                            <div class="col-12 p2">
+                                <div class="card sub-card skills-progression-card-content card-without-footer">
+                                    <div class="card-header welcome-page-introduction">
+                                        <h3>Welcome, and Thank You for Visiting!</h3>
+                                        <p>
+                                            First of all, I want to sincerely thank you for taking the time to visit and
+                                            explore this project. Your interest means a lot, and I hope you find the
+                                            site useful and enjoyable.
+
+                                            This project was born out of my frustration with the current state of the
+                                            RuneMetrics website. While RuneMetrics provides some useful data, I felt it
+                                            lacked the user-friendliness and depth of information that many players,
+                                            including myself, were looking for. I wanted more detailed insights into
+                                            player stats, better navigation, and quality-of-life features that could
+                                            make tracking progress more intuitive and enjoyable. So, instead of waiting
+                                            for improvements, I decided to take matters into my own hands and build
+                                            something that I—and hopefully the community—could truly benefit from.
+                                        </p>
+                                        <br>
+
+                                        <h3>How to Get Started</h3>
+                                        <p>
+                                            Getting started is simple! All you need to do is enter the name of the
+                                            player whose stats you’d like to view. Once you’ve done that, the website
+                                            will pull up detailed information about the player's progress, skills, and
+                                            more. The interface is designed to be clean and easy to navigate, so you can
+                                            focus on what matters: tracking your achievements and planning your next
+                                            in-game goals.
+                                        </p>
+                                        <br>
+
+                                        <div class="row">
+                                            <div class="col-5"></div>
+                                            <div class="col-4">
+                                                {{ form(playerNameForm) }}
+                                            </div>
+                                            <div class="col-3"></div>
+                                        </div>
+
+                                        <h3>Want to Contribute or See Behind the Scenes?</h3>
+                                        <p>
+                                            If you're curious about how this project was built or if you’d like to
+                                            contribute, you’re more than welcome! The entire source code is available on
+                                            the GitHub repository. Whether you're a developer wanting to add new
+                                            features, someone who’s spotted a bug, or you simply have an idea to make
+                                            the site better, your input is highly appreciated. You can submit a pull
+                                            request with your changes, or create an issue to highlight something that
+                                            needs attention.
+                                        </p>
+                                        <br>
+
+                                        <h3>Join the Community</h3>
+                                        <p>
+                                            This project isn’t just for me—it’s for the entire RuneScape community. I’d
+                                            love to hear your feedback, suggestions, and ideas on how we can make this
+                                            even better. Together, we can build a resource that makes tracking stats and
+                                            progress as exciting as the game itself.
+                                        </p>
+                                        <br>
+
+                                        <p>Thank you again for stopping by, and happy skilling!</p>
+                                        <br>
+                                        <p>
+                                            <i>Signing off,</i>
+                                            <br>
+                                            <i><strong>Vincent</strong></i>
+                                        </p>
+                                        <br>
+                                    </div>
+                                    <div class="card-body sub-card inner-card">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -22,8 +22,7 @@ class ActivityController extends AbstractBaseController
         Request $request,
         PlayerRepository $playerRepository
     ): Response {
-        $form = $this->headerSearchForm($request);
-        $playerName = $this->getPlayerNameFromRequest($request);
+        $form = $this->headerSearchForm();
         $filterForm = $this->filterForm($request);
 
         try {
@@ -44,12 +43,12 @@ class ActivityController extends AbstractBaseController
                         && $formData['skillCategory'] !== null
                     ) {
                         $activities = $playerRepository->findAllUniqueActivitiesByPlayerNameAndSkill(
-                            $playerName,
+                            $this->getCurrentPlayerName(),
                             $formData['skillCategory']
                         );
                     } else {
                         $activities = $playerRepository->findAllUniqueActivitiesByPlayerNameAndActivityFilter(
-                            $playerName,
+                            $this->getCurrentPlayerName(),
                             $formData['acitivityCategory']
                         );
                     }
@@ -59,7 +58,7 @@ class ActivityController extends AbstractBaseController
             // If the filter form is not submitted, or if the filter form is submitted but not valid (e.g. no filter
             // selected), then we want to show all activities.
             if (empty($activities)) {
-                $activities = $playerRepository->findAllUniqueActivitiesByPlayerName($playerName);
+                $activities = $playerRepository->findAllUniqueActivitiesByPlayerName($this->getCurrentPlayerName());
             }
         } catch (Exception) {
             throw new AccessDeniedHttpException();

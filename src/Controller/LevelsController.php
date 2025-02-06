@@ -16,9 +16,7 @@ class LevelsController extends AbstractBaseController
     #[Route(path: '/levels/monthly', name: 'app_dashboard_levels')]
     public function levels(Request $request, ChartService $chartService): Response
     {
-        $form = $this->headerSearchForm($request);
-        $playerName = $this->getPlayerNameFromRequest($request);
-
+        $form = $this->headerSearchForm();
         $filterForm = $this->formFactory
             ->createNamedBuilder(name: 'filter_levels_form', options: [
                 'attr' => [
@@ -59,10 +57,10 @@ class LevelsController extends AbstractBaseController
             $data = $filterForm->getData();
 
             if (empty($data['skillCategory'])) {
-                $chart = $chartService->getMonthlyTotalXpChart($playerName, $data['chartType']);
+                $chart = $chartService->getMonthlyTotalXpChart($this->getCurrentPlayerName(), $data['chartType']);
             } else {
                 $chart = $chartService->getMonthlyTotalXpChartBySkills(
-                    $playerName,
+                    $this->getCurrentPlayerName(),
                     array_map(fn($skill) => SkillEnum::from($skill), $data['skillCategory']),
                     $data['chartType']
                 );
@@ -70,7 +68,7 @@ class LevelsController extends AbstractBaseController
         }
 
         return $this->render('levels.html.twig', [
-            'chart' => $chart ?? $chartService->getMonthlyTotalXpChart($playerName),
+            'chart' => $chart ?? $chartService->getMonthlyTotalXpChart($this->getCurrentPlayerName()),
             'form' => $form->createView(),
             'filterForm' => $filterForm->createView()
         ]);
