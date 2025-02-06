@@ -22,7 +22,7 @@ class ActivityController extends AbstractBaseController
         Request $request,
         PlayerRepository $playerRepository
     ): Response {
-        $form = $this->headerSearchForm($request);
+        $form = $this->headerSearchForm();
         $filterForm = $this->filterForm($request);
 
         try {

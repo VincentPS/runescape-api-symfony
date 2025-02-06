@@ -7,17 +7,17 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 abstract class AbstractBaseController extends AbstractController
 {
     public function __construct(
         protected readonly FormFactoryInterface $formFactory,
-        protected readonly Request $request
+        protected readonly RequestStack $requestStack
     ) {
     }
 
-    protected function headerSearchForm(Request $request): FormInterface
+    protected function headerSearchForm(): FormInterface
     {
         $form = $this->formFactory->createNamedBuilder(name: 'search_form', options: [
             'attr' => [
@@ -46,12 +46,12 @@ abstract class AbstractBaseController extends AbstractController
             ])
             ->getForm();
 
-        $form->handleRequest($request);
+        $form->handleRequest($this->requestStack->getCurrentRequest());
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var array{playerName: string} $data */
             $data = $form->getData();
-            $request->getSession()->set('currentPlayerName', $data['playerName']);
+            $this->requestStack->getCurrentRequest()?->getSession()->set('currentPlayerName', $data['playerName']);
         }
 
         return $form;
@@ -60,7 +60,7 @@ abstract class AbstractBaseController extends AbstractController
     protected function getCurrentPlayerName(): string
     {
         /** @var string $playerName */
-        $playerName = $this->request->getSession()->get('currentPlayerName');
+        $playerName = $this->requestStack->getSession()->get('currentPlayerName');
 
         return $playerName;
     }

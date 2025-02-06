@@ -16,7 +16,7 @@ class LevelsController extends AbstractBaseController
     #[Route(path: '/levels/monthly', name: 'app_dashboard_levels')]
     public function levels(Request $request, ChartService $chartService): Response
     {
-        $form = $this->headerSearchForm($request);
+        $form = $this->headerSearchForm();
         $filterForm = $this->formFactory
             ->createNamedBuilder(name: 'filter_levels_form', options: [
                 'attr' => [

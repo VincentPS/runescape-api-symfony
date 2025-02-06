@@ -13,7 +13,7 @@ class WelcomeController extends AbstractBaseController
     #[Route(path: '/welcome', name: 'welcome')]
     public function welcome(Request $request): Response
     {
-        $form = $this->headerSearchForm($request);
+        $form = $this->headerSearchForm();
 
         $playerNameForm = $this->formFactory->createNamedBuilder(name: 'search_form_welcome', options: [
             'attr' => [

@@ -25,6 +25,7 @@ class QuestsController extends AbstractBaseController
         DataTableFactory $dataTableFactory,
         PlayerRepository $playerRepository
     ): Response {
+        $form = $this->headerSearchForm();
         $quests = $playerRepository->findAllQuests($this->getCurrentPlayerName());
 
         $quests = array_map(
@@ -111,6 +112,7 @@ class QuestsController extends AbstractBaseController
 
         return $this->render('quests.html.twig', [
             'datatable' => $table,
+            'form' => $form->createView()
         ]);
     }
 }

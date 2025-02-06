@@ -27,6 +27,7 @@ class SkillLevelProgressionController extends AbstractBaseController
         DataTableFactory $dataTableFactory,
         PlayerRepository $playerRepository
     ): Response {
+        $form = $this->headerSearchForm();
         $playerData = $playerRepository->findLatestByName($this->getCurrentPlayerName());
 
         if ($playerData === null) {
@@ -176,6 +177,7 @@ class SkillLevelProgressionController extends AbstractBaseController
         return $this->render('levels_progress.html.twig', [
             'datatable' => $table,
             'playerData' => $playerData,
+            'form' => $form->createView()
         ]);
     }
 }
