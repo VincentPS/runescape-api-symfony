@@ -78,6 +78,7 @@ extension=pgsql
 ```
 
 ## Cetrificate for Curl (Guzzle)
+This is only needed for local development, in production the server should have a valid certificate.  
 Download the latest cacert.pem file from https://curl.se/docs/caextract.html and configure your php.ini file to use it:
  ```ini
  [curl]
