@@ -22,11 +22,10 @@ class DashboardController extends AbstractBaseController
         DoubleXpService $doubleXpService
     ): Response {
         $form = $this->headerSearchForm($request);
-        $playerName = $this->getPlayerNameFromRequest($request);
-        $player = $playerRepository->findLatestByName($playerName);
+        $player = $playerRepository->findLatestByName($this->getCurrentPlayerName());
 
         if (is_null($player)) {
-            $messageBus->dispatch(new FetchLatestApiData($playerName));
+            $messageBus->dispatch(new FetchLatestApiData($this->getCurrentPlayerName()));
 
             return $this->redirectToRoute('summary');
         }

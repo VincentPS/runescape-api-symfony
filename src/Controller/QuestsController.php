@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Dto\Quest;
-use App\Enum\KnownPlayers;
 use App\Enum\QuestDifficulty;
 use App\Repository\PlayerRepository;
 use App\Trait\SerializerAwareTrait;
@@ -12,12 +11,11 @@ use Omines\DataTablesBundle\Column\BoolColumn;
 use Omines\DataTablesBundle\Column\NumberColumn;
 use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTableFactory;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class QuestsController extends AbstractController
+class QuestsController extends AbstractBaseController
 {
     use SerializerAwareTrait;
 
@@ -27,8 +25,7 @@ class QuestsController extends AbstractController
         DataTableFactory $dataTableFactory,
         PlayerRepository $playerRepository
     ): Response {
-        $quests = $playerRepository
-            ->findAllQuests(KnownPlayers::currentMainAsString());
+        $quests = $playerRepository->findAllQuests($this->getCurrentPlayerName());
 
         $quests = array_map(
             fn(Quest $quest) => $this->getSerializer()->normalize($quest, Quest::class),

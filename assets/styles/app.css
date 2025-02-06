@@ -558,3 +558,92 @@ table.dataTable>tbody>tr {
 .card-without-footer {
     border-bottom: 1px solid #2c3d49;
 }
+
+/* Welcome Page */
+.welcome-page-introduction p {
+    font-family: Roboto, sans-serif;
+    font-weight: normal !important;
+    font-size: 1em;
+    letter-spacing: normal;
+}
+
+.welcome-page-introduction h3 {
+    text-align: center;
+}
+
+/* Badges */
+.social-badge {
+    display: inline-flex;
+    align-items: center;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.github-badge:hover {
+    background-color: #0366d6;
+}
+
+.github-badge svg {
+    margin-right: 8px;
+}
+
+.github-badge {
+    background-color: #24292e;
+}
+
+.github-badge:hover {
+    background-color: #23272cff;
+}
+
+.discord-badge {
+    background-color: #5865F2;
+}
+
+.discord-badge:hover {
+    background-color: #4752C4;
+}
+
+/* Current login */
+.current-login-card h2 {
+    display: block;
+    text-align: center;
+    font-size: 1.2em;
+    margin: -3px 0;
+    color: #fff;
+    font-weight: 700;
+}
+
+.current-login-card {
+    max-height: 90px;
+}
+
+.current-login-card p {
+    text-align: center;
+    margin: -3px 0;
+    color: #6e7879;
+    font-weight: 700;
+}
+
+.current-login-card .avatar-img {
+    width: 100%;
+    height: auto;
+}
+
+.current-login-card .avatar-container-wrap {
+    float: left;
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin: 5px 10px 20px 0;
+    padding: 1px;
+    background: linear-gradient(#010b10, #02131a);
+    border: 1px solid #2c3d49;
+    border-radius: 50%;
+    box-shadow: inset 0 0 5px 5px #141414, 0 0 5px 5px rgb(0 0 0 / 30%);
+    clear: both;
+}
