@@ -109,16 +109,9 @@ class SkillLevelProgressionController extends AbstractBaseController
                 NumberColumn::class,
                 [
                     'label' => 'Progress',
-                    'render' => static function (float $value) use ($skillValues) {
+                    'render' => static function (float $value, array $skillValue) {
                         $displayValue = number_format($value, 2);
-                        $color = 'rgb(255, 255, 255)';
-
-                        foreach ($skillValues as $skillValue) {
-                            if (round($skillValue['progress'], 3) === round($value, 3)) {
-                                $color = SkillEnum::from($skillValue['id'])->graphColor();
-                                break;
-                            }
-                        }
+                        $color = SkillEnum::from($skillValue['id'])->graphColor();
 
                         return <<<HTML
                             <div class="skills-progression-outer-container">

@@ -42,6 +42,8 @@ class WelcomeController extends AbstractBaseController
             /** @var array{playerNameWelcome: string} $data */
             $data = $playerNameForm->getData();
             $request->getSession()->set('currentPlayerName', $data['playerNameWelcome']);
+
+            return $this->redirectToRoute('summary');
         }
 
         return $this->render('welcome.html.twig', [
