@@ -49,10 +49,10 @@ class SkillLevelProgressionController extends AbstractBaseController
                 $currentLevelXp = $xpEnum::{'Level' . $array['level']};
                 $nextLevelXp = $xpEnum::{'Level' . ($array['level'] + 1)};
 
-                $array['progress'] = $array['xp'] > $nextLevelXp->value ? 100 : 
-                    ($array['xp'] - $currentLevelXp->value) / ($nextLevelXp->value - $currentLevelXp->value) * 100;
+                $array['progress'] = $array['xp'] > $nextLevelXp->value ? 100 :
+                ($array['xp'] - $currentLevelXp->value) / ($nextLevelXp->value - $currentLevelXp->value) * 100;
 
-                $array['xp_left'] = $array['xp'] > $nextLevelXp->value ? null :$nextLevelXp->value - $array['xp'];
+                $array['xp_left'] = $array['xp'] > $nextLevelXp->value ? null : $nextLevelXp->value - $array['xp'];
 
                 return $array;
             },
