@@ -27,6 +27,7 @@ Before getting started, ensure you have the following prerequisites installed:
 - Git
 - Docker
 - npm
+- PostgreSQL
 
 ## Installation
 
