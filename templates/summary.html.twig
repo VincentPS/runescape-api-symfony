@@ -57,6 +57,13 @@
                                             </div>
                                             <div class="card-body sub-card inner-card">
                                                 <div class="list-group">
+                                                    {% if playerInfo.activities is empty %}
+                                                        <div class="list-group-item list-group-item-action">
+                                                            <div class="d-flex w-100">
+                                                                <h5 class="mb-0">No activies found.</h5>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
                                                     {% for adventureLogItem in playerInfo.activities|slice(0,9) %}
                                                         <div class="list-group-item list-group-item-action">
                                                             <div class="row align-items-center">
@@ -165,7 +172,7 @@
                                             </div>
                                             <div class="list-group-item list-group-item-action adventure-log-item custom-card-footer">
                                                 <div class="d-flex w-100 justify-content-end">
-                                                    <a href="{{ path('summary') }}"
+                                                    <a href="{{ path('app_dashboard_skill_level_progression') }}"
                                                        class="mb-0 card-footer-link">
                                                         All levels
                                                     </a>

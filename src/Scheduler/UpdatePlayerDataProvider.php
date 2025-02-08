@@ -2,8 +2,7 @@
 
 namespace App\Scheduler;
 
-use App\Enum\KnownPlayers;
-use App\Message\FetchLatestApiData;
+use App\Message\UpdateAllUsers;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
@@ -14,11 +13,6 @@ class UpdatePlayerDataProvider implements ScheduleProviderInterface
 {
     public function getSchedule(): Schedule
     {
-        return (new Schedule())->add(
-            RecurringMessage::cron(
-                '*/1 * * * *',
-                new FetchLatestApiData(KnownPlayers::currentMainAsString())
-            )
-        );
+        return (new Schedule())->add(RecurringMessage::cron('*/10 * * * *', new UpdateAllUsers()));
     }
 }

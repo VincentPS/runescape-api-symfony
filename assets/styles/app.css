@@ -11,6 +11,22 @@ body {
     color: #b2dbee !important;
 }
 
+.alert-info {
+    background-color: #02131A;
+    border: 1px solid #2c3d49;
+    color: white;
+    font-family: Cinzel, serif;
+    border-radius: unset;
+}
+
+.alert-info i {
+    color: #e1bb34;
+}
+
+.welcome-alert {
+    background-color: #010c0e;
+}
+
 .text-header {
     color: #e1bb34;
     font-size: 1.3em;
@@ -255,7 +271,7 @@ body {
     box-shadow: inset 0 1px 2px rgb(0 0 0 / 10%);
     color: #e1bb34 !important;
     display: block;
-    font-family: inherit;
+    font-family: Arial, sans-serif !important;
     font-size: 1rem;
     height: 2.3125rem;
     box-sizing: border-box;
@@ -340,6 +356,19 @@ body {
 
 .side-menu-item-link .list-group-item {
     border: none !important;
+}
+
+.donation-item {
+    border-top: 1px solid #2c3d49;
+}
+
+.donation-item span,
+.donation-item i {
+    font-size: .95rem !important;
+}
+
+.donation-item i {
+    margin-top: 3px;
 }
 
 .overwrite-list-group-border {
@@ -567,7 +596,8 @@ table.dataTable>tbody>tr {
     letter-spacing: normal;
 }
 
-.welcome-page-introduction h3 {
+.welcome-page-introduction h3,
+.welcome-page-introduction h6 {
     text-align: center;
 }
 

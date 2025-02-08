@@ -5,13 +5,15 @@ namespace App\Service;
 use App\Entity\Player;
 use App\Enum\QuestStatus;
 use App\Exception\PlayerApi\PlayerApiDataConversionException;
+use App\Exception\PlayerApi\PlayerNotAMemberException;
+use App\Exception\PlayerApi\PlayerNotFoundException;
 use App\Message\HandleDataPointPersist;
 use App\Trait\GuzzleCachedClientTrait;
 use App\Trait\SerializerAwareTrait;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 class RsApiService
@@ -28,6 +30,8 @@ class RsApiService
     /**
      * @throws GuzzleException
      * @throws PlayerApiDataConversionException
+     * @throws PlayerNotAMemberException
+     * @throws PlayerNotFoundException
      * @throws ExceptionInterface
      */
     public function getProfile(string $player, int $amountOfActivityItems = 20): Player
@@ -102,6 +106,8 @@ class RsApiService
     /**
      * @throws GuzzleException
      * @throws PlayerApiDataConversionException
+     * @throws PlayerNotAMemberException
+     * @throws PlayerNotFoundException
      */
     private function getProfileJsonResponse(string $player, int $amountOfActivityItems = 20): string
     {
@@ -125,8 +131,12 @@ class RsApiService
             throw new PlayerApiDataConversionException('No response from RuneScape API');
         }
 
+        if (str_contains($jsonResponse, 'NOT_A_MEMBER')) {
+            throw new PlayerNotAMemberException('Player is not a member: ' . $player);
+        }
+
         if (str_contains($jsonResponse, 'NO_PROFILE')) {
-            throw new PlayerApiDataConversionException('No player found with name: ' . $player);
+            throw new PlayerNotFoundException('No player found with name: ' . $player);
         }
 
         return $jsonResponse;

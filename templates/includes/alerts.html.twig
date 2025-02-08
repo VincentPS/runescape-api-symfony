@@ -1,8 +1,8 @@
 {# read and display all flash messages #}
 {% for label, messages in app.flashes %}
     {% for message in messages %}
-        <div class="col-sm-4 alert alert-{{ label }}" role="alert">
-            {{ message }}
+        <div class="alert alert-{{ label }}" role="alert">
+            <i class="fa fa-exclamation-triangle"></i> {{ message }}
         </div>
     {% endfor %}
 {% endfor %}
