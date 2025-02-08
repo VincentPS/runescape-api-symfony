@@ -35,6 +35,7 @@
         "symfony/runtime": "7.2.*",
         "symfony/scheduler": "7.2.*",
         "symfony/serializer": "7.2.*",
+        "symfony/twig-bundle": "7.2.*",
         "symfony/ux-chartjs": "^2.7",
         "symfony/webpack-encore-bundle": "2.1.*",
         "symfony/yaml": "7.2.*"
