@@ -4,6 +4,7 @@
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D_8.3-8892BF.svg?logo=php)](https://www.php.net/releases/8.3/en.php)
 [![Static Badge](https://img.shields.io/badge/symfony-%3E%3D_7.2-green?logo=symfony)](https://symfony.com/releases/7.2)
 
+Live version [https://rm-tracker.com](https://rm-tracker.com)
 
 Welcome to the RuneMetrics Re-Creation project! This Symfony 7 application, built using PHP 8.3, aims to recreate the functionality of the RuneMetrics apps from Jagex. It leverages the public RuneScape API to gather player data and provides a user-friendly interface to view and analyze the data. This README will guide you through the setup, configuration, and usage of the project.
 
