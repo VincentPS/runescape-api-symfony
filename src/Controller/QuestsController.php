@@ -41,7 +41,7 @@ class QuestsController extends AbstractBaseController
 //                'lengthMenu' => [[10, 25, 50, -1], [10, 25, 50, 'All']],
                 'jQueryUI' => true,
                 'autoWidth' => true,
-//                'pageLength' => 30,
+                'pageLength' => 999, // Show all quests
                 'searching' => true,
             ])
             ->add(
