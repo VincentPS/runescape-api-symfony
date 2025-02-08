@@ -41,7 +41,7 @@ class WelcomeController extends AbstractBaseController
         if ($playerNameForm->isSubmitted() && $playerNameForm->isValid()) {
             /** @var array{playerNameWelcome: string} $data */
             $data = $playerNameForm->getData();
-            $request->getSession()->set('currentPlayerName', $data['playerNameWelcome']);
+            $this->setCurrentPlayerNameInSession($data['playerNameWelcome']);
 
             return $this->redirectToRoute('summary');
         }

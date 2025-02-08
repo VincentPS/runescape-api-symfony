@@ -35,13 +35,13 @@ class QuestsController extends AbstractBaseController
 
         $table = $dataTableFactory
             ->create([
-                'paging' => true,
-                'pagingType' => 'simple_numbers',
+                'paging' => false,
+//                'pagingType' => 'simple_numbers',
                 'ordering' => true,
-                'lengthMenu' => [[10, 25, 50, -1], [10, 25, 50, 'All']],
+//                'lengthMenu' => [[10, 25, 50, -1], [10, 25, 50, 'All']],
                 'jQueryUI' => true,
                 'autoWidth' => true,
-                'pageLength' => 30,
+//                'pageLength' => 30,
                 'searching' => true,
             ])
             ->add(
@@ -96,7 +96,7 @@ class QuestsController extends AbstractBaseController
                     'label' => 'Status',
                     'render' => fn($value) => match ($value) {
                         'COMPLETED' => '<span class="badge bg-success">Completed</span>',
-                        'STARTED' => '<span class="badge bg-warning">Started</span>',
+                        'STARTED' => '<span class="badge bg-primary">Started</span>',
                         'NOT_STARTED' => '<span class="badge bg-danger">Not Started</span>',
                         default => '<span class="badge bg-secondary">Unknown</span>',
                     }

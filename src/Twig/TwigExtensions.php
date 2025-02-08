@@ -16,7 +16,7 @@ class TwigExtensions extends AbstractExtension
             new TwigFunction('get_skill_name', [$this, 'getSkillName']),
             new TwigFunction('make_loot_image', [$this, 'makeLootImage']),
             new TwigFunction('get_loot_name', [$this, 'getLootItemName']),
-            new TwigFunction('make_activity_log_item_image', [$this, 'makeActivityLogItemImage']),
+            new TwigFunction('make_activity_log_item_image', [$this, 'makeActivityLogItemImage'])
         ];
     }
 
@@ -147,6 +147,11 @@ class TwigExtensions extends AbstractExtension
         return <<<HTML
 <img src="https://runescape.wiki/images/$imagePath" class="skill-icon" alt="$alt" title="$title">
 HTML;
+    }
+
+    public function checkFirstTimeFetch(): bool
+    {
+        return !isset($_SESSION['currentPlayerName']);
     }
 
     private function makeLootNameBasedOnAdventureLogItem(Activity $adventureLogItem): string

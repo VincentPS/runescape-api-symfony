@@ -8,10 +8,13 @@
                         {% include 'includes/badges/github.html.twig' %}
                         {% include 'includes/badges/discord.html.twig' %}
                     </div>
-                    <div class="col-6"></div>
-                    <div class="col-2 d-flex justify-content-end">
-                        {% if form is defined %}
-                            {{ form(form) }}
+                    <div class="col-4"></div>
+                    <div class="col-4 d-flex justify-content-end">
+                        {% if app.current_route != 'welcome' %}
+                            <div class="me-2">{% include 'includes/alerts.html.twig' %}</div>
+                            {% if form is defined %}
+                                {{ form(form) }}
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

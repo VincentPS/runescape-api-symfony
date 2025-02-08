@@ -1,45 +1,16 @@
 <?php
 
-namespace App\Command;
+namespace App\Command\RsApiUpdate;
 
 use App\Message\FetchLatestApiData;
-use App\Repository\PlayerRepository;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Messenger\MessageBusInterface;
 
-#[AsCommand(
-    name: 'rsapi:update',
-    description: 'Fetch the newest data for a player and update the database',
-)]
-class RsApiUpdateCommand extends Command
+trait HandleSinglePlayerTrait
 {
-    public function __construct(
-        private readonly MessageBusInterface $messageBus,
-        private readonly PlayerRepository $playerRepository,
-        ?string $name = null
-    ) {
-        parent::__construct($name);
-    }
-
-    protected function configure(): void
+    public function handleSinglePlayer(SymfonyStyle $io, string $playerName): int
     {
-        $this
-            ->addArgument('playerName', InputArgument::REQUIRED, 'Player to be updated');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        /** @var string $playerName */
-        $playerName = $input->getArgument('playerName');
-
-        if (empty($playerName) || !is_string($playerName)) {
+        if (empty($playerName)) {
             $io->error('Please provide a player name.');
         }
 
@@ -70,9 +41,7 @@ class RsApiUpdateCommand extends Command
             $io->info([
                 'No new data was found',
                 'Latest data point was created at: ' .
-                $latestDataPointBeforeUpdate
-                    ?->getCreatedAt()
-                    ?->format('D, d M Y H:i:s'),
+                $latestDataPointBeforeUpdate?->getCreatedAt()?->format('D, d M Y H:i:s'),
             ]);
 
             return Command::SUCCESS;
@@ -81,9 +50,7 @@ class RsApiUpdateCommand extends Command
         $io->success([
             'Data updated for player: ' . $playerName,
             'Latest data point now at: ' .
-            $latestDataPointAfterUpdate
-                ->getCreatedAt()
-                ?->format('D, d M Y H:i:s'),
+            $latestDataPointAfterUpdate->getCreatedAt()?->format('D, d M Y H:i:s'),
         ]);
 
         return Command::SUCCESS;

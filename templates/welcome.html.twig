@@ -29,9 +29,27 @@
                                             more. The interface is designed to be clean and easy to navigate, so you can
                                             focus on what matters: tracking your achievements and planning your next
                                             in-game goals.
-                                        </p>
+                                        </p><br>
+                                        <h6 class="mb-0 mt-1">
+                                            Important:<br>
+                                            All names are case-sensitive<br>
+                                            The initial loading might take around 5-10 seconds
+                                        </h6>
                                         <br>
 
+                                        <div class="row d-flex">
+                                            <div class="col-4"></div>
+                                            <div class="col-3 ms-5 d-flex justify-content-evenly">
+                                                {% for label, messages in app.flashes %}
+                                                    {% for message in messages %}
+                                                        <div class="welcome-alert alert alert-{{ label }}" role="alert">
+                                                            <i class="fa-solid fa-exclamation-triangle"></i> {{ message }}
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </div>
+                                            <div class="col-3"></div>
+                                        </div>
                                         <div class="row">
                                             <div class="col-5"></div>
                                             <div class="col-4">
