@@ -2,18 +2,20 @@
 
 namespace App\Service;
 
+use App\Entity\KnownPlayer;
 use App\Entity\Player;
 use App\Enum\QuestStatus;
 use App\Exception\PlayerApi\PlayerApiDataConversionException;
 use App\Exception\PlayerApi\PlayerNotAMemberException;
 use App\Exception\PlayerApi\PlayerNotFoundException;
-use App\Message\HandleDataPointPersist;
+use App\Repository\KnownPlayerRepository;
+use App\Repository\PlayerRepository;
 use App\Trait\GuzzleCachedClientTrait;
 use App\Trait\SerializerAwareTrait;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 class RsApiService
@@ -22,8 +24,10 @@ class RsApiService
     use SerializerAwareTrait;
 
     public function __construct(
-        private readonly MessageBusInterface $messageBus,
         private readonly XpBoundaryService $xpBoundaryService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly KnownPlayerRepository $knownPlayerRepository,
+        private readonly PlayerRepository $playerRepository
     ) {
     }
 
@@ -97,8 +101,7 @@ class RsApiService
             ->setQuestsStarted($questsStarted)
             ->setQuestsNotStarted($questsNotStarted);
 
-        $this->messageBus
-            ->dispatch(new HandleDataPointPersist($playerInfo));
+        $this->persistsData($playerInfo);
 
         return $playerInfo;
     }
@@ -224,5 +227,34 @@ class RsApiService
         }
 
         return '';
+    }
+
+    /**
+     * @throws PlayerNotFoundException
+     */
+    private function persistsData(Player $player): void
+    {
+        if ($player->getName() === null) {
+            throw new PlayerNotFoundException('Player name is null');
+        }
+
+        $knownPlayer = $this->knownPlayerRepository->findOneByName($player->getName());
+
+        if ($knownPlayer === null) {
+            $newKnownPlayer = new KnownPlayer();
+            $newKnownPlayer->setName($player->getName());
+
+            $this->entityManager->persist($newKnownPlayer);
+            $this->entityManager->flush();
+        }
+
+        $latestDataPoint = $this->playerRepository->findLatestByName($player->getName());
+
+        if (!is_null($latestDataPoint) && $latestDataPoint->getTotalXp() === $player->getTotalXp()) {
+            return;
+        }
+
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
     }
 }
