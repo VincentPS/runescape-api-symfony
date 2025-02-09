@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Message;
+namespace App\Message\Clan;
 
 use Symfony\Component\Messenger\Attribute\AsMessage;
 
 #[AsMessage('async')]
-class UpdateAllUsers
+final readonly class UpdateAllPlayersMessage
 {
 }

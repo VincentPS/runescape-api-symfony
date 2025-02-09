@@ -15,7 +15,6 @@ use App\Trait\SerializerAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
-use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 class RsApiService
@@ -36,7 +35,6 @@ class RsApiService
      * @throws PlayerApiDataConversionException
      * @throws PlayerNotAMemberException
      * @throws PlayerNotFoundException
-     * @throws ExceptionInterface
      */
     public function getProfile(string $player, int $amountOfActivityItems = 20): Player
     {
@@ -96,12 +94,11 @@ class RsApiService
 
         $playerInfo
             ->setSkillValues($skillValues)
-            ->setClan($this->getClanName($player))
             ->setQuestsCompleted($questsCompleted)
             ->setQuestsStarted($questsStarted)
             ->setQuestsNotStarted($questsNotStarted);
 
-        $this->persistsData($playerInfo);
+        $this->persistData($playerInfo);
 
         return $playerInfo;
     }
@@ -232,7 +229,7 @@ class RsApiService
     /**
      * @throws PlayerNotFoundException
      */
-    private function persistsData(Player $player): void
+    private function persistData(Player $player): void
     {
         if ($player->getName() === null) {
             throw new PlayerNotFoundException('Player name is null');
@@ -240,17 +237,30 @@ class RsApiService
 
         $knownPlayer = $this->knownPlayerRepository->findOneByName($player->getName());
 
+        // To bypass the rate limit of the RuneScape API, we will only check the clan name if the player is not known.
+        // Updating the clan name for known players is done in a scheduled task.
         if ($knownPlayer === null) {
             $newKnownPlayer = new KnownPlayer();
-            $newKnownPlayer->setName($player->getName());
 
-            $this->entityManager->persist($newKnownPlayer);
-            $this->entityManager->flush();
+            try {
+                $clanName = $this->getClanName($player->getName());
+                $newKnownPlayer->setClanName($clanName);
+                $newKnownPlayer->setName($player->getName());
+
+                $this->entityManager->persist($newKnownPlayer);
+                $this->entityManager->flush();
+            } catch (GuzzleException) {
+                // Ignore this exception as we can't do anything about it anyway. This player will be updated again on a
+                // later run. This could as well still be a rate limit from the API.
+            }
         }
 
         $latestDataPoint = $this->playerRepository->findLatestByName($player->getName());
 
-        if (!is_null($latestDataPoint) && $latestDataPoint->getTotalXp() === $player->getTotalXp()) {
+        if (
+            $latestDataPoint !== null
+            && $latestDataPoint->getTotalXp() === $player->getTotalXp()
+        ) {
             return;
         }
 

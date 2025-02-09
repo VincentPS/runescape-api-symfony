@@ -2,14 +2,14 @@
 
 namespace App\Scheduler;
 
-use App\Message\Stats\UpdateAllPlayersMessage;
+use App\Message\Clan\UpdateAllPlayersMessage;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 
-#[AsSchedule('update_player_data')]
-class UpdatePlayerDataProvider implements ScheduleProviderInterface
+#[AsSchedule('update_clan_names')]
+class UpdateAllClanNames implements ScheduleProviderInterface
 {
     public function getSchedule(): Schedule
     {

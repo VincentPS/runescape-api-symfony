@@ -42,9 +42,6 @@ class Player
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $clan = null;
-
     #[ORM\Column]
     private ?int $questsCompleted = null;
 
@@ -127,18 +124,6 @@ class Player
     public function setName(string $name): self
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getClan(): ?string
-    {
-        return $this->clan;
-    }
-
-    public function setClan(?string $clan): self
-    {
-        $this->clan = $clan;
 
         return $this;
     }

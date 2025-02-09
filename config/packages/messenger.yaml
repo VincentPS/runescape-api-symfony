@@ -9,7 +9,6 @@ framework:
 
     routing:
       App\Message\AsyncEventInterface: async
-      App\Message\FetchLatestApiData: async
 
 when@dev:
   framework:

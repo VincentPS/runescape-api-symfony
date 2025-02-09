@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Runescape Dashboard - Summary{% endblock %}
+{% block title %}RM Tracker - Summary{% endblock %}
 
 {% block body %}
     <div class="container-fluid">
@@ -187,21 +187,21 @@
                             <div class="col-4 p2">
                                 <!-- Clan Info -->
                                 <div class="row">
-                                    {% if playerInfo.clan %}
+                                    {% if clanName %}
                                         <div class="col-12 p-2">
                                             <div class="card sub-card">
                                                 <div class="card-header clan-card-header">
-                                                    <a href="https://services.runescape.com/m=clan-home/clan/{{ playerInfo.clan }}"
+                                                    <a href="https://services.runescape.com/m=clan-home/clan/{{ clanName }}"
                                                        target="_blank">
                                                         <img src="https://secure.runescape.com/m=avatar-rs/{{ playerInfo.name }}/ownclan.png"
-                                                             alt="{{ playerInfo.clan }} avatar"
-                                                             title="{{ playerInfo.clan }} avatar"
+                                                             alt="{{ clanName }} avatar"
+                                                             title="{{ clanName }} avatar"
                                                              class="clan-banner">
                                                     </a>
                                                     <br>
-                                                    <a href="https://services.runescape.com/m=clan-home/clan/{{ playerInfo.clan }}"
+                                                    <a href="https://services.runescape.com/m=clan-home/clan/{{ clanName }}"
                                                        class="clan-name-link" target="_blank">
-                                                        <h2 class="clan-name">{{ playerInfo.clan }}</h2>
+                                                        <h2 class="clan-name">{{ clanName }}</h2>
                                                     </a>
                                                 </div>
                                             </div>

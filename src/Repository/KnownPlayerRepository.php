@@ -20,4 +20,19 @@ class KnownPlayerRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['name' => $name]);
     }
+
+    /**
+     * @return KnownPlayer[]
+     */
+    public function findBatchToUpdate(): array
+    {
+        /** @var KnownPlayer[] $result */
+        $result = $this->createQueryBuilder('kp')
+            ->orderBy('kp.updatedAt', 'ASC')
+            ->setMaxResults(15)
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
 }
