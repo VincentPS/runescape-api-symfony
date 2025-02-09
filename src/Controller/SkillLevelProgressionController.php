@@ -149,7 +149,8 @@ class SkillLevelProgressionController extends AbstractBaseController
                 TextColumn::class,
                 [
                     'label' => 'Rank',
-                    'render' => static function (int $value) {
+                    'render' => static function (int | string $value) {
+                        $value = (int)$value;
                         if ($value === 0) {
                             return '';
                         }
