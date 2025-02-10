@@ -33,20 +33,9 @@ when@test:
 when@prod:
   monolog:
     handlers:
-      main:
-        type: stream
-        path: "%kernel.logs_dir%/%kernel.environment%.log"
-        action_level: error
-      nested:
-        type: stream
-        path: php://stderr
-        level: debug
-        formatter: monolog.formatter.json
-      console:
-        type: console
-        process_psr_3_messages: false
-        channels: [ "!event", "!doctrine" ]
-      deprecation:
-        type: stream
-        channels: [ deprecation ]
-        path: php://stderr
+      graylog:
+        type: gelf
+        publisher:
+          hostname: "%env(GRAYLOG_HOST)%"
+          port: "%env(GRAYLOG_PORT)%"
+        level: '%env(LOG_LEVEL)%'

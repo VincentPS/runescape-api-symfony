@@ -49,10 +49,16 @@ class SkillLevelProgressionController extends AbstractBaseController
                 $currentLevelXp = $xpEnum::{'Level' . $array['level']};
                 $nextLevelXp = $xpEnum::{'Level' . ($array['level'] + 1)};
 
-                $array['progress'] = $array['xp'] > $nextLevelXp->value ? 100 :
-                ($array['xp'] - $currentLevelXp->value) / ($nextLevelXp->value - $currentLevelXp->value) * 100;
+                $array['progress'] = $array['xp'] > $nextLevelXp->value
+                    ? 100
+                    : ($array['xp'] - $currentLevelXp->value) / ($nextLevelXp->value - $currentLevelXp->value) * 100;
 
                 $array['xp_left'] = $array['xp'] > $nextLevelXp->value ? null : $nextLevelXp->value - $array['xp'];
+
+                // correct the level for elite skills
+                if ($skill->isElite()) {
+                    $array['level'] = $xpEnum::getLevelByXp($array['xp']);
+                }
 
                 return $array;
             },
@@ -62,7 +68,7 @@ class SkillLevelProgressionController extends AbstractBaseController
         $table = $dataTableFactory
             ->create([
                 'paging' => false,
-                'ordering' => false,
+                'ordering' => true,
                 'jQueryUI' => true,
                 'autoWidth' => true
             ])
@@ -70,6 +76,7 @@ class SkillLevelProgressionController extends AbstractBaseController
                 'id',
                 TextColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'Skill',
                     'render' => static function (int $value) {
                         $skill = SkillEnum::from($value);
@@ -88,6 +95,7 @@ class SkillLevelProgressionController extends AbstractBaseController
                 'xp',
                 NumberColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'Total XP',
                     'render' => static function (float $value) {
                         $numberFormatter = new NumberFormatter('en_US', NumberFormatter::DECIMAL);
@@ -100,6 +108,7 @@ class SkillLevelProgressionController extends AbstractBaseController
                 'level',
                 NumberColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'Level',
                     'render' => static fn(int $value) => $value
                 ]
@@ -108,6 +117,7 @@ class SkillLevelProgressionController extends AbstractBaseController
                 'progress',
                 NumberColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'Progress',
                     'render' => static function (float $value, array $skillValue) {
                         $displayValue = number_format($value, 2);
@@ -136,6 +146,7 @@ class SkillLevelProgressionController extends AbstractBaseController
                 'xp_left',
                 NumberColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'XP Left',
                     'render' => static function (float $value) {
                         $numberFormatter = new NumberFormatter('en_US', NumberFormatter::DECIMAL);
@@ -148,6 +159,7 @@ class SkillLevelProgressionController extends AbstractBaseController
                 'rank',
                 TextColumn::class,
                 [
+                    'orderable' => true,
                     'label' => 'Rank',
                     'render' => static function (int | string $value) {
                         $value = (int)$value;

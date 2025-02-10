@@ -154,5 +154,19 @@ enum EliteSkillLevelXpEnum: int
     case Level148 = 185007406;
     case Level149 = 189921255;
     case Level150 = 194927409;
-    case Level151 = 200000000;
+    case Level151 = 200000001;
+
+    public static function getLevelByXp(float $xp): int
+    {
+        $previousLevel = 1;
+
+        foreach (self::cases() as $enumLevel) {
+            if ($xp < $enumLevel->value) {
+                break;
+            }
+            $previousLevel = (int)str_replace('Level', '', $enumLevel->name);
+        }
+
+        return $previousLevel;
+    }
 }

@@ -541,6 +541,22 @@ table.dataTable>tbody>tr {
     display: none;
 }
 
+.dataTable th[aria-sort="ascending"]::after {
+    content: "▲";
+    padding-left: 5px;
+}
+
+.dataTable th[aria-sort="descending"]::after {
+    content: "▼";
+    padding-left: 5px;
+}
+
+.dataTable th:not([aria-sort])::after {
+    content: "▲▼";
+    padding-left: 5px;
+}
+
+
 .quests-members {
     width: 30px;
 }
