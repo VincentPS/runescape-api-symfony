@@ -364,11 +364,15 @@ body {
 
 .donation-item span,
 .donation-item i {
-    font-size: .95rem !important;
+    font-size: .8rem !important;
 }
 
 .donation-item i {
     margin-top: 3px;
+}
+
+.donation-item.no-top-border {
+    border-top: none;
 }
 
 .overwrite-list-group-border {
