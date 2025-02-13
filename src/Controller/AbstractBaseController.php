@@ -76,6 +76,13 @@ abstract class AbstractBaseController extends AbstractController
             $this->redirectToRoute('welcome');
         }
 
+        $playerExists = $this->knownPlayerRepository->findOneByName($playerName);
+
+        if ($playerExists !== null) {
+            $playerExists->setLastUsedAt(new DateTimeImmutable());
+            $this->entityManager->flush();
+        }
+
         return $playerName;
     }
 
