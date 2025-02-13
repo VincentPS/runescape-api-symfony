@@ -34,12 +34,7 @@ class LevelsController extends AbstractBaseController
                 'choices' => [
                     'Lines' => Chart::TYPE_LINE,
                     'Bars' => Chart::TYPE_BAR,
-//                    'Bubble' => Chart::TYPE_BUBBLE,
-//                    'Doughnut' => Chart::TYPE_DOUGHNUT,
-//                    'Pie' => Chart::TYPE_PIE,
-//                    'Polar Area' => Chart::TYPE_POLAR_AREA,
-//                    'Radar' => Chart::TYPE_RADAR,
-//                    'Scatter' => Chart::TYPE_SCATTER
+                    'Stacked Bars' => 'stackedBar'
                 ]
             ])
             ->add('search', SubmitType::class, [

@@ -77,6 +77,10 @@ readonly class ChartService
             $currentDate = $currentDate->modify('+1 day');
         }
 
+        if ($chartType === 'stackedBar') {
+            $chartType = Chart::TYPE_BAR;
+        }
+
         return $this->chartBuilder->createChart($chartType)
             ->setOptions([
                 'scales' => [
@@ -207,12 +211,20 @@ readonly class ChartService
             ];
         }
 
+        $scales = [
+            'y' => ['grid' => ['color' => 'rgba(44, 61, 73, 0.3)']],
+            'x' => ['grid' => ['color' => 'rgba(44, 61, 73, 0.3)']]
+        ];
+
+        if ($chartType === 'stackedBar') {
+            $chartType = Chart::TYPE_BAR;
+            $scales['y']['stacked'] = true;
+            $scales['x']['stacked'] = true;
+        }
+
         return $this->chartBuilder->createChart($chartType)
             ->setOptions([
-                'scales' => [
-                    'y' => ['grid' => ['color' => 'rgba(44, 61, 73, 0.3)']],
-                    'x' => ['grid' => ['color' => 'rgba(44, 61, 73, 0.3)']]
-                ],
+                'scales' => $scales,
                 'color' => '#ffffff',
                 'font-family' => 'Cinzel, sarif',
                 'tension' => 0.19,
