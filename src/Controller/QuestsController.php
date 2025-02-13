@@ -28,6 +28,7 @@ class QuestsController extends AbstractBaseController
         $form = $this->headerSearchForm();
         $quests = $playerRepository->findAllQuests($this->getCurrentPlayerName());
 
+        /** @var array<string, mixed> $quests */
         $quests = array_map(
             fn(Quest $quest) => $this->getSerializer()->normalize($quest, Quest::class),
             $quests
@@ -51,7 +52,7 @@ class QuestsController extends AbstractBaseController
                     'searchable' => true,
                     'orderable' => true,
                     'label' => 'Title',
-                    'render' => static function ($value) {
+                    'render' => static function (string $value) {
                         $url = sprintf(
                             'https://runescape.wiki/w/%s/Quick_guide',
                             str_replace(' ', '_', $value)
@@ -71,7 +72,7 @@ class QuestsController extends AbstractBaseController
                 [
                     'orderable' => true,
                     'label' => 'Difficulty',
-                    'render' => fn($value) => QuestDifficulty::from($value)->name
+                    'render' => fn(int $value) => QuestDifficulty::from($value)->name
                 ]
             )
             ->add('questPoints', NumberColumn::class, ['label' => 'Quest Points'])
@@ -81,7 +82,7 @@ class QuestsController extends AbstractBaseController
                 [
                     'orderable' => true,
                     'label' => 'Members',
-                    'render' => fn($value) => $value === 'true'
+                    'render' => fn(string $value) => $value === 'true'
                         ? '<img class="quests-members" 
                                 src="https://cdn.runescape.com/assets/img/external/runemetrics/membership-icon.png" 
                                 alt="P2P">'
@@ -94,7 +95,7 @@ class QuestsController extends AbstractBaseController
                 [
                     'orderable' => true,
                     'label' => 'Status',
-                    'render' => fn($value) => match ($value) {
+                    'render' => fn(string $value) => match ($value) {
                         'COMPLETED' => '<span class="badge bg-success">Completed</span>',
                         'STARTED' => '<span class="badge bg-primary">Started</span>',
                         'NOT_STARTED' => '<span class="badge bg-danger">Not Started</span>',

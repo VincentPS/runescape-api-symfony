@@ -20,7 +20,7 @@ final readonly class UpdateAllPlayersHandler
 
     public function __invoke(UpdateAllPlayersMessage $message): void
     {
-        $knownPlayers = $this->knownPlayerRepository->findBatchToUpdate();
+        $knownPlayers = $this->knownPlayerRepository->findBatchToUpdateClanName();
 
         foreach ($knownPlayers as $knownPlayer) {
             $this->messageBus->dispatch(new UpdateOnePlayerMessage((string)$knownPlayer->getName()));

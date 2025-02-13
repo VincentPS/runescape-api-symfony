@@ -104,8 +104,7 @@ class ActivityController extends AbstractBaseController
 
         // If the form is submitted and the activity category skills is selected, then show the skill category
         if (
-            is_array($request->request->all())
-            && array_key_exists('filter_activities_form', $request->request->all())
+            array_key_exists('filter_activities_form', $request->request->all())
             && is_array($request->request->all()['filter_activities_form'])
             && array_key_exists('acitivityCategory', $request->request->all()['filter_activities_form'])
             && $request->request->all()['filter_activities_form']['acitivityCategory'] === ActivityFilter::Skills->value

@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\UniqueConstraint(fields: ['name'])]
 class KnownPlayer
 {
+    public const string ACTIVITY_THRESHOLD = '2 days';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -25,9 +27,16 @@ class KnownPlayer
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $updatedAt;
 
+    /**
+     * Will be used to determine if a player is still active on the dashboard.
+     */
+    #[ORM\Column(type: 'datetime_immutable')]
+    private DateTimeImmutable $lastUsedAt;
+
     public function __construct()
     {
         $this->updatedAt = new DateTimeImmutable();
+        $this->lastUsedAt = new DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -67,6 +76,18 @@ class KnownPlayer
     public function setUpdatedAt(DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getLastUsedAt(): DateTimeImmutable
+    {
+        return $this->lastUsedAt;
+    }
+
+    public function setLastUsedAt(DateTimeImmutable $lastUsedAt): static
+    {
+        $this->lastUsedAt = $lastUsedAt;
 
         return $this;
     }
