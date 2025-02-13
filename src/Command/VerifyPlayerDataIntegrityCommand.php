@@ -42,6 +42,8 @@ class VerifyPlayerDataIntegrityCommand extends Command
 
         if (empty($playerName) || !is_string($playerName)) {
             $io->error('Please provide a player name.');
+
+            return Command::FAILURE;
         }
 
         $io->info('Data will be verified for player: ' . $playerName);

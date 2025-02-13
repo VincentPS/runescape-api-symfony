@@ -6,6 +6,8 @@ use App\Exception\PlayerApi\PlayerNotAMemberException;
 use App\Exception\PlayerApi\PlayerNotFoundException;
 use App\Repository\KnownPlayerRepository;
 use App\Service\RsApiService;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -20,7 +22,8 @@ abstract class AbstractBaseController extends AbstractController
         protected readonly FormFactoryInterface $formFactory,
         protected readonly RequestStack $requestStack,
         protected readonly RsApiService $rsApiService,
-        protected readonly KnownPlayerRepository $knownPlayerRepository
+        protected readonly KnownPlayerRepository $knownPlayerRepository,
+        protected readonly EntityManagerInterface $entityManager
     ) {
     }
 
@@ -87,8 +90,16 @@ abstract class AbstractBaseController extends AbstractController
             if ($playerExists === null) {
                 $player = $this->rsApiService->getProfile($playerName);
                 $this->requestStack->getSession()->set('currentPlayerName', $player->getName());
+
+                // fetch the player again to ensure we have the correct player
+                $playerExists = $this->knownPlayerRepository->findOneByName((string)$player->getName());
             } else {
                 $this->requestStack->getSession()->set('currentPlayerName', $playerExists->getName());
+            }
+
+            if ($playerExists !== null) {
+                $playerExists->setLastUsedAt(new DateTimeImmutable());
+                $this->entityManager->flush();
             }
         } catch (PlayerNotFoundException | PlayerNotAMemberException $e) {
             $this->addFlash('info', $e->getMessage());
