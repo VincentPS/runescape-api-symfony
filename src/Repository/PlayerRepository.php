@@ -6,7 +6,8 @@ use App\Dto\Quest;
 use App\Entity\Player;
 use App\Enum\ActivityFilter;
 use App\Enum\SkillEnum;
-use DateTimeInterface;
+use DateMalformedStringException;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Exception as DBALException;
@@ -242,8 +243,8 @@ SQL;
     /**
      * Retrieves a list of XP data for a given player between two dates.
      *
-     * @param DateTimeInterface $start The start date of the XP data range.
-     * @param DateTimeInterface $end The end date of the XP data range.
+     * @param DateTimeImmutable $start The start date of the XP data range.
+     * @param DateTimeImmutable $end The end date of the XP data range.
      * @param string $name The name of the player to retrieve XP data for.
      *
      * @return array<array{
@@ -257,10 +258,11 @@ SQL;
      * - 'total_xp_gain': The total XP gain for the day.
      *
      * @throws DBALException If an error occurs while executing the database query.
+     * @throws DateMalformedStringException
      */
     public function findDailyXpRateForTotalXp(
-        DateTimeInterface $start,
-        DateTimeInterface $end,
+        DateTimeImmutable $start,
+        DateTimeImmutable $end,
         string $name
     ): array {
         $stmt = <<<SQL
@@ -315,8 +317,8 @@ SQL;
             ->getEntityManager()
             ->getConnection()
             ->executeQuery($stmt, [
-                'start_date' => $start->format('Y-m-d H:i:s'),
-                'end_date' => $end->format('Y-m-d H:i:s'),
+                'start_date' => $start->modify('00:00:00')->format('Y-m-d H:i:s'),
+                'end_date' => $end->modify('23:59:59')->format('Y-m-d H:i:s'),
                 'name' => $name
             ])
             ->fetchAllAssociative();
@@ -327,10 +329,11 @@ SQL;
     /**
      * @return array{int: array{date: string, xp_difference: string}}
      * @throws DBALException
+     * @throws DateMalformedStringException
      */
     public function findDailyXpRateForSkillAtDate(
-        DateTimeInterface $start,
-        DateTimeInterface $end,
+        DateTimeImmutable $start,
+        DateTimeImmutable $end,
         string $name,
         SkillEnum $skillEnum
     ): array {
@@ -364,8 +367,8 @@ SQL;
             ->getEntityManager()
             ->getConnection()
             ->executeQuery($stmt, [
-                'start_date' => $start->format('Y-m-d H:i:s'),
-                'end_date' => $end->format('Y-m-d H:i:s'),
+                'start_date' => $start->modify('00:00:00')->format('Y-m-d H:i:s'),
+                'end_date' => $end->modify('23:59:59')->format('Y-m-d H:i:s'),
                 'name' => $name,
                 'skill_id' => $skillEnum->value
             ])
@@ -375,8 +378,8 @@ SQL;
     }
 
     /**
-     * @param DateTimeInterface $start
-     * @param DateTimeInterface $end
+     * @param DateTimeImmutable $start
+     * @param DateTimeImmutable $end
      * @param string $name
      * @return array<array{
      *      'date': string,
@@ -384,10 +387,11 @@ SQL;
      *      'unique_xp': array<int, string>,
      *  }>
      * @throws DBALException
+     * @throws DateMalformedStringException
      */
     public function findHourlyXpRateForTotalXp(
-        DateTimeInterface $start,
-        DateTimeInterface $end,
+        DateTimeImmutable $start,
+        DateTimeImmutable $end,
         string $name
     ): array {
         $stmt = <<<SQL
@@ -429,8 +433,8 @@ SQL;
             ->getEntityManager()
             ->getConnection()
             ->executeQuery($stmt, [
-                'start' => $start->format('Y-m-d H:i:s'),
-                'end' => $end->format('Y-m-d H:i:s'),
+                'start' => $start->modify('00:00:00')->format('Y-m-d H:i:s'),
+                'end' => $end->modify('23:59:59')->format('Y-m-d H:i:s'),
                 'name' => $name
             ])
             ->fetchAllAssociative();
@@ -439,16 +443,17 @@ SQL;
     }
 
     /**
-     * @param DateTimeInterface $start
-     * @param DateTimeInterface $end
+     * @param DateTimeImmutable $start
+     * @param DateTimeImmutable $end
      * @param string $name
      * @param SkillEnum $skillEnum
      * @return array{int: array{date: string, xp_difference: string}}
      * @throws DBALException
+     * @throws DateMalformedStringException
      */
     public function findHourlyXpRateForSkillAtDate(
-        DateTimeInterface $start,
-        DateTimeInterface $end,
+        DateTimeImmutable $start,
+        DateTimeImmutable $end,
         string $name,
         SkillEnum $skillEnum
     ): array {
@@ -495,8 +500,8 @@ SQL;
             ->getEntityManager()
             ->getConnection()
             ->executeQuery($stmt, [
-                'start_date' => $start->format('Y-m-d H:i:s'),
-                'end_date' => $end->format('Y-m-d H:i:s'),
+                'start_date' => $start->modify('00:00:00')->format('Y-m-d H:i:s'),
+                'end_date' => $end->modify('23:59:59')->format('Y-m-d H:i:s'),
                 'name' => $name,
                 'skill_id' => $skillEnum->value
             ])
