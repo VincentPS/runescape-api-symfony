@@ -87,7 +87,11 @@ class XpTrackerController extends AbstractBaseController
         }
 
         return $this->render('xp_tracker.html.twig', [
-            'chart' => $chart ?? $chartService->getTotalXpChart($this->getCurrentPlayerName()),
+            'chart' => $chart ?? $chartService->getTotalXpChart(
+                $this->getCurrentPlayerName(),
+                new DateTimeImmutable('-1 month'),
+                new DateTimeImmutable(),
+            ),
             'form' => $form->createView(),
             'filterForm' => $filterForm->createView()
         ]);
@@ -154,7 +158,7 @@ class XpTrackerController extends AbstractBaseController
         }
 
         return $this->render('xp_tracker.html.twig', [
-            'chart' => $chart ?? $chartService->getTotalXpChart($this->getCurrentPlayerName()),
+            'chart' => $chart ?? $chartService->getTotalXpChart($this->getCurrentPlayerName(), new DateTimeImmutable()),
             'form' => $form->createView(),
             'filterForm' => $filterForm->createView()
         ]);
