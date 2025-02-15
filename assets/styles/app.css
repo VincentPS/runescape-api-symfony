@@ -358,6 +358,43 @@ body {
     border: none !important;
 }
 
+/* Submenu */
+.side-menu-subitem {
+    padding: 0.75rem 1rem 0.75rem 3.55rem;
+    background: #02131a;
+    color: #b2dbee !important;
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease-in-out;
+}
+
+.side-menu-subitem:hover {
+    background: #02151c;
+    color: white !important;
+}
+
+/* Active submenu */
+.side-menu-subitem.active {
+    color: #e1bb34 !important;
+    background: #000;
+    border-bottom: inherit;
+    border-left: none;
+}
+
+.collapse .list-group-item-action:focus {
+    background: #02131a;
+    color: white;
+}
+
+/* Chevron animation */
+.side-menu-item .fa-chevron-down {
+    transition: transform 0.3s ease-in-out;
+    margin-right: 15px !important;
+}
+
+.side-menu-item-link[aria-expanded="true"] .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
 .donation-item {
     border-top: 1px solid #2c3d49;
 }
@@ -460,6 +497,10 @@ form input::placeholder {
 
 form select[multiple] {
     height: 25em !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(64%) sepia(87%) saturate(400%) hue-rotate(10deg) brightness(95%);
 }
 
 .pulse {

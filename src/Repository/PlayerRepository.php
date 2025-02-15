@@ -6,19 +6,12 @@ use App\Dto\Quest;
 use App\Entity\Player;
 use App\Enum\ActivityFilter;
 use App\Enum\SkillEnum;
-use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use Exception;
-use RuntimeException;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 /**
  * @extends ServiceEntityRepository<Player>
@@ -96,6 +89,43 @@ class PlayerRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return Quest[]
+     * @throws NonUniqueResultException
+     */
+    public function findAllQuests(string $playerName): array
+    {
+        /**
+         * @var array{quests: Quest[] | null} $result
+         */
+        $result = $this->createQueryBuilder('p')
+            ->select('p.quests')
+            ->where('p.name = :name')
+            ->setParameter('name', $playerName)
+            ->orderBy('p.createdAt', Criteria::DESC)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result['quests'] ?? [];
+    }
+
+    /**
+     * @param string $playerName
+     * @return Player[]
+     */
+    public function findAllByName(string $playerName): array
+    {
+        /** @var Player[] $result */
+        $result = $this->createQueryBuilder('p')
+            ->andWhere('p.name = :name')
+            ->setParameter('name', $playerName)
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
+
+    /**
      * Retrieves a unique list of activities for a player with the specified name.
      *
      * @param string $name The name of the player to retrieve activities for.
@@ -111,7 +141,7 @@ class PlayerRepository extends ServiceEntityRepository
      *
      * @throws DBALException If an error occurs while executing the query.
      */
-    public function findAllUniqueActivitiesByPlayerName(string $name): string | bool
+    public function findAllUniqueActivitiesByPlayerName(string $name): string|bool
     {
         $stmt = <<<SQL
             SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
@@ -131,166 +161,6 @@ class PlayerRepository extends ServiceEntityRepository
     }
 
     /**
-     * Retrieves a list of XP data for a given player between two dates.
-     *
-     * @param DateTimeInterface $start The start date of the XP data range.
-     * @param DateTimeInterface $end The end date of the XP data range.
-     * @param string $name The name of the player to retrieve XP data for.
-     *
-     * @return array<string, array{
-     *     'date': string,
-     *     'xp_increase': int,
-     *     'unique_xp': array<int, string>
-     * }>
-     * An array of XP data for each day within the specified date range.
-     * Each element of the array is keyed by the date in 'YYYY-MM-DD' format.
-     * The value of each element is an array containing the following keys:
-     * - 'date': The date in 'YYYY-MM-DD' format.
-     * - 'xp_increase': The total amount of XP gained by the player between the first and last XP data for that day.
-     * - 'unique_xp': An array containing all the unique XP values recorded for that day, in ascending order.
-     * - 'avg_xp_gained': The average amount of XP gained by the player for that day.
-     *
-     * @throws DBALException If an error occurs while executing the database query.
-     */
-    public function findAllUniqueTotalXpBetweenDatesByNameGroupByDay(
-        DateTimeInterface $start,
-        DateTimeInterface $end,
-        string $name
-    ): array {
-        $serializer = new Serializer([new ArrayDenormalizer()], [new JsonEncoder()]);
-
-        $stmt = <<<SQL
-            SELECT DATE_TRUNC('day', p.created_at)::date AS date,
-                   MAX(p.total_xp) - MIN(p.total_xp) AS xp_increase,
-                   jsonb_agg(p.total_xp) AS unique_xp
-            FROM player p
-            WHERE p.created_at >= :start
-              AND p.created_at <= :end
-              AND p.name = :name
-            GROUP BY DATE_TRUNC('day', p.created_at)::date
-            ORDER BY DATE_TRUNC('day', p.created_at)::date ASC;
-        SQL;
-
-        $results = $this
-            ->getEntityManager()
-            ->getConnection()
-            ->executeQuery($stmt, [
-                'start' => $start->format('Y-m-d H:i:s'),
-                'end' => $end->format('Y-m-d H:i:s'),
-                'name' => $name
-            ])
-            ->fetchAllAssociative();
-
-        $groupedResults = [];
-
-        foreach ($results as &$result) {
-            if (!is_string($result['unique_xp'])) {
-                throw new RuntimeException('Unexpected type for "unique_xp" column.');
-            }
-
-            $result['unique_xp'] = $serializer->decode($result['unique_xp'], 'json');
-            $groupedResults[$result['date']] = $result;
-        }
-
-        /** @var array<string, array{
-         *     'date': string,
-         *     'xp_increase': int,
-         *     'unique_xp': array<int, string>,
-         * }> $groupedResults
-         */
-        return $groupedResults;
-    }
-
-    /**
-     * @return array{int: array{date: string, xp_difference: string}}
-     * @throws DBALException
-     */
-    public function findAllXpDifferencesBetweenDatesByNameGroupByDayAndSkill(
-        DateTimeInterface $start,
-        DateTimeInterface $end,
-        string $name,
-        SkillEnum $skillEnum
-    ): array {
-        $stmt = <<<SQL
-WITH min_max_values AS (
-    SELECT
-        DATE_TRUNC('day', p.created_at)::date AS date,
-        FIRST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric)) OVER (
-            PARTITION BY DATE_TRUNC('day', p.created_at)::date
-            ORDER BY p.created_at
-            ) AS first_xp,
-        LAST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric)) OVER (
-            PARTITION BY DATE_TRUNC('day', p.created_at)::date
-            ORDER BY p.created_at ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-            ) AS last_xp
-    FROM player p
-             CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
-    WHERE p.created_at BETWEEN :start_date AND :end_date
-      AND jsonb_element ->> 'id' = :skill_id
-      AND p.name = :name
-)
-SELECT DISTINCT
-    date,
-    last_xp - first_xp AS xp_difference
-FROM min_max_values
-ORDER BY date;
-SQL;
-
-        /** @var array{int: array{date: string, xp_difference: string}} $results */
-        $results = $this
-            ->getEntityManager()
-            ->getConnection()
-            ->executeQuery($stmt, [
-                'start_date' => $start->format('Y-m-d H:i:s'),
-                'end_date' => $end->format('Y-m-d H:i:s'),
-                'name' => $name,
-                'skill_id' => $skillEnum->value
-            ])
-            ->fetchAllAssociative();
-
-        return $results;
-    }
-
-    /**
-     * Finds the earliest and latest DateTime objects for a given name.
-     *
-     * @param string $name The name to search for.
-     *
-     * @return array<string, DateTimeImmutable>|null
-     * An associative array with the following keys:
-     * - 'minDate': A DateTimeImmutable object representing the earliest date found.
-     * - 'maxDate': A DateTimeImmutable object representing the latest date found.
-     * If no results are found, null is returned.
-     *
-     * @throws NoResultException If no result is returned.
-     * @throws NonUniqueResultException If more than one result is returned.
-     */
-    public function findFirstAndLastDateTimeByName(string $name): ?array
-    {
-        /** @var array{'minDate': ?string, 'maxDate': ?string} $dateTimes */
-        $dateTimes = $this->createQueryBuilder('p')
-            ->select('MIN(p.createdAt) AS minDate, MAX(p.createdAt) AS maxDate')
-            ->andWhere('p.name = :name')
-            ->setParameter('name', $name)
-            ->setCacheable(true)
-            ->getQuery()
-            ->getSingleResult();
-
-        if (is_null($dateTimes['minDate']) || is_null($dateTimes['maxDate'])) {
-            return null;
-        }
-
-        try {
-            return [
-                'minDate' => new DateTimeImmutable($dateTimes['minDate']),
-                'maxDate' => new DateTimeImmutable($dateTimes['maxDate']),
-            ];
-        } catch (Exception) {
-            return null;
-        }
-    }
-
-    /**
      * Finds all player activities of a specific type based on the provided ActivityFilter.
      *
      * @param ActivityFilter $type The type of activities to filter (e.g., 'skills', 'quests', 'bosskills', 'loot').
@@ -301,7 +171,7 @@ SQL;
     public function findAllUniqueActivitiesByPlayerNameAndActivityFilter(
         string $playerName,
         ActivityFilter $type
-    ): string | bool {
+    ): string|bool {
         $stmt = <<<SQL
 SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
 FROM (
@@ -348,7 +218,7 @@ SQL;
      *                    or `false` if an error occurs during the database query.
      * @throws DBALException If an error occurs during the database query execution.
      */
-    public function findAllUniqueActivitiesByPlayerNameAndSkill(string $playerName, SkillEnum $skill): string | bool
+    public function findAllUniqueActivitiesByPlayerNameAndSkill(string $playerName, SkillEnum $skill): string|bool
     {
         $stmt = <<<SQL
             SELECT COALESCE(jsonb_agg(activity), '[]'::jsonb)
@@ -370,39 +240,268 @@ SQL;
     }
 
     /**
-     * @return Quest[]
-     * @throws NonUniqueResultException
+     * Retrieves a list of XP data for a given player between two dates.
+     *
+     * @param DateTimeInterface $start The start date of the XP data range.
+     * @param DateTimeInterface $end The end date of the XP data range.
+     * @param string $name The name of the player to retrieve XP data for.
+     *
+     * @return array<array{
+     *      date: string,
+     *      total_xp_gain: string
+     *  }>
+     * An array of XP data for each day within the specified date range.
+     * Each element of the array is keyed by the date in 'YYYY-MM-DD' format.
+     * The value of each element is an array containing the following keys:
+     * - 'date': The date in 'YYYY-MM-DD' format.
+     * - 'total_xp_gain': The total XP gain for the day.
+     *
+     * @throws DBALException If an error occurs while executing the database query.
      */
-    public function findAllQuests(string $playerName): array
-    {
-        /**
-         * @var array{quests: Quest[] | null} $result
-         */
-        $result = $this->createQueryBuilder('p')
-            ->select('p.quests')
-            ->where('p.name = :name')
-            ->setParameter('name', $playerName)
-            ->orderBy('p.createdAt', Criteria::DESC)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+    public function findDailyXpRateForTotalXp(
+        DateTimeInterface $start,
+        DateTimeInterface $end,
+        string $name
+    ): array {
+        $stmt = <<<SQL
+WITH date_series AS (
+    -- Generate a series of dates between the start and end date
+    SELECT generate_series(:start_date::date, :end_date::date, '1 day') AS date
+),
+skill_xp_differences AS (
+    SELECT
+        p.name,
+        DATE_TRUNC('day', p.created_at)::date AS date,
+        s.skill_id,
+        s.xp AS current_xp,
+        LAG(s.xp) OVER (
+            PARTITION BY p.name, s.skill_id
+            ORDER BY p.created_at
+        ) AS previous_xp
+    FROM player p
+    CROSS JOIN LATERAL (
+        SELECT (jsonb_array_elements(p.skill_values) ->> 'id')::int AS skill_id,
+               (jsonb_array_elements(p.skill_values) ->> 'xp')::numeric AS xp
+    ) s
+    WHERE p.created_at BETWEEN :start_date AND :end_date
+      AND p.name = :name
+),
+xp_results AS (
+    SELECT
+        date,
+        SUM(CASE
+                WHEN previous_xp IS NULL THEN 0
+                WHEN previous_xp <> current_xp THEN current_xp - previous_xp
+                ELSE 0
+            END) AS total_xp_gain
+    FROM skill_xp_differences
+    GROUP BY date
+)
+SELECT
+    ds.date,
+    COALESCE(xr.total_xp_gain, 0) AS total_xp_gain -- Fill in missing dates with 0
+FROM date_series ds
+LEFT JOIN xp_results xr ON ds.date = xr.date
+ORDER BY ds.date;
+SQL;
 
-        return $result['quests'] ?? [];
+        /**
+         * @var array<array{
+         *     date: string,
+         *     total_xp_gain: string
+         * }> $results
+         */
+        $results = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($stmt, [
+                'start_date' => $start->format('Y-m-d H:i:s'),
+                'end_date' => $end->format('Y-m-d H:i:s'),
+                'name' => $name
+            ])
+            ->fetchAllAssociative();
+
+        return $results;
     }
 
     /**
-     * @param string $playerName
-     * @return Player[]
+     * @return array{int: array{date: string, xp_difference: string}}
+     * @throws DBALException
      */
-    public function findAllByName(string $playerName): array
-    {
-        /** @var Player[] $result */
-        $result = $this->createQueryBuilder('p')
-            ->andWhere('p.name = :name')
-            ->setParameter('name', $playerName)
-            ->getQuery()
-            ->getResult();
+    public function findDailyXpRateForSkillAtDate(
+        DateTimeInterface $start,
+        DateTimeInterface $end,
+        string $name,
+        SkillEnum $skillEnum
+    ): array {
+        $stmt = <<<SQL
+WITH min_max_values AS (
+    SELECT
+        DATE_TRUNC('day', p.created_at)::date AS date,
+        FIRST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric)) OVER (
+            PARTITION BY DATE_TRUNC('day', p.created_at)::date
+            ORDER BY p.created_at
+            ) AS first_xp,
+        LAST_VALUE(CAST(jsonb_element ->> 'xp' AS numeric)) OVER (
+            PARTITION BY DATE_TRUNC('day', p.created_at)::date
+            ORDER BY p.created_at ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+            ) AS last_xp
+    FROM player p
+             CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
+    WHERE p.created_at BETWEEN :start_date AND :end_date
+      AND jsonb_element ->> 'id' = :skill_id
+      AND p.name = :name
+)
+SELECT DISTINCT
+    date,
+    last_xp - first_xp AS xp_difference
+FROM min_max_values
+ORDER BY date;
+SQL;
 
-        return $result;
+        /** @var array{int: array{date: string, xp_difference: string}} $results */
+        $results = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($stmt, [
+                'start_date' => $start->format('Y-m-d H:i:s'),
+                'end_date' => $end->format('Y-m-d H:i:s'),
+                'name' => $name,
+                'skill_id' => $skillEnum->value
+            ])
+            ->fetchAllAssociative();
+
+        return $results;
+    }
+
+    /**
+     * @param DateTimeInterface $start
+     * @param DateTimeInterface $end
+     * @param string $name
+     * @return array<array{
+     *      'date': string,
+     *      'xp_increase': int,
+     *      'unique_xp': array<int, string>,
+     *  }>
+     * @throws DBALException
+     */
+    public function findHourlyXpRateForTotalXp(
+        DateTimeInterface $start,
+        DateTimeInterface $end,
+        string $name
+    ): array {
+        $stmt = <<<SQL
+WITH hours AS (
+    -- Generate a series of hours between the start and end date
+    SELECT generate_series(
+                   DATE_TRUNC('hour', :start::TIMESTAMP),
+                   DATE_TRUNC('hour', :end::TIMESTAMP),
+                   INTERVAL '1 hour'
+           ) AS date
+),
+     xp_data AS (
+         -- Calculate the total xp increase and unique xp values for each hour
+         SELECT
+             DATE_TRUNC('hour', p.created_at) AS date,
+             MAX(p.total_xp) - MIN(p.total_xp) AS xp_increase,
+             jsonb_agg(p.total_xp) AS unique_xp
+         FROM player p
+         WHERE p.created_at BETWEEN :start::TIMESTAMP AND :end::TIMESTAMP
+           AND p.name = :name
+         GROUP BY DATE_TRUNC('hour', p.created_at)
+     )
+SELECT
+    TO_CHAR(h.date, 'HH24:MI') AS date,
+    COALESCE(x.xp_increase, 0) AS xp_increase,
+    COALESCE(x.unique_xp, '[]'::jsonb) AS unique_xp
+FROM hours h
+         LEFT JOIN xp_data x ON h.date = x.date
+ORDER BY h.date ASC;
+SQL;
+
+        /** @var array<array{
+         *     'date': string,
+         *     'xp_increase': int,
+         *     'unique_xp': array<int, string>,
+         * }> $results
+         */
+        $results = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($stmt, [
+                'start' => $start->format('Y-m-d H:i:s'),
+                'end' => $end->format('Y-m-d H:i:s'),
+                'name' => $name
+            ])
+            ->fetchAllAssociative();
+
+        return $results;
+    }
+
+    /**
+     * @param DateTimeInterface $start
+     * @param DateTimeInterface $end
+     * @param string $name
+     * @param SkillEnum $skillEnum
+     * @return array{int: array{date: string, xp_difference: string}}
+     * @throws DBALException
+     */
+    public function findHourlyXpRateForSkillAtDate(
+        DateTimeInterface $start,
+        DateTimeInterface $end,
+        string $name,
+        SkillEnum $skillEnum
+    ): array {
+        $stmt = <<<SQL
+WITH hours AS (
+    -- Generate a series of hours between the start and end date
+    SELECT generate_series(
+               DATE_TRUNC('hour', :start_date::TIMESTAMP),
+               DATE_TRUNC('hour', :end_date::TIMESTAMP),
+               INTERVAL '1 hour'
+           ) AS date
+),
+     min_max_values AS (
+         -- Calculate the first and last xp value for each hour
+         SELECT
+             DATE_TRUNC('hour', p.created_at) AS date,
+             MIN(CAST(jsonb_element ->> 'xp' AS numeric)) AS first_xp,
+             MAX(CAST(jsonb_element ->> 'xp' AS numeric)) AS last_xp
+         FROM player p
+                  CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
+         WHERE p.created_at BETWEEN :start_date::TIMESTAMP AND :end_date::TIMESTAMP
+           AND jsonb_element ->> 'id' = :skill_id
+           AND p.name = :name
+         GROUP BY DATE_TRUNC('hour', p.created_at)
+     ),
+     filled_xp AS (
+         -- Use the first and last xp value for each hour, or the previous value if it is missing
+         SELECT
+             h.date,
+             COALESCE(m.first_xp, LAG(m.last_xp) OVER (ORDER BY h.date)) AS first_xp,
+             COALESCE(m.last_xp, LAG(m.last_xp) OVER (ORDER BY h.date)) AS last_xp
+         FROM hours h
+         LEFT JOIN min_max_values m ON h.date = m.date
+     )
+SELECT
+    TO_CHAR(date, 'HH24:MI') AS date,
+    COALESCE(last_xp - first_xp, 0) AS xp_difference
+FROM filled_xp
+ORDER BY date;
+SQL;
+
+        /** @var array{int: array{date: string, xp_difference: string}} $results */
+        $results = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($stmt, [
+                'start_date' => $start->format('Y-m-d H:i:s'),
+                'end_date' => $end->format('Y-m-d H:i:s'),
+                'name' => $name,
+                'skill_id' => $skillEnum->value
+            ])
+            ->fetchAllAssociative();
+
+        return $results;
     }
 }

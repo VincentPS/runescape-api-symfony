@@ -48,15 +48,35 @@
                         </div>
                     </div>
                 </a>
-                <a href="{{ path('app_dashboard_levels') }}"
-                   class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_levels' ? 'active' : '' }}">
+                <!-- XP Tracker met submenu -->
+                <a class="side-menu-item-link d-flex align-items-center" data-bs-toggle="collapse" href="#xpTrackerMenu" role="button" aria-expanded="{{ app.request.attributes.get('_route') starts with 'app_xp_tracker' ? 'true' : 'false' }}" aria-controls="xpTrackerMenu">
+                    <div class="list-group-item list-group-item-action side-menu-item">
                         <div class="d-flex w-100">
                             <i class="fa-solid fa-chart-simple side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">&nbsp;Levels</span>
+                            <span class="side-menu-title ms-4">Xp Tracker</span>
+                            <i class="fa-solid fa-chevron-down ms-auto"></i>
                         </div>
                     </div>
                 </a>
+
+                <!-- Submenu - XP Tracker -->
+                <div class="collapse {{ app.request.attributes.get('_route') starts with 'app_xp_tracker' ? 'show' : '' }}" id="xpTrackerMenu">
+                    <a href="{{ path('app_xp_tracker_daily') }}" class="list-group-item list-group-item-action side-menu-subitem {{ app.request.attributes.get('_route') == 'app_xp_tracker_daily' ? 'active' : '' }}">
+                        Daily
+                    </a>
+                    <a href="{{ path('app_xp_tracker_hourly') }}" class="list-group-item list-group-item-action side-menu-subitem {{ app.request.attributes.get('_route') == 'app_xp_tracker_hourly' ? 'active' : '' }}">
+                        Hourly
+                    </a>
+                </div>
+{#                <a href="{{ path('app_xp_tracker') }}"#}
+{#                   class="side-menu-item-link">#}
+{#                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_xp_tracker' ? 'active' : '' }}">#}
+{#                        <div class="d-flex w-100">#}
+{#                            <i class="fa-solid fa-chart-simple side-menu-icon"></i>#}
+{#                            <span class="side-menu-title ms-4">&nbsp;Xp Tracker</span>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </a>#}
                 <a href="{{ path('app_dashboard_skill_level_progression') }}"
                    class="side-menu-item-link">
                     <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_skill_level_progression' ? 'active' : '' }}">

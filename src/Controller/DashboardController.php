@@ -4,7 +4,8 @@ namespace App\Controller;
 
 use App\Repository\KnownPlayerRepository;
 use App\Repository\PlayerRepository;
-use App\Service\ChartService;
+use App\Service\Chart\QuestChartService;
+use App\Service\Chart\Xp\DailyChartService;
 use App\Service\DoubleXpService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -15,7 +16,8 @@ class DashboardController extends AbstractBaseController
     public function summary(
         PlayerRepository $playerRepository,
         KnownPlayerRepository $knownPlayerRepository,
-        ChartService $chartService,
+        DailyChartService $chartService,
+        QuestChartService $questChartService,
         DoubleXpService $doubleXpService
     ): Response {
         $form = $this->headerSearchForm();
@@ -28,7 +30,7 @@ class DashboardController extends AbstractBaseController
         }
 
         return $this->render('summary.html.twig', [
-            'chart' => $chartService->getQuestChart($player),
+            'chart' => $questChartService->getChart($player),
             'playerInfo' => $player,
             'clanName' => $knownPlayer?->getClanName(),
             'form' => $form->createView(),
