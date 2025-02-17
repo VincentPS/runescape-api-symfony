@@ -641,8 +641,8 @@ table.dataTable>tbody>tr {
     font-size: .875rem;
 }
 
-#levelsProgress .dataTable td {
-    font-size: 1rem;
+.dataTable td {
+    font-size: 1rem !important;
 }
 
 .card-without-footer {
