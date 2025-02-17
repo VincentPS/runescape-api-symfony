@@ -75,7 +75,14 @@ class QuestsController extends AbstractBaseController
                     'render' => fn(int $value) => QuestDifficulty::from($value)->name
                 ]
             )
-            ->add('questPoints', NumberColumn::class, ['label' => 'Quest Points'])
+            ->add(
+                'questPoints',
+                NumberColumn::class,
+                [
+                    'orderable' => true,
+                    'label' => 'Quest Points'
+                ]
+            )
             ->add(
                 'members',
                 BoolColumn::class,
