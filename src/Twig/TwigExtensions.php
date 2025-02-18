@@ -113,8 +113,7 @@ class TwigExtensions extends AbstractExtension
                 $alt = 'Monster Kills';
                 $title = 'Monster Kills';
                 break;
-            case str_contains($text, 'i found a '):
-            case str_contains($text, 'i found an '):
+            case str_contains($text, 'i found ') && !preg_match('/i found .* the ([\w\s]+) pet/i', $text):
                 $imagePath = $this->makeLootImage($activity);
                 $alt = $this->getLootItemName($activity);
                 $title = $this->getLootItemName($activity);
@@ -156,34 +155,35 @@ HTML;
 
     private function makeLootNameBasedOnAdventureLogItem(Activity $adventureLogItem): string
     {
-        //check if last character of the string is a period and remove it
-        $lastCharacter = substr((string)$adventureLogItem->text, -1);
-        if ($lastCharacter === '.') {
-            $adventureLogItem->text = substr((string)$adventureLogItem->text, 0, -1);
-        }
+        $stringContains = [
+            'I found a pair of ',
+            'I found some ',
+            'I found an ',
+            'I found a ',
+            'I found '
+        ];
 
-        $foundPositionAn = strpos((string)$adventureLogItem->text, "I found an ");
-        $foundPositionA = strpos((string)$adventureLogItem->text, "I found a ");
-
-        if ($foundPositionAn !== false || $foundPositionA !== false) {
-            $foundString = ($foundPositionAn !== false) ? "I found an " : "I found a ";
-
-            $foundPosition = strpos((string)$adventureLogItem->text, $foundString);
-
-            if ($foundPosition !== false) {
+        foreach ($stringContains as $string) {
+            if (str_contains((string)$adventureLogItem->text, $string)) {
                 $extractedString = trim(
                     substr(
                         (string)$adventureLogItem->text,
-                        $foundPosition + strlen($foundString)
+                        strpos((string)$adventureLogItem->text, $string) + strlen($string)
                     )
                 );
-
                 $imageName = str_replace(['s\'', ' '], ['', '_'], ucfirst($extractedString));
-                $imageName = $this->handleLootImageSpecialCases($imageName);
+
+                if (str_ends_with($imageName, '.')) {
+                    $imageName = substr($imageName, 0, -1);
+                }
+
+                return $this->handleLootImageSpecialCases($imageName);
             }
         }
 
-        return $imageName ?? '';
+
+
+        return '';
     }
 
     private function handleLootImageSpecialCases(string $imageName): string
@@ -194,6 +194,9 @@ HTML;
             'Heart_of_the_beserker' => 'Heart_of_the_Beserker',
             'Heart_of_the_archer' => 'Heart_of_the_Archer',
             'Spider_fang' => 'Araxxi\'s_fang',
+            'Dragon_2-handed_sword' => 'Dragon_2h_sword',
+            'Dragon_shield_left_half' => 'Shield_left_half',
+            'Telos_tendril' => 'Telos\'_tendril',
             default => $imageName,
         };
     }
