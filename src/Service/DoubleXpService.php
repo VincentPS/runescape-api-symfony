@@ -15,7 +15,7 @@ class DoubleXpService
             $response = $this->getClient()->get('https://www.runescape.com/community/double-xp-live');
             $content = $response->getBody()->getContents();
 
-            return str_contains($content, 'Currently active') && str_contains($content, 'Ends on');
+            return str_contains($content, 'Active - ends on');
         } catch (GuzzleException) {
             return false;
         }
