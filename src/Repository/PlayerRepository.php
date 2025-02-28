@@ -383,8 +383,7 @@ SQL;
      * @param string $name
      * @return array<array{
      *      'date': string,
-     *      'xp_increase': int,
-     *      'unique_xp': array<int, string>,
+     *      'xp_increase': int
      *  }>
      * @throws DBALException
      * @throws DateMalformedStringException
@@ -396,37 +395,49 @@ SQL;
     ): array {
         $stmt = <<<SQL
 WITH hours AS (
-    -- Generate a series of hours between the start and end date
+    -- Generate a series of all hours between start and end time
     SELECT generate_series(
                    DATE_TRUNC('hour', :start::TIMESTAMP),
                    DATE_TRUNC('hour', :end::TIMESTAMP),
                    INTERVAL '1 hour'
            ) AS date
 ),
-     xp_data AS (
-         -- Calculate the total xp increase and unique xp values for each hour
-         SELECT
+     latest_xp_per_hour AS (
+         -- Get only the LATEST XP value per hour
+         SELECT DISTINCT ON (DATE_TRUNC('hour', p.created_at))
              DATE_TRUNC('hour', p.created_at) AS date,
-             MAX(p.total_xp) - MIN(p.total_xp) AS xp_increase,
-             jsonb_agg(p.total_xp) AS unique_xp
+             p.total_xp
          FROM player p
          WHERE p.created_at BETWEEN :start::TIMESTAMP AND :end::TIMESTAMP
            AND p.name = :name
-         GROUP BY DATE_TRUNC('hour', p.created_at)
+         ORDER BY date, p.created_at DESC  -- Take the latest XP value per hour
+     ),
+     xp_filled AS (
+         -- Ensure all hours are present and use the last known XP as fallback
+         SELECT
+             h.date,
+             COALESCE(xp.total_xp, LAG(xp.total_xp) OVER (ORDER BY h.date)) AS total_xp
+         FROM hours h
+                  LEFT JOIN latest_xp_per_hour xp ON h.date = xp.date
+     ),
+     xp_final AS (
+         -- Calculate the XP increase per hour
+         SELECT
+             date,
+             total_xp,
+             total_xp - LAG(total_xp) OVER (ORDER BY date) AS xp_increase
+         FROM xp_filled
      )
 SELECT
-    TO_CHAR(h.date, 'HH24:MI') AS date,
-    COALESCE(x.xp_increase, 0) AS xp_increase,
-    COALESCE(x.unique_xp, '[]'::jsonb) AS unique_xp
-FROM hours h
-         LEFT JOIN xp_data x ON h.date = x.date
-ORDER BY h.date ASC;
+    TO_CHAR(date, 'HH24:MI') AS date,
+    GREATEST(xp_increase, 0) AS xp_increase  -- Correct XP increase per hour
+FROM xp_final
+ORDER BY date;
 SQL;
 
         /** @var array<array{
          *     'date': string,
-         *     'xp_increase': int,
-         *     'unique_xp': array<int, string>,
+         *     'xp_increase': int
          * }> $results
          */
         $results = $this
@@ -458,41 +469,50 @@ SQL;
         SkillEnum $skillEnum
     ): array {
         $stmt = <<<SQL
-WITH hours AS (
-    -- Generate a series of hours between the start and end date
-    SELECT generate_series(
-               DATE_TRUNC('hour', :start_date::TIMESTAMP),
-               DATE_TRUNC('hour', :end_date::TIMESTAMP),
-               INTERVAL '1 hour'
-           ) AS date
+WITH hourly_xp AS (
+    -- Get the XP logs per hour for a specific skill and player
+    SELECT DISTINCT ON (DATE_TRUNC('hour', p.created_at))
+        DATE_TRUNC('hour', p.created_at) AS hour_date,
+        CAST(jsonb_element ->> 'xp' AS numeric) AS xp
+    FROM player p
+             CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
+    WHERE jsonb_element ->> 'id' = :skill_id
+      AND p.created_at BETWEEN :start_date AND :end_date
+      AND p.name = :name
+    ORDER BY hour_date, p.created_at DESC  -- Get the latest XP log per hour
 ),
-     min_max_values AS (
-         -- Calculate the first and last xp value for each hour
+     xp_with_gaps AS (
+         -- Ensure all hours are present and use the previous XP as fallback
          SELECT
-             DATE_TRUNC('hour', p.created_at) AS date,
-             MIN(CAST(jsonb_element ->> 'xp' AS numeric)) AS first_xp,
-             MAX(CAST(jsonb_element ->> 'xp' AS numeric)) AS last_xp
-         FROM player p
-                  CROSS JOIN LATERAL jsonb_array_elements(p.skill_values) AS jsonb_element
-         WHERE p.created_at BETWEEN :start_date::TIMESTAMP AND :end_date::TIMESTAMP
-           AND jsonb_element ->> 'id' = :skill_id
-           AND p.name = :name
-         GROUP BY DATE_TRUNC('hour', p.created_at)
+             h.hour_date,
+             COALESCE(x.xp, LAG(x.xp) OVER (ORDER BY h.hour_date)) AS xp
+         FROM (
+                  -- Generate a list of all hours between start and end date
+                  SELECT generate_series(
+                                 DATE_TRUNC('hour', :start_date::TIMESTAMP),
+                                 DATE_TRUNC('hour', :end_date::TIMESTAMP),
+                                 INTERVAL '1 hour'
+                         ) AS hour_date
+              ) h
+                  LEFT JOIN hourly_xp x ON h.hour_date = x.hour_date
      ),
-     filled_xp AS (
-         -- Use the first and last xp value for each hour, or the previous value if it is missing
+     xp_final AS (
+         -- Use the last XP of the previous day as fallback for the first value today
          SELECT
-             h.date,
-             COALESCE(m.first_xp, LAG(m.last_xp) OVER (ORDER BY h.date)) AS first_xp,
-             COALESCE(m.last_xp, LAG(m.last_xp) OVER (ORDER BY h.date)) AS last_xp
-         FROM hours h
-         LEFT JOIN min_max_values m ON h.date = m.date
+             w.hour_date,
+             COALESCE(w.xp, (
+                 SELECT xp FROM hourly_xp
+                 WHERE hour_date < :start_date
+                 ORDER BY hour_date DESC
+                 LIMIT 1
+             )) AS xp
+         FROM xp_with_gaps w
      )
 SELECT
-    TO_CHAR(date, 'HH24:MI') AS date,
-    COALESCE(last_xp - first_xp, 0) AS xp_difference
-FROM filled_xp
-ORDER BY date;
+    TO_CHAR(hour_date, 'HH24:MI') AS date,
+    GREATEST(xp - LAG(xp) OVER (ORDER BY hour_date), 0) AS xp_difference  -- Correct XP difference per hour
+FROM xp_final
+ORDER BY hour_date;
 SQL;
 
         /** @var array{int: array{date: string, xp_difference: string}} $results */
