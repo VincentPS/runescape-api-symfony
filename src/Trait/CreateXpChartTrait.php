@@ -35,8 +35,8 @@ trait CreateXpChartTrait
                         'zoom' => [
                             'wheel' => ['enabled' => true],
                             'pinch' => ['enabled' => true],
-                            'mode' => 'xy',
                             'drag' => ['enabled' => true],
+                            'mode' => 'x',
                         ],
                     ],
                 ]
