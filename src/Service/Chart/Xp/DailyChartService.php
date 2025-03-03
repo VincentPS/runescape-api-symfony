@@ -34,7 +34,7 @@ readonly class DailyChartService
         string $playerName,
         DateTimeImmutable $startDate = new DateTimeImmutable('-1 month'),
         DateTimeImmutable $endDate = new DateTimeImmutable(),
-        string $chartType = Chart::TYPE_LINE,
+        string $chartType = Chart::TYPE_BAR,
     ): Chart {
         $days = $this->playerRepository->findDailyXpRateForTotalXp(
             $startDate,
@@ -77,7 +77,7 @@ readonly class DailyChartService
         array $skills,
         DateTimeImmutable $startDate = new DateTimeImmutable('-1 month'),
         DateTimeImmutable $endDate = new DateTimeImmutable(),
-        string $chartType = Chart::TYPE_LINE,
+        string $chartType = Chart::TYPE_BAR,
     ): Chart {
         $skillsData = [];
 
