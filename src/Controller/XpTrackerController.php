@@ -49,9 +49,8 @@ class XpTrackerController extends AbstractBaseController
             ->add('chartType', ChoiceType::class, [
                 'label' => 'Graph Type',
                 'choices' => [
-                    'Lines' => Chart::TYPE_LINE,
-                    'Bars' => Chart::TYPE_BAR,
-                    'Stacked Bars' => 'stackedBar'
+                    'Stacked Bars' => 'stackedBar',
+                    'Lines' => Chart::TYPE_LINE
                 ]
             ])
             ->add('search', SubmitType::class, [
@@ -122,9 +121,8 @@ class XpTrackerController extends AbstractBaseController
             ->add('chartType', ChoiceType::class, [
                 'label' => 'Graph Type',
                 'choices' => [
-                    'Lines' => Chart::TYPE_LINE,
-                    'Bars' => Chart::TYPE_BAR,
-                    'Stacked Bars' => 'stackedBar'
+                    'Stacked Bars' => 'stackedBar',
+                    'Lines' => Chart::TYPE_LINE
                 ]
             ])
             ->add('search', SubmitType::class, [
