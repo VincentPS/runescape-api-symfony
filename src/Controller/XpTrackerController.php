@@ -155,8 +155,16 @@ class XpTrackerController extends AbstractBaseController
             }
         }
 
+        $chartToReturn = $chart
+            ?? $chartService->getXpPerSkillChart(
+                $this->getCurrentPlayerName(),
+                array_map(fn($skill) => SkillEnum::from($skill), SkillEnum::toArray()),
+                new DateTimeImmutable(),
+                'stackedBar',
+            );
+
         return $this->render('xp_tracker.html.twig', [
-            'chart' => $chart ?? $chartService->getTotalXpChart($this->getCurrentPlayerName(), new DateTimeImmutable()),
+            'chart' => $chartToReturn,
             'form' => $form->createView(),
             'filterForm' => $filterForm->createView()
         ]);

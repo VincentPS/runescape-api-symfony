@@ -32,7 +32,7 @@ readonly class HourlyChartService
     public function getTotalXpChart(
         string $playerName,
         DateTimeImmutable $date = new DateTimeImmutable(),
-        string $chartType = Chart::TYPE_LINE,
+        string $chartType = Chart::TYPE_BAR,
     ): Chart {
         $hours = $this->playerRepository->findHourlyXpRateForTotalXp(
             $date->modify('00:00'),
@@ -74,7 +74,7 @@ readonly class HourlyChartService
         string $playerName,
         array $skills,
         DateTimeImmutable $date = new DateTimeImmutable(),
-        string $chartType = Chart::TYPE_LINE,
+        string $chartType = Chart::TYPE_BAR,
     ): Chart {
         $skillsData = [];
 
