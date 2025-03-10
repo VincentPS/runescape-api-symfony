@@ -177,6 +177,10 @@ HTML;
                     $imageName = substr($imageName, 0, -1);
                 }
 
+                if (str_starts_with('Book: ', $imageName)) {
+                    $imageName = substr($imageName, 6);
+                }
+
                 return $this->handleLootImageSpecialCases($imageName);
             }
         }
