@@ -177,7 +177,7 @@ HTML;
                     $imageName = substr($imageName, 0, -1);
                 }
 
-                if (str_starts_with('Book: ', $imageName)) {
+                if (str_starts_with($imageName, 'Book:_')) {
                     $imageName = substr($imageName, 6);
                 }
 
@@ -201,6 +201,7 @@ HTML;
             'Dragon_2-handed_sword' => 'Dragon_2h_sword',
             'Dragon_shield_left_half' => 'Shield_left_half',
             'Telos_tendril' => 'Telos\'_tendril',
+            'After_the_Flood' => 'After_The_Flood',
             default => $imageName,
         };
     }
