@@ -50,7 +50,7 @@ class KnownPlayerRepository extends ServiceEntityRepository
         $result = $this->createQueryBuilder('kp')
             ->where('kp.lastUsedAt > :lastUsedAt')
             ->setParameter('lastUsedAt', $activityThreshold)
-            ->orderBy('kp.updatedAt', 'DESC')
+            ->orderBy('kp.updatedAt', 'ASC')
             ->setMaxResults($maxResults)
             ->getQuery()
             ->getResult();
