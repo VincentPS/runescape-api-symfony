@@ -256,6 +256,7 @@ class RsApiService
             }
         }
 
+        $knownPlayer?->setUpdatedAt(new DateTimeImmutable());
         $latestDataPoint = $this->playerRepository->findLatestByName($player->getName());
 
         if (
@@ -264,8 +265,6 @@ class RsApiService
         ) {
             return;
         }
-
-        $knownPlayer?->setUpdatedAt(new DateTimeImmutable());
 
         $this->entityManager->persist($player);
         $this->entityManager->flush();
