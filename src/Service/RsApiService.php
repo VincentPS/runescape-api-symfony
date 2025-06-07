@@ -257,6 +257,9 @@ class RsApiService
         }
 
         $knownPlayer?->setUpdatedAt(new DateTimeImmutable());
+        $this->entityManager->flush();
+
+        // decide whether to update the player data or not
         $latestDataPoint = $this->playerRepository->findLatestByName($player->getName());
 
         if (
