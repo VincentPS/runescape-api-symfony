@@ -42,7 +42,7 @@ class KnownPlayerRepository extends ServiceEntityRepository
      * @return KnownPlayer[]
      * @throws DateMalformedStringException
      */
-    public function findAllActive(): array
+    public function findAllActive(int $maxResults = 12): array
     {
         $activityThreshold = new DateTimeImmutable(sprintf('-%s', KnownPlayer::ACTIVITY_THRESHOLD));
 
@@ -50,6 +50,7 @@ class KnownPlayerRepository extends ServiceEntityRepository
         $result = $this->createQueryBuilder('kp')
             ->where('kp.lastUsedAt > :lastUsedAt')
             ->setParameter('lastUsedAt', $activityThreshold)
+            ->setMaxResults($maxResults)
             ->getQuery()
             ->getResult();
 
@@ -57,6 +58,7 @@ class KnownPlayerRepository extends ServiceEntityRepository
     }
 
     /**
+     * Note: Currently unused, but could be used in the future
      * @return KnownPlayer[]
      * @throws DateMalformedStringException
      */

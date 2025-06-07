@@ -17,7 +17,7 @@ class UpdateAllActivePlayers implements ScheduleProviderInterface
         return (new Schedule())
             ->add(
                 RecurringMessage::cron(
-                    '*/15 * * * *', // Every 15 minutes
+                    '*/3 * * * *', // Every 3 minutes because we also batch the updates
                     new UpdateAllPlayersMessage(UpdateAllPlayersType::ACTIVE)
                 )
             );

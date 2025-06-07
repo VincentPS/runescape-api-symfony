@@ -17,7 +17,7 @@ class UpdateAllInactivePlayers implements ScheduleProviderInterface
         return (new Schedule())
             ->add(
                 RecurringMessage::cron(
-                    '0 0 * * *', // Every day at midnight
+                    '0 * * * *', // Every hour, also in batches
                     new UpdateAllPlayersMessage(UpdateAllPlayersType::INACTIVE)
                 )
             );
