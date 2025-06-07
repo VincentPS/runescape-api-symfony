@@ -25,8 +25,7 @@ final readonly class UpdateAllPlayersHandler
         try {
             $knownPlayers = match ($message->type) {
                 UpdateAllPlayersType::ACTIVE => $this->knownPlayerRepository->findAllActive(),
-                default => [], // Right now we only handle active players, but we could extend this in the future
-                // UpdateAllPlayersType::INACTIVE => $this->knownPlayerRepository->findAllInactive(),
+                UpdateAllPlayersType::INACTIVE => $this->knownPlayerRepository->findAllInactive(),
             };
         } catch (DateMalformedStringException) {
             // Do nothing because this cannot happen unless the ACTIVITY_THRESHOLD is changed incorrectly
