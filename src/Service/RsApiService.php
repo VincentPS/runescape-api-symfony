@@ -12,6 +12,7 @@ use App\Repository\KnownPlayerRepository;
 use App\Repository\PlayerRepository;
 use App\Trait\GuzzleCachedClientTrait;
 use App\Trait\SerializerAwareTrait;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
@@ -263,6 +264,8 @@ class RsApiService
         ) {
             return;
         }
+
+        $knownPlayer?->setUpdatedAt(new DateTimeImmutable());
 
         $this->entityManager->persist($player);
         $this->entityManager->flush();
