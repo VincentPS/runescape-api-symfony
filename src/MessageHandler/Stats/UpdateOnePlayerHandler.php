@@ -8,6 +8,7 @@ use App\Exception\PlayerApi\PlayerNotFoundException;
 use App\Message\Stats\UpdateOnePlayerMessage;
 use App\Repository\KnownPlayerRepository;
 use App\Service\RsApiService;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -29,6 +30,13 @@ final readonly class UpdateOnePlayerHandler
     {
         try {
             $this->rsApiService->getProfile($message->player);
+
+            $knownPlayer = $this->knownPlayerRepository->findOneByName($message->player);
+            if ($knownPlayer !== null) {
+                $knownPlayer->setUpdatedAt(new DateTimeImmutable());
+                $this->entityManager->flush();
+
+            }
         } catch (PlayerNotFoundException | PlayerNotAMemberException | PlayerApiDataConversionException) {
             // check if player is a KnownPlayer and remove it because it can't be found anymore
             $knownPlayer = $this->knownPlayerRepository->findOneByName($message->player);

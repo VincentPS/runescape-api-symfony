@@ -12,7 +12,6 @@ use App\Repository\KnownPlayerRepository;
 use App\Repository\PlayerRepository;
 use App\Trait\GuzzleCachedClientTrait;
 use App\Trait\SerializerAwareTrait;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
@@ -255,9 +254,6 @@ class RsApiService
                 // later run. This could as well still be a rate limit from the API.
             }
         }
-
-        $knownPlayer?->setUpdatedAt(new DateTimeImmutable());
-        $this->entityManager->flush();
 
         // decide whether to update the player data or not
         $latestDataPoint = $this->playerRepository->findLatestByName($player->getName());
