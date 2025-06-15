@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Repository\KnownPlayerRepository;
 use App\Repository\PlayerRepository;
 use App\Service\Chart\QuestChartService;
-use App\Service\Chart\Xp\DailyChartService;
 use App\Service\DoubleXpService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,7 +15,6 @@ class DashboardController extends AbstractBaseController
     public function summary(
         PlayerRepository $playerRepository,
         KnownPlayerRepository $knownPlayerRepository,
-        DailyChartService $chartService,
         QuestChartService $questChartService,
         DoubleXpService $doubleXpService
     ): Response {

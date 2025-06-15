@@ -5,7 +5,7 @@ namespace App\MessageHandler\Stats;
 use App\Exception\PlayerApi\PlayerApiDataConversionException;
 use App\Exception\PlayerApi\PlayerNotAMemberException;
 use App\Exception\PlayerApi\PlayerNotFoundException;
-use App\Message\Stats\UpdateOnePlayerMessage;
+use App\Message\Stats\UpdateSingularPlayerStatsMessage;
 use App\Repository\KnownPlayerRepository;
 use App\Service\RsApiService;
 use DateTimeImmutable;
@@ -14,7 +14,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class UpdateOnePlayerHandler
+final readonly class UpdateSingularPlayerStatsHandler
 {
     public function __construct(
         private RsApiService $rsApiService,
@@ -26,7 +26,7 @@ final readonly class UpdateOnePlayerHandler
     /**
      * @throws GuzzleException
      */
-    public function __invoke(UpdateOnePlayerMessage $message): void
+    public function __invoke(UpdateSingularPlayerStatsMessage $message): void
     {
         try {
             $this->rsApiService->getProfile($message->player);
@@ -35,7 +35,6 @@ final readonly class UpdateOnePlayerHandler
             if ($knownPlayer !== null) {
                 $knownPlayer->setUpdatedAt(new DateTimeImmutable());
                 $this->entityManager->flush();
-
             }
         } catch (PlayerNotFoundException | PlayerNotAMemberException | PlayerApiDataConversionException) {
             // check if player is a KnownPlayer and remove it because it can't be found anymore

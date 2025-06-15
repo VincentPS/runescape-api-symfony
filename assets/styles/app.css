@@ -738,3 +738,18 @@ table.dataTable>tbody>tr {
     box-shadow: inset 0 0 5px 5px #141414, 0 0 5px 5px rgb(0 0 0 / 30%);
     clear: both;
 }
+
+.news-image {
+    border-color: #2c3d49 !important;
+}
+
+.underline-none {
+    text-decoration: none !important;
+}
+
+.news-link {
+    color: #6e7879 !important;
+    position: absolute;
+    left: 95%;
+    bottom: 82%;
+}

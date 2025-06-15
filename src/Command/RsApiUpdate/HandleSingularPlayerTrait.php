@@ -2,11 +2,11 @@
 
 namespace App\Command\RsApiUpdate;
 
-use App\Message\Stats\UpdateOnePlayerMessage;
+use App\Message\Stats\UpdateSingularPlayerStatsMessage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-trait HandleSinglePlayerTrait
+trait HandleSingularPlayerTrait
 {
     public function handleSinglePlayer(SymfonyStyle $io, string $playerName): int
     {
@@ -17,7 +17,7 @@ trait HandleSinglePlayerTrait
         $latestDataPointBeforeUpdate = $this->playerRepository->findLatestByName($playerName);
 
         $io->info('Data will be updated for player: ' . $playerName);
-        $this->messageBus->dispatch(new UpdateOnePlayerMessage($playerName));
+        $this->messageBus->dispatch(new UpdateSingularPlayerStatsMessage($playerName));
 
         $latestDataPointAfterUpdate = $this->playerRepository->findLatestByName($playerName);
 

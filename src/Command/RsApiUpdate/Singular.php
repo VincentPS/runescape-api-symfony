@@ -17,7 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 )]
 class Singular extends Command
 {
-    use HandleSinglePlayerTrait;
+    use HandleSingularPlayerTrait;
 
     public function __construct(
         private readonly MessageBusInterface $messageBus,
