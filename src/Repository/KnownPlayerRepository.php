@@ -25,21 +25,6 @@ class KnownPlayerRepository extends ServiceEntityRepository
 
     /**
      * @return KnownPlayer[]
-     */
-    public function findBatchToUpdateClanName(): array
-    {
-        /** @var KnownPlayer[] $result */
-        $result = $this->createQueryBuilder('kp')
-            ->orderBy('kp.updatedAt', 'ASC')
-            ->setMaxResults(15)
-            ->getQuery()
-            ->getResult();
-
-        return $result;
-    }
-
-    /**
-     * @return KnownPlayer[]
      * @throws DateMalformedStringException
      */
     public function findAllActive(int $maxResults = 12): array
@@ -75,5 +60,36 @@ class KnownPlayerRepository extends ServiceEntityRepository
             ->getResult();
 
         return $result;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function findAllNames(): array
+    {
+        /** @var array<int, array{name: string}> $result */
+        $result = $this->createQueryBuilder('kp')
+            ->select('kp.name')
+            ->getQuery()
+            ->getResult();
+
+        array_walk($result, function (&$item) {
+            $item = $item['name'];
+        });
+
+        /** @var string[] $result */
+        return $result;
+    }
+
+    public function updateClanName(string $playerName, string $clanName): void
+    {
+        $this->createQueryBuilder('kp')
+            ->update()
+            ->set('kp.clanName', ':clanName')
+            ->where('kp.name = :name')
+            ->setParameter('clanName', $clanName)
+            ->setParameter('name', $playerName)
+            ->getQuery()
+            ->execute();
     }
 }

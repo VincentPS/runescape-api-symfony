@@ -227,6 +227,70 @@ class RsApiService
     }
 
     /**
+     * @param string[] $playerNames
+     * @return array{name: string, clan: string}[]
+     * @throws GuzzleException
+     */
+    public function getClanNames(array $playerNames): array
+    {
+        $playerDetails = [];
+
+        /** @var array{name: string, clan: string}[] $returnArray */
+        $returnArray = [];
+
+        $response = $this->getClient()->request(
+            'GET',
+            'https://services.runescape.com/m=website-data/playerDetails.ws',
+            [
+                RequestOptions::QUERY => [
+                    'membership' => true,
+                    'names' => $this->getSerializer()->encode($playerNames, 'json'),
+                    'callback' => 'angular.callbacks._0'
+                ]
+            ]
+        );
+
+        /**
+         * @var array<int, array{
+         *     isSuffix: bool,
+         *     recruiting: bool,
+         *     name: string,
+         *     clan: string,
+         *     title: string
+         * }> $playerDetails
+         */
+
+        preg_match(
+            '/angular\.callbacks\._0\((.*?)\)/',
+            $response->getBody()->getContents(),
+            $playerDetails
+        );
+
+        if (!empty($playerDetails) && array_key_exists(1, $playerDetails)) {
+            /** @var array<int, array{
+             *     isSuffix: bool,
+             *     recruiting: bool,
+             *     name: string,
+             *     clan: string,
+             *     title: string
+             * }> $playerDetailsFromArray
+             */
+            $playerDetailsFromArray = $this->getSerializer()->decode($playerDetails[1], 'json');
+
+            foreach ($playerDetailsFromArray as $playerDetails) {
+                if (array_key_exists('clan', $playerDetails)) {
+                    $returnArray[] = [
+                        'name' => $playerDetails['name'],
+                        'clan' => $playerDetails['clan']
+                    ];
+                }
+            }
+        }
+
+        return $returnArray;
+    }
+
+    /**
      * @throws PlayerNotFoundException
      */
     private function persistData(Player $player): void

@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RM Tracker - Newsfeed{% endblock %}
+
+{% block body %}
+    <div class="container-fluid" {{ stimulus_controller('activities') }}>
+        {% include 'includes/header.html.twig' %}
+
+        <div class="row pt-1">
+            {% include 'includes/sidemenu.html.twig' %}
+
+            <div class="col-10 ps-0 activity-page">
+                <button type="button" class="btn btn-custom btn-floating btn-lg" id="btn-back-to-top">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+                <div class="card card-wrapper">
+                    <div class="card-header no-border main-card-header">
+                        <h2>RuneScape News</h2>
+                    </div>
+                    <div class="card-body main-card">
+                        <div class="row">
+                            {% for item in rss.channel.item %}
+                                <div class="col-8 offset-2 mb-4">
+                                    <a href="{{ item.link }}" target="_blank" class="underline-none">
+                                        <div class="card sub-card">
+                                            <div class="card-header">
+                                                <h2>{{ item.title }}</h2>
+                                                <div class="news-link">
+                                                    <i class="fa fa-arrow-up-right-from-square ms-2"></i>
+                                                </div>
+                                            </div>
+                                            <div class="card-body sub-card inner-card">
+                                                <div class="list-group">
+                                                    <div class="list-group-item list-group-item-action">
+                                                        <div class="row align-items-center">
+                                                            <div class="col ps-0">
+                                                                <div class="d-flex w-100 justify-content-between">
+                                                                    {% if item.enclosure.attributes.url %}
+                                                                        <div class="col-md-5">
+                                                                            <img src="{{ item.enclosure.attributes.url }}"
+                                                                                 class="img-fluid border border-1 rounded news-image"
+                                                                                 alt="News image">
+                                                                        </div>
+                                                                    {% endif %}
+                                                                    <h5 class="mb-0 ps-3 p-2 adventure-log-item-details">
+                                                                        {{ item.description|striptags }}
+                                                                    </h5>
+                                                                    <p class="mb-0 adventure-log-item-time ms-4 p-2">
+                                                                        <small>
+                                                                            <i class="fa-regular fa-clock"></i>
+                                                                            {{ item.pubDate|date("D, d M Y") }}
+                                                                        </small>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <p>No news items found.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+{% endblock %}

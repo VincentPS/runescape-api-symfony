@@ -1,6 +1,75 @@
 {% set searchPlayerName = app.request.request.all['search_form']['playerName'] ?? app.request.get('playerName') ?? '' %}
+{% set sideMenuItems = [
+    {
+        label: 'Summary',
+        icon: 'fa-house',
+        route: 'summary',
+        match: ['summary']
+    },
+    {
+        label: 'Runescape News',
+        icon: 'fa-square-rss',
+        route: 'newsfeed',
+        match: ['newsfeed']
+    },
+    {
+        label: 'Activity',
+        icon: 'fa-book-open',
+        route: 'activities',
+        match: ['activities']
+    },
+    {
+        label: 'Drops - Coming Soon',
+        icon: 'fa-coins',
+        route: 'summary',
+        match: ['app_dashboard_drops']
+    },
+    {
+        label: 'Xp Tracker',
+        icon: 'fa-chart-simple',
+        route: null,
+        submenu: true,
+        matchPrefix: 'app_xp_tracker',
+        children: [
+        {
+            label: 'Daily',
+            route: 'app_xp_tracker_daily',
+            match: ['app_xp_tracker_daily']
+        },
+        {
+            label: 'Hourly',
+            route: 'app_xp_tracker_hourly',
+            match: ['app_xp_tracker_hourly']
+        }
+    ]
+    },
+    {
+        label: 'Levels - Progress',
+        icon: 'fa-chart-simple',
+        route: 'app_dashboard_skill_level_progression',
+        match: ['app_dashboard_skill_level_progression']
+    },
+    {
+        label: 'Quests',
+        icon: 'fa-book',
+        route: 'quests',
+        match: ['quests']
+    },
+    {
+        label: 'Support with PayPal',
+        icon: 'fa-heart',
+        external: true,
+        url: 'https://www.paypal.com/donate/?hosted_button_id=9PHUY4TXNVKUC'
+    },
+    {
+        label: 'Support with Ko-fi',
+        icon: 'fa-coffee',
+        external: true,
+        url: 'https://ko-fi.com/vincentsch'
+    }
+] %}
 
-<!-- Side Menu -->
+
 <div class="col-2 pe-1">
     <div class="card card-wrapper">
         <div class="card-body p-0">
@@ -20,97 +89,52 @@
                     </div>
                 </div>
             {% endif %}
+
             <div class="list-group overwrite-list-group-border">
-                <a href="{{ path('summary') }}"
-                   class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'summary' ? 'active' : '' }}">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-house side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">Summary</span>
-                        </div>
-                    </div>
-                </a>
-                <a href="{{ path('activities') }}"
-                   class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'activities' ? 'active' : '' }}">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-book-open side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">Activity</span>
-                        </div>
-                    </div>
-                </a>
-                <a href="{{ path('summary') }}"
-                   class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_drops' ? 'active' : '' }}">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-coins side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">Drops - Coming Soon</span>
-                        </div>
-                    </div>
-                </a>
-                <!-- XP Tracker met submenu -->
-                <a class="side-menu-item-link d-flex align-items-center" data-bs-toggle="collapse" href="#xpTrackerMenu" role="button" aria-expanded="{{ app.request.attributes.get('_route') starts with 'app_xp_tracker' ? 'true' : 'false' }}" aria-controls="xpTrackerMenu">
-                    <div class="list-group-item list-group-item-action side-menu-item">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-chart-simple side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">Xp Tracker</span>
-                            <i class="fa-solid fa-chevron-down ms-auto"></i>
-                        </div>
-                    </div>
-                </a>
+                {% for item in sideMenuItems %}
+                    {% set isActive = item.match is defined and item.match|filter(v => app.request.attributes.get('_route') == v)|length > 0 %}
+                    {% set isPrefixActive = item.matchPrefix is defined and app.request.attributes.get('_route') starts with item.matchPrefix %}
 
-                <!-- Submenu - XP Tracker -->
-                <div class="collapse {{ app.request.attributes.get('_route') starts with 'app_xp_tracker' ? 'show' : '' }}" id="xpTrackerMenu">
-                    <a href="{{ path('app_xp_tracker_daily') }}" class="list-group-item list-group-item-action side-menu-subitem {{ app.request.attributes.get('_route') == 'app_xp_tracker_daily' ? 'active' : '' }}">
-                        Daily
-                    </a>
-                    <a href="{{ path('app_xp_tracker_hourly') }}" class="list-group-item list-group-item-action side-menu-subitem {{ app.request.attributes.get('_route') == 'app_xp_tracker_hourly' ? 'active' : '' }}">
-                        Hourly
-                    </a>
-                </div>
-                <a href="{{ path('app_dashboard_skill_level_progression') }}"
-                   class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'app_dashboard_skill_level_progression' ? 'active' : '' }}">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-chart-simple side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">&nbsp;Levels - Progress</span>
+                    {% if item.submenu is defined and item.submenu %}
+                        <a class="side-menu-item-link d-flex align-items-center" data-bs-toggle="collapse" href="#xpTrackerMenu" role="button" aria-expanded="{{ isPrefixActive ? 'true' : 'false' }}" aria-controls="xpTrackerMenu">
+                            <div class="list-group-item list-group-item-action side-menu-item">
+                                <div class="d-flex w-100">
+                                    <i class="fa-solid {{ item.icon }} side-menu-icon"></i>
+                                    <span class="side-menu-title ms-4">{{ item.label }}</span>
+                                    <i class="fa-solid fa-chevron-down ms-auto"></i>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="collapse {{ isPrefixActive ? 'show' : '' }}" id="xpTrackerMenu">
+                            {% for sub in item.children %}
+                                {% set isSubActive = sub.match is defined and sub.match|filter(v => app.request.attributes.get('_route') == v)|length > 0 %}
+                                <a href="{{ path(sub.route) }}" class="list-group-item list-group-item-action side-menu-subitem {{ isSubActive ? 'active' : '' }}">
+                                    {{ sub.label }}
+                                </a>
+                            {% endfor %}
                         </div>
-                    </div>
-                </a>
-                <a href="{{ path('quests') }}"
-                   class="side-menu-item-link">
-                    <div class="list-group-item list-group-item-action side-menu-item {{ app.request.attributes.get('_route') == 'quests' ? 'active' : '' }}">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-book side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">&nbsp;Quests</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Buy me a coffee - PayPal -->
-                <a href="https://www.paypal.com/donate/?hosted_button_id=9PHUY4TXNVKUC"
-                   target="_blank"
-                   class="side-menu-item-link donation-item">
-                    <div class="list-group-item list-group-item-action side-menu-item">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-heart side-menu-icon"></i>
-                            <span class="side-menu-title ms-4">Support with PayPal</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Buy me a coffee - Ko-Fi -->
-                <a href="https://ko-fi.com/vincentsch"
-                   target="_blank"
-                   class="side-menu-item-link donation-item no-top-border">
-                    <div class="list-group-item list-group-item-action side-menu-item">
-                        <div class="d-flex w-100">
-                            <i class="fa-solid fa-coffee side-menu-icon"></i>
-                            <span class="side-menu-title ms-3">&nbsp;Support with Ko-fi</span>
-                        </div>
-                    </div>
-                </a>
+                    {% elseif item.external is defined and item.external %}
+                        <a href="{{ item.url }}" target="_blank" class="side-menu-item-link donation-item">
+                            <div class="list-group-item list-group-item-action side-menu-item">
+                                <div class="d-flex w-100">
+                                    <i class="fa-solid {{ item.icon }} side-menu-icon"></i>
+                                    <span class="side-menu-title ms-4">{{ item.label }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    {% else %}
+                        <a href="{{ path(item.route) }}" class="side-menu-item-link">
+                            <div class="list-group-item list-group-item-action side-menu-item {{ isActive ? 'active' : '' }}">
+                                <div class="d-flex w-100">
+                                    <i class="fa-solid {{ item.icon }} side-menu-icon"></i>
+                                    <span class="side-menu-title ms-4">{{ item.label }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
+
