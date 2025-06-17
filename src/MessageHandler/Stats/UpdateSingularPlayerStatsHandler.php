@@ -36,7 +36,11 @@ final readonly class UpdateSingularPlayerStatsHandler
                 $knownPlayer->setUpdatedAt(new DateTimeImmutable());
                 $this->entityManager->flush();
             }
-        } catch (PlayerNotFoundException | PlayerNotAMemberException | PlayerApiDataConversionException) {
+        } catch (PlayerNotFoundException | PlayerNotAMemberException | PlayerApiDataConversionException $e) {
+            if ($e instanceof PlayerApiDataConversionException) {
+                return; // Ignore this exception, it could mean the API temporarily returned an error
+            }
+
             // check if player is a KnownPlayer and remove it because it can't be found anymore
             $knownPlayer = $this->knownPlayerRepository->findOneByName($message->player);
 
