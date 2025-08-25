@@ -196,6 +196,8 @@ HTML;
             'Heart_of_the_beserker' => 'Heart_of_the_Beserker',
             'Heart_of_the_archer' => 'Heart_of_the_Archer',
             'Spider_fang' => 'Araxxi\'s_fang',
+            'Spider_eye' => 'Araxxi\'s_eye',
+            'Spider_web' => 'Araxxi\'s_web',
             'Dragon_2-handed_sword' => 'Dragon_2h_sword',
             'Dragon_shield_left_half' => 'Shield_left_half',
             'Telos_tendril' => 'Telos\'_tendril',
