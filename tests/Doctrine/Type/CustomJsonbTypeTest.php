@@ -19,9 +19,12 @@ use App\Tests\Doctrine\Builder\QuestBuilder;
 use App\Tests\Doctrine\Builder\SkillValueBuilder;
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
@@ -32,10 +35,10 @@ use Symfony\Component\Serializer\Serializer;
 class CustomJsonbTypeTest extends TestCase
 {
     /**
-     * @param SkillValue[]|Activity[]|Quest[] $dtoObjects
-     * @dataProvider classesDataProvider
+     * @param list<SkillValue|Activity|Quest> $dtoObjects
      * @throws JsonbConvertToDatabaseValueException
      */
+    #[DataProvider('classesDataProvider')]
     public function testConvertToDatabaseValue(
         string $classFQCN,
         string $dtoFQCN,
@@ -58,10 +61,12 @@ class CustomJsonbTypeTest extends TestCase
     }
 
     /**
-     * @param SkillValue[]|Activity[]|Quest[] $dtoObjects
-     * @dataProvider classesDataProvider
+     * @param list<SkillValue|Activity|Quest> $dtoObjects
      * @throws JsonbConvertToPHPValueException
+     * @throws Exception
+     * @throws ExceptionInterface
      */
+    #[DataProvider('classesDataProvider')]
     public function testConvertToPHPValue(
         string $classFQCN,
         string $dtoFQCN,
@@ -94,10 +99,7 @@ class CustomJsonbTypeTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider classesDataProvider
-     * @throws JsonbConvertToPHPValueException
-     */
+    #[DataProvider('typeClassesProvider')]
     public function testThatAnInvalidJsonStringThrowsAnException(string $classFQCN): void
     {
         $abstractPlatform = $this->createMock(AbstractPlatform::class);
@@ -112,14 +114,24 @@ class CustomJsonbTypeTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{0: class-string}>
+     */
+    public static function typeClassesProvider(): iterable
+    {
+        yield SkillValueType::class => [SkillValueType::class];
+        yield ActivityType::class => [ActivityType::class];
+        yield QuestType::class => [QuestType::class];
+    }
+
+    /**
      * @return iterable<string, array{
-     *     classFQCN: string,
-     *     dtoFQCN: string,
-     *     dtoObjects: SkillValue[]|Activity[]|Quest[],
+     *     classFQCN: class-string,
+     *     dtoFQCN: class-string,
+     *     dtoObjects: list<SkillValue|Activity|Quest>,
      *     databaseValue: string
      * }>
      */
-    public function classesDataProvider(): iterable
+    public static function classesDataProvider(): iterable
     {
         yield SkillValueType::class => [
             'classFQCN' => SkillValueType::class,
