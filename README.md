@@ -1,12 +1,10 @@
 # RuneMetrics Re-Creation Project
 
 [![main branch](https://github.com/VincentPS/runescape-api-symfony/actions/workflows/lintAndTests.yml/badge.svg)](https://github.com/VincentPS/runescape-api-symfony)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D_8.3-8892BF.svg?logo=php)](https://www.php.net/releases/8.3/en.php)
-[![Static Badge](https://img.shields.io/badge/symfony-%3E%3D_7.2-green?logo=symfony)](https://symfony.com/releases/7.2)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D_8.4-8892BF.svg?logo=php)](https://www.php.net/releases/8.4/en.php)
+[![Static Badge](https://img.shields.io/badge/symfony-%3E%3D_8.0-green?logo=symfony)](https://symfony.com/releases/8.0)
 
-Live version [https://rm-tracker.com](https://rm-tracker.com)
-
-Welcome to the RuneMetrics Re-Creation project! This Symfony 7 application, built using PHP 8.3, aims to recreate the functionality of the RuneMetrics apps from Jagex. It leverages the public RuneScape API to gather player data and provides a user-friendly interface to view and analyze the data. This README will guide you through the setup, configuration, and usage of the project.
+Welcome to the RuneMetrics Re-Creation project! This Symfony 8 application, built using PHP 8.4, aims to recreate the functionality of the RuneMetrics apps from Jagex. It leverages the public RuneScape API to gather player data and provides a user-friendly interface to view and analyze the data. This README will guide you through the setup, configuration, and usage of the project.
 
 ## Table of Contents
 
@@ -22,7 +20,7 @@ Welcome to the RuneMetrics Re-Creation project! This Symfony 7 application, buil
 
 Before getting started, ensure you have the following prerequisites installed:
 
-- PHP 8.3
+- PHP 8.4
 - Composer (Dependency Manager for PHP)
 - Symfony CLI
 - Git
@@ -60,24 +58,30 @@ npm run dev
 
 ## Configuration
 
-1. Create a `.env.local` file in the project root and configure your database connection:
-   DATABASE_URL=mysql://username:password@localhost:3306/database_name
+1. Create the database schema:  
+```
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+```
 
-2. Configure any other desired settings in the `.env.local` file.
-
-3. Create the database schema:
-   php bin/console doctrine:database:create
-   php bin/console doctrine:migrations:migrate
-
-4. The PHP modules are configured in the `php.ini` file, the following modules are required:
+2. The PHP modules are configured in the `php.ini` file, the following modules are required:
  ```
 extension=curl
 extension=ftp
 extension=intl
+extension=mbstring
 extension=openssl
 extension=pdo_pgsql
 extension=pgsql
 ```
+
+## Optional Configuration
+1. Create a `.env.local` file in the project root and configure your database connection:  
+```
+DATABASE_URL=postgresql://app:!ChangeMe!@127.0.0.1:5433/app?serverVersion=15&charset=utf8`
+```
+
+2. Configure any other desired settings in the `.env.local` file.
 
 ## Cetrificate for Curl (Guzzle)
 This is only needed for local development, in production the server should have a valid certificate.  
