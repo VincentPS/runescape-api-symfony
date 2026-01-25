@@ -114,4 +114,9 @@ abstract class AbstractBaseController extends AbstractController
             $this->addFlash('danger', 'An error occurred while fetching player data');
         }
     }
+
+    protected function removeCurrentPlayerNameFromSession(): void
+    {
+        $this->requestStack->getSession()->remove('currentPlayerName');
+    }
 }

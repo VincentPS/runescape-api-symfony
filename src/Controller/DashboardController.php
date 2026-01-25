@@ -24,6 +24,7 @@ class DashboardController extends AbstractBaseController
         $knownPlayer = $knownPlayerRepository->findOneByName($playerName);
 
         if (is_null($player)) {
+            $this->removeCurrentPlayerNameFromSession();
             return $this->redirectToRoute('welcome');
         }
 

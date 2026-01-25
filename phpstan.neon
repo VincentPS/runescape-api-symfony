@@ -1,5 +1,7 @@
 parameters:
     level: 9
+    excludePaths:
+        - config/reference.php
     paths:
         - bin/
         - config/
