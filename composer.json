@@ -100,7 +100,7 @@
             "php bin/console doctrine:migrations:migrate"
         ],
         "lint": [
-            "php vendor/bin/phpcs -d memory_limit=128M",
+            "php vendor/bin/phpcs --standard=.phpcs.xml -d memory_limit=128M",
             "php vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 1024M"
         ],
         "lint-fix": [
